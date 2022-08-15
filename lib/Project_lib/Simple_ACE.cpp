@@ -1,8 +1,8 @@
-#include "Simple_COCO.h"
+#include "Simple_ACE.h"
 // #include <SPIFFS.h>
 #include <BlynkSimpleEsp32.h>
 
-DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
+SHT2x sht;
 TFT_eSPI tft= TFT_eSPI();
 BlynkTimer timer;
 
@@ -90,8 +90,11 @@ if (!EEPROM.begin(2)) {
   int foo = EEPROM.read(EEP_add);
   Serial.println(foo);
   Serial.println(EEPROM.read(EEP_add_1));
-  sht20.initSHT20();
-  sht20.checkSHT20();
+  sht.begin();
+  uint8_t stat = sht.getStatus();
+  Serial.print(stat, HEX);
+  Serial.println();
+
   Serial.println("Setup Complete."); 
   
   if (!Wire.begin(4,14)) {
@@ -103,9 +106,9 @@ if (!EEPROM.begin(2)) {
 void restore_humidity(){
   while(1){
     ledcWrite(pumpChannel, 255);
-    int previous = sht20.readHumidity();
-    Serial.println(sht20.readHumidity());
-    if (sht20.readHumidity() - previous  < 2) {
+    int previous = sht.getHumidity();
+    Serial.println(sht.getHumidity());
+    if (sht.getHumidity() - previous  < 2) {
       ledcWrite(pumpChannel, dutyCycle);
       break;
     }    
@@ -230,7 +233,7 @@ void breath_check(){
     double gradient;
     long previous;
     for (int i = 0; i < 5; i++) {
-      arr[i] = sht20.readHumidity();
+      arr[i] = sht.getHumidity();
       previous = millis();
     }
     gradient  = (arr[4] - arr[0]) * 7 ;
@@ -245,7 +248,7 @@ void breath_check(){
 
 double read_humidity(){
   double value;
-  value = sht20.readHumidity();
+  value = sht.getHumidity();
   return value;
 }
 

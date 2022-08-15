@@ -1,9 +1,9 @@
-#ifndef Simple_COCO_h 
-#define Simple_COCO_h
+#ifndef Simple_ACE_h 
+#define Simple_ACE_h
 
 #include <time.h>
 #include <WiFiClient.h>
-#include <DFRobot_SHT20.h>
+#include <SHT2x.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <SPI.h>
