@@ -106,6 +106,7 @@ if (!EEPROM.begin(2)) {
 void restore_humidity(){
   while(1){
     ledcWrite(pumpChannel, 255);
+    sht.read();
     int previous = sht.getHumidity();
     Serial.println(sht.getHumidity());
     if (sht.getHumidity() - previous  < 2) {
@@ -233,6 +234,7 @@ void breath_check(){
     double gradient;
     long previous;
     for (int i = 0; i < 5; i++) {
+      sht.read();
       arr[i] = sht.getHumidity();
       previous = millis();
     }
@@ -248,6 +250,7 @@ void breath_check(){
 
 double read_humidity(){
   double value;
+  sht.read();
   value = sht.getHumidity();
   return value;
 }
@@ -324,6 +327,7 @@ void sample_collection(int i){
   delay(1);
   while (getTime() - previous < sampletime + 1) {
     adc_CO2 = readAds(ASD1115, CO2_channel );
+    printf("%d\n",adc_CO2);
     // adc_O2 = readAds(ASD1115, O2_channel );
     if (store == false) {
       Serial.println(read_humidity());
