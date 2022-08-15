@@ -16,12 +16,11 @@ int data_logging(double value, double value_1, double value_2, double value_3,  
 double mapping(double CO2, double O2);
 double concentration_ethanol( double temp, int baseline);
 ///////////////////////////////////Global Data.//////////////////////////////////////
-double avg_ratio_CO2;
+double avg_ratio_Ace;
 double avg_ratio_O2 ;
 double rq;
 double map_rq;
 int file_label;
-int temperate = 55;
 short CO2_arr[store_size] = {0};
 short O2_arr[store_size] = {0};
 File dat_file_app;
@@ -40,28 +39,6 @@ double mapping(double CO2, double O2) {
   return(0);
 }
 
-
-double concentration_ethanol( double temp, int baseline) {
-  double acetone_start = 6923;
-  double acetone_end = 9000;
-  double coec  = 55 / temp;
-  int peak = 0;
-  acetone_start = acetone_start * coec;
-  acetone_end = acetone_end * coec;
-  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
-  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
-    printf("%d\n", CO2_arr[i]);
-    printf("%d\n", i);
-    if ( CO2_arr[i] > peak) {
-      peak = CO2_arr[i];
-      printf("Replaced");
-    }
-  }
-  double ratio =  peak / baseline;
-  printf("%d\n", baseline);
-  printf(" Acetone Concentration: %.5f \n", ratio);
-  return(0);
-}
 
 void setup() {
   Serial.begin(115200);
@@ -91,9 +68,7 @@ void setup() {
 void loop() {
 
   for (int i = 0; i < 3; i++) {
-    int baseline = baselineRead(CO2_channel);
     sample_collection(i);
-    concentration_ethanol(temperate, baseline);
     if ( store == true) {
       file_label = EEPROM.read(EEP_add);
       Serial.println(file_label);
@@ -112,21 +87,19 @@ void loop() {
       EEPROM.write(EEP_add, file_label);
       EEPROM.commit();
     }
-    ;
     delay(4000);
   }
 
-
-  avg_ratio_CO2 =  sort_reject(ratio_CO2, 3);
-  avg_ratio_O2 = sort_reject(ratio_O2, 3);
-  mapping(avg_ratio_CO2, avg_ratio_O2);
+  avg_ratio_Ace =  sort_reject(ratio_Ace, 3);
+  // avg_ratio_O2 = sort_reject(ratio_O2, 3);
+  // mapping(avg_ratio_CO2, avg_ratio_O2);
   Blynk.connect();
-  blynk_upload(avg_ratio_CO2, avg_ratio_O2, rq, map_rq);//editted
+  blynk_upload(avg_ratio_Ace, avg_ratio_O2, rq, map_rq);//editted
 
-  Serial.print("Ratio is: "); Serial.println(avg_ratio_CO2, 6); Serial.print("Ratio_O2 is: "); Serial.println(avg_ratio_O2, 6);
+  Serial.print("Acetone Ratio is: "); Serial.println(avg_ratio_Ace, 6); 
   //    data_logging(avg_ratio_CO2, avg_ratio_O2,rq , 0 , 1 );
-  Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
-  data_logging(avg_ratio_CO2, avg_ratio_O2, rq , 0, 5 );
+  // Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
+  data_logging(avg_ratio_Ace, avg_ratio_O2, rq , 0, 5 );
   tft.fillScreen(BLACK);
   //  tft.setTextSize(2); tft.setCursor(15, 90); tft.println("Fat Burn");
   //  tft.setTextSize(3); tft.setCursor(35, 110); tft.print(map_rq, 1);

@@ -260,8 +260,8 @@ double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
     buffer = uncal_base / uncal_reading;
     switch (formula) {
         case (true):
-          slope = 0.0224;
-          constant = 1.008;
+          slope = 1;
+          constant = 0;
           cal_ratio = (buffer - constant) / slope;
           return cal_ratio;
           break;
@@ -274,7 +274,7 @@ double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
   }
 }
 
-double ratio_CO2 [3];
+double ratio_Ace [3];
 double ratio_O2 [3];
 bool store;
 int restore_baseline(){
@@ -291,17 +291,16 @@ int restore_baseline(){
     }
 }
 
-
 void sample_collection(int i){
   int peak = 0;
-  int bottom_O2 = 100000;
-  int baseline_O2 = baselineRead(O2_channel );
+  // int bottom_O2 = 100000;
+  // int baseline_O2 = baselineRead(O2_channel );
   int baseline;
   double max_humd = 0;
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
-  short adc_O2;
+  // short adc_O2;
 
   restore_humidity();
   baseline = restore_baseline();
@@ -325,39 +324,37 @@ void sample_collection(int i){
   delay(1);
   while (getTime() - previous < sampletime + 1) {
     adc_CO2 = readAds(ASD1115, CO2_channel );
-    adc_O2 = readAds(ASD1115, O2_channel );
+    // adc_O2 = readAds(ASD1115, O2_channel );
     if (store == false) {
       Serial.println(read_humidity());
       if (read_humidity() > 75 ) {
         store == true;
-        Serial.println("Upload");
+        Serial.println("Certain a breathe. Recording...");
       }
     }
     CO2_arr[q] = adc_CO2;
-    O2_arr[q] = adc_O2;
-    if (adc_CO2 > peak) {
-      peak = adc_CO2;
-    }
-    if (adc_O2 < bottom_O2) {
-      bottom_O2 = adc_O2;
-    }
+    // O2_arr[q] = adc_O2;
+    // if (adc_CO2 > peak) {
+    //   peak = adc_CO2;
+    // }
+    // if (adc_O2 < bottom_O2) {
+    //   bottom_O2 = adc_O2;
+    // }
     delay(1);
-    Serial.println(q);
+    // Serial.println(q);
     q = q + 1;
   }
-
-  Serial.print(peak); Serial.print("\t\t"); Serial.println(baseline);
-  double bottom_resist_CO2 = ads_convert(peak, true);
-  double bottom_volt_O2 = ads_convert(bottom_O2, false);
-  double baseline_resist_CO2 = ads_convert(baseline, true);
-  double baseline_volt_O2 = ads_convert(baseline_O2, false);
-  ratio_CO2[i] =  ratio_calibration(baseline_resist_CO2, bottom_resist_CO2, true);
-  ratio_O2[i] = ratio_calibration(baseline_volt_O2, bottom_volt_O2, false);
+  peak = concentration_ethanol(temperate,baseline);
+  
+  double peak_resist_Ace = ads_convert(peak, true);
+  double baseline_resist_Ace = ads_convert(baseline, true);
+  ratio_Ace[i] =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);
+  // ratio_O2[i] = ratio_calibration(baseline_volt_O2, bottom_volt_O2, false);
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   Serial.print(i + 1); Serial.print(" "); Serial.print("TH "); Serial.println("Breath");
-  Serial.print("Bottom_CO2: "); Serial.println(bottom_resist_CO2, 6); Serial.print("baseline: "); Serial.println(baseline_resist_CO2, 6); Serial.print("Ratio_CO2: "); Serial.println(ratio_CO2[i], 6);
-  Serial.print("bottom_O2: "); Serial.println(bottom_volt_O2, 6); Serial.print("baseline_O2: "); Serial.println(baseline_volt_O2, 6); Serial.print("Ratio_O2: "); Serial.println(ratio_O2[i], 6);
+  Serial.print("Bottom_CO2: "); Serial.println(peak_resist_Ace, 6); Serial.print("baseline: "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_CO2: "); Serial.println(ratio_Ace[i], 6);
+  // Serial.print("bottom_O2: "); Serial.println(bottom_volt_O2, 6); Serial.print("baseline_O2: "); Serial.println(baseline_volt_O2, 6); Serial.print("Ratio_O2: "); Serial.println(ratio_O2[i], 6);
   Serial.print("Max_humidity :"); Serial.println(max_humd);
   tft.fillScreen(BLACK);
   
@@ -365,9 +362,9 @@ void sample_collection(int i){
   // tft.setCursor(0, 100); tft.print("CO2:"); tft.print(ratio_CO2[i], 3); tft.println("%");
   // tft.setCursor(11, 130); tft.print("O2:"); tft.print(ratio_O2[i], 1); tft.println("%");
   // comment the following two lines if using 2 inch screen
-  tft.setTextSize(3); tft.setCursor(0, 230); tft.print("1"); tft.setTextSize(3); tft.print("TH "); tft.setTextSize(3); tft.println("Breath");
-  tft.setCursor(0, 265); tft.print("CO");tft.setCursor(35, 272);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 265);tft.print(":"); tft.print(ratio_CO2[i], 3); tft.println("%");
-  tft.setCursor(18, 293); tft.print("O"); tft.setCursor(35, 300);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 293);tft.print(":");tft.print(ratio_O2[i], 1); tft.println("%");
+  tft.setTextSize(3); tft.setCursor(0, 230); tft.print(i); tft.setTextSize(3); tft.print("TH "); tft.setTextSize(3); tft.println("Breath");
+  tft.setCursor(0, 265); tft.print("CO");tft.setCursor(35, 272);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 265);tft.print(":"); tft.print(ratio_Ace[i], 3); tft.println("%");
+  // tft.setCursor(18, 293); tft.print("O"); tft.setCursor(35, 300);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 293);tft.print(":");tft.print(ratio_O2[i], 1); tft.println("%");
 }
 
 int baselineRead(int channel) {
@@ -393,4 +390,28 @@ unsigned long getTime() {
   }
   time(&now);
   return now;
+}
+
+double concentration_ethanol( double temp, int baseline) {
+  double acetone_start = 6923;
+  double acetone_end = 9000;
+  double coec  = 55 / temp;
+  int peak = 0;
+  acetone_start = acetone_start * coec;
+  acetone_end = acetone_end * coec;
+  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
+  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
+    printf("%d\n", CO2_arr[i]);
+    printf("%d\n", i);
+    if ( CO2_arr[i] > peak) {
+      peak = CO2_arr[i];
+      printf("Replaced");
+    }
+  }
+  printf("Peak value is %d.\n", peak);
+  printf("Baseline value is %d.\n", baseline);
+  // double ratio =  peak / baseline;
+  // printf("%d\n", baseline);
+  // printf(" Acetone Concentration: %.5f \n", ratio);
+  return(peak);
 }

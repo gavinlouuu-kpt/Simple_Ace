@@ -62,13 +62,14 @@ const int resolution = 8;
 const int zone = 5000;
 const int dutyCycle = 220;
 const double LSB = 0.125 / 1000;
+const int temperate = 55; 
 
 extern bool clean;
 extern TFT_eSPI tft;
 extern bool store;
 extern short CO2_arr[store_size];
 extern short O2_arr[store_size];
-extern double ratio_CO2 [3];
+extern double ratio_Ace [3];
 extern double ratio_O2 [3];
 
 int baselineRead(int channel);
@@ -86,6 +87,8 @@ double ads_convert(int value, bool resist);
 double ratio_calibration(double uncal_base, double uncal_reading, bool formula);
 double read_humidity();
 double sort_reject(double arr[], int arr_size);
+double concentration_ethanol( double temp, int baseline);
 unsigned long getTime();
+
 
 #endif 
