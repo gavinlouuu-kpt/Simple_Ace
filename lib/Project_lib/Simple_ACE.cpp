@@ -322,7 +322,8 @@ void sample_collection(int i){
   prompt_label();
   breath_check();
 
-  
+  lv_obj_del(prompt);
+  wait_label();
   store = false;
   previous = getTime();
   // tft.fillScreen(BLACK);
@@ -605,4 +606,12 @@ void prompt_label(void) {
   lv_obj_set_style_bg_color(prompt, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
   lv_label_set_text(prompt, "#FFFFFF Please Blow#" LV_SYMBOL_UP LV_SYMBOL_UP LV_SYMBOL_UP);
   lv_obj_align(prompt, LV_ALIGN_BOTTOM_MID, 0, -10);
+}
+
+void wait_label(void) {
+  lv_obj_t * wait = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(wait, true);
+  lv_obj_set_style_bg_color(wait, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+  lv_label_set_text(wait, "#FFFFFF Processing #");
+  lv_obj_align(wait, LV_ALIGN_BOTTOM_MID, 0, -10);
 }

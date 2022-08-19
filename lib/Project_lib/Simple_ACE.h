@@ -73,6 +73,8 @@ extern double ratio_Ace [3];
 extern double ratio_O2 [3];
 static lv_obj_t * chart1;
 static lv_chart_series_t * ser1;
+static lv_obj_t * prompt;
+static lv_obj_t * wait;
 
 
 int baselineRead(int channel);
