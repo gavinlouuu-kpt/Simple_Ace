@@ -10,14 +10,14 @@
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include <EEPROM.h>
-// #include <SPIFFS.h>
+#include <lvgl.h>
 
 #define PASSWORD            "10200718"
 #define SSID                "KPTESP32"
-#define BLYNK_TEMPLATE_ID   "TMPL7mbkwSQ6"
-#define BLYNK_DEVICE_NAME   "SimpleCoCo 1"
-#define BLYNK_AUTH_TOKEN    "pcRimMdKvxJzGShG1ApwLPZzGzt6GKRM"
-#define BLYNK_PRINT         Serial
+// #define BLYNK_TEMPLATE_ID   "TMPL7mbkwSQ6"
+// #define BLYNK_DEVICE_NAME   "SimpleCoCo 1"
+// #define BLYNK_AUTH_TOKEN    "pcRimMdKvxJzGShG1ApwLPZzGzt6GKRM"
+// #define BLYNK_PRINT         Serial
 
 #define ASD1115 			0x48
 #define BLACK				0x0000
@@ -71,24 +71,27 @@ extern short CO2_arr[store_size];
 extern short O2_arr[store_size];
 extern double ratio_Ace [3];
 extern double ratio_O2 [3];
+static lv_obj_t * chart1;
+static lv_chart_series_t * ser1;
+
 
 int baselineRead(int channel);
 int restore_baseline();
 void analogSetup();
-void blynk_upload(double v1, double v2, double v3, double v4);
+// void blynk_upload(double v1, double v2, double v3, double v4);
 void breath_check();
 void checkSetup();
 void pinSetup();
 void power_saving(unsigned long last_time);
 void restore_humidity();
 void sample_collection(int i);
-void tftSetup();
+// void tftSetup();
 double ads_convert(int value, bool resist);
 double ratio_calibration(double uncal_base, double uncal_reading, bool formula);
 double read_humidity();
 double sort_reject(double arr[], int arr_size);
 double concentration_ethanol( double temp, int baseline);
 unsigned long getTime();
-
+void lv_example_chart_2(void);
 
 #endif 

@@ -1,13 +1,13 @@
 #include "Simple_ACE.h"
 // #include <SPIFFS.h>
-#include <BlynkSimpleEsp32.h>
+// #include <BlynkSimpleEsp32.h>
 
 SHT2x sht;
-TFT_eSPI tft= TFT_eSPI();
-BlynkTimer timer;
+// TFT_eSPI tft= TFT_eSPI();
+// BlynkTimer timer;
 
 const char* ntpServer = "pool.ntp.org";
-char auth[] = BLYNK_AUTH_TOKEN;
+// char auth[] = BLYNK_AUTH_TOKEN;
 char ssid[] = SSID;
 char password[] = PASSWORD;
 
@@ -16,21 +16,21 @@ double upload_buffer_1;
 double upload_buffer_2;
 double upload_buffer_3; 
 
-BLYNK_CONNECTED()
-{
-  // Change Web Link Button message to "Congratulations!"
-  Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
-  Blynk.setProperty(V3, "onImageUrl",  "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
-  Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
-}
-void myTimerEvent()
-{
- //not mroe than than 10 samples per seconds
- Blynk.virtualWrite(V1, upload_buffer);
- Blynk.virtualWrite(V2, upload_buffer_1);
- Blynk.virtualWrite(V0, upload_buffer_2);
- Blynk.virtualWrite(V4, upload_buffer_3);
-}
+// BLYNK_CONNECTED()
+// {
+//   // Change Web Link Button message to "Congratulations!"
+//   Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
+//   Blynk.setProperty(V3, "onImageUrl",  "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
+//   Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
+// }
+// void myTimerEvent()
+// {
+//  //not mroe than than 10 samples per seconds
+//  Blynk.virtualWrite(V1, upload_buffer);
+//  Blynk.virtualWrite(V2, upload_buffer_1);
+//  Blynk.virtualWrite(V0, upload_buffer_2);
+//  Blynk.virtualWrite(V4, upload_buffer_3);
+// }
 
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
@@ -43,32 +43,32 @@ void analogSetup(){
   ledcWrite(pumpChannel, dutyCycle);
 }
 
-void blynk_upload(double v1, double v2, double v3, double v4) {
-  upload_buffer = v1;
-  upload_buffer_1 = v2;
-  upload_buffer_2 = v3;
-  upload_buffer_3 = v4;
-  delay(1000);
-  Blynk.run();
-  timer.run();
-}
+// void blynk_upload(double v1, double v2, double v3, double v4) {
+//   upload_buffer = v1;
+//   upload_buffer_1 = v2;
+//   upload_buffer_2 = v3;
+//   upload_buffer_3 = v4;
+//   delay(1000);
+//   Blynk.run();
+//   timer.run();
+// }
 
 
 void checkSetup(){
   configTime(0, 0, ntpServer);
   unsigned long clk = getTime();
-  while (1) {
-    if (clk - getTime() < 10) {
-      Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
-      break;
-    }
-  }
+  // while (1) {
+  //   if (clk - getTime() < 10) {
+  //     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
+  //     break;
+  //   }
+  // }
 
-  if (Blynk.connect() == false) {
-    ESP.restart();        //custom function I wrote to check wifi connection
-  }
+  // if (Blynk.connect() == false) {
+  //   ESP.restart();        //custom function I wrote to check wifi connection
+  // }
 
-  timer.setInterval(1000L, myTimerEvent);
+  // timer.setInterval(1000L, myTimerEvent);
   
   if (!SPIFFS.begin(true)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -136,17 +136,19 @@ void pinSetup(){
   pinMode(btn_rst, INPUT);
 }
 
-void tftSetup(){
-  tft.init();
-  tft.setRotation(0); delay(100);
-  tft.fillScreen(BLACK);
-  // tft.setTextSize(3);  tft.setCursor(30, 80);  tft.println("CoCo");
-  // tft.setTextSize(2);  tft.setCursor(5, 120);  tft.println("Setting Up");
-  // comment the following two lines if using 2 inch screen
-  tft.setTextSize(5);  tft.setCursor(60, 100);  tft.println("CoCo");
-  tft.setTextSize(3);  tft.setCursor(30,160);  tft.println("Setting Up");
-  delay(400);
-}
+// void tftSetup(){
+//   tft.init();
+//   tft.setRotation(0); delay(100);
+//   tft.fillScreen(BLACK);
+//   // tft.setTextSize(3);  tft.setCursor(30, 80);  tft.println("CoCo");
+//   // tft.setTextSize(2);  tft.setCursor(5, 120);  tft.println("Setting Up");
+//   // comment the following two lines if using 2 inch screen
+//   tft.setTextSize(5);  tft.setCursor(60, 100);  tft.println("CoCo");
+//   tft.setTextSize(3);  tft.setCursor(30,160);  tft.println("Setting Up");
+//   uint16_t calData[5] = { 275, 3620, 264, 3532, 1 };
+//   tft.setTouch( calData );
+//   delay(400);
+// }
 
 double ads_convert(int value, bool resist) {
   double volt;
@@ -299,7 +301,6 @@ void sample_collection(int i){
   // int bottom_O2 = 100000;
   // int baseline_O2 = baselineRead(O2_channel );
   int baseline;
-  double max_humd = 0;
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
@@ -307,12 +308,12 @@ void sample_collection(int i){
 
   restore_humidity();
   baseline = restore_baseline();
-  tft.fillScreen(BLACK);
+  // tft.fillScreen(BLACK);
   // tft.setTextSize(3); tft.setCursor(30, 90); tft.println("BLOW");
   // tft.setTextSize(3); tft.setCursor(35, 130); tft.print(i + 1); tft.print("/3");
   // comment the following two lines if using 2 inch screen
-  tft.setTextSize(5); tft.setCursor(0, 245); tft.println("Exhale");
-  tft.setTextSize(4); tft.setCursor(0, 285); tft.print("1"); tft.print("/3");
+  // tft.setTextSize(5); tft.setCursor(0, 245); tft.println("Exhale");
+  // tft.setTextSize(4); tft.setCursor(0, 285); tft.print("1"); tft.print("/3");
   delay(10);
   Serial.println("Blow"); Serial.print(i + 1); Serial.println(" /3");
   breath_check();
@@ -320,10 +321,10 @@ void sample_collection(int i){
   
   store = false;
   previous = getTime();
-  tft.fillScreen(BLACK);
+  // tft.fillScreen(BLACK);
   // tft.setTextSize(2); tft.setCursor(5, 110); tft.print("Process...");
   // comment the following line if using 2 inch screen
-  tft.setTextSize(3); tft.setCursor(5, 160); tft.print("Processing..");
+  // tft.setTextSize(3); tft.setCursor(5, 160); tft.print("Processing..");
   delay(1);
   while (getTime() - previous < sampletime + 1) {
     adc_CO2 = readAds(ASD1115, CO2_channel );
@@ -357,17 +358,16 @@ void sample_collection(int i){
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   Serial.print(i + 1); Serial.print(" "); Serial.print("TH "); Serial.println("Breath");
-  Serial.print("Bottom_CO2: "); Serial.println(peak_resist_Ace, 6); Serial.print("baseline: "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_CO2: "); Serial.println(ratio_Ace[i], 6);
+  Serial.print("Peak_CO2: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace[i], 6);
   // Serial.print("bottom_O2: "); Serial.println(bottom_volt_O2, 6); Serial.print("baseline_O2: "); Serial.println(baseline_volt_O2, 6); Serial.print("Ratio_O2: "); Serial.println(ratio_O2[i], 6);
-  Serial.print("Max_humidity :"); Serial.println(max_humd);
-  tft.fillScreen(BLACK);
+  // tft.fillScreen(BLACK);
   
   // tft.setTextSize(2); tft.setCursor(0, 60); tft.print(i + 1); tft.setTextSize(2); tft.print("Th "); tft.setTextSize(2); tft.println("Breath:");
   // tft.setCursor(0, 100); tft.print("CO2:"); tft.print(ratio_CO2[i], 3); tft.println("%");
   // tft.setCursor(11, 130); tft.print("O2:"); tft.print(ratio_O2[i], 1); tft.println("%");
   // comment the following two lines if using 2 inch screen
-  tft.setTextSize(3); tft.setCursor(0, 230); tft.print(i); tft.setTextSize(3); tft.print("TH "); tft.setTextSize(3); tft.println("Breath");
-  tft.setCursor(0, 265); tft.print("CO");tft.setCursor(35, 272);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 265);tft.print(":"); tft.print(ratio_Ace[i], 3); tft.println("%");
+  // tft.setTextSize(3); tft.setCursor(0, 230); tft.print(i); tft.setTextSize(3); tft.print("TH "); tft.setTextSize(3); tft.println("Breath");
+  // tft.setCursor(0, 265); tft.print("CO");tft.setCursor(35, 272);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 265);tft.print(":"); tft.print(ratio_Ace[i], 3); tft.println("%");
   // tft.setCursor(18, 293); tft.print("O"); tft.setCursor(35, 300);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 293);tft.print(":");tft.print(ratio_O2[i], 1); tft.println("%");
 }
 
@@ -409,7 +409,7 @@ double concentration_ethanol( double temp, int baseline) {
     printf("%d\n", i);
     if ( CO2_arr[i] > peak) {
       peak = CO2_arr[i];
-      printf("Replaced");
+      printf("Replaced\n");
     }
   }
   printf("Peak value is %d.\n", peak);
@@ -418,4 +418,126 @@ double concentration_ethanol( double temp, int baseline) {
   // printf("%d\n", baseline);
   // printf(" Acetone Concentration: %.5f \n", ratio);
   return(peak);
+}
+
+
+static void draw_event_cb(lv_event_t * e)
+{
+  lv_obj_t * obj = lv_event_get_target(e);
+
+  /*Add the faded area before the lines are drawn*/
+  lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
+  if (dsc->part == LV_PART_ITEMS) {
+    if (!dsc->p1 || !dsc->p2) return;
+
+    /*Add a line mask that keeps the area below the line*/
+    lv_draw_mask_line_param_t line_mask_param;
+    lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y,
+                                  LV_DRAW_MASK_LINE_SIDE_BOTTOM);
+    int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
+
+    /*Add a fade effect: transparent bottom covering top*/
+    lv_coord_t h = lv_obj_get_height(obj);
+    lv_draw_mask_fade_param_t fade_mask_param;
+    lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_TRANSP,
+                           obj->coords.y2);
+    int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
+
+    /*Draw a rectangle that will be affected by the mask*/
+    lv_draw_rect_dsc_t draw_rect_dsc;
+    lv_draw_rect_dsc_init(&draw_rect_dsc);
+    draw_rect_dsc.bg_opa = LV_OPA_20;
+    draw_rect_dsc.bg_color = dsc->line_dsc->color;
+
+    lv_area_t a;
+    a.x1 = dsc->p1->x;
+    a.x2 = dsc->p2->x - 1;
+    a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
+    a.y2 = obj->coords.y2;
+    lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
+
+    /*Remove the masks*/
+    lv_draw_mask_free_param(&line_mask_param);
+    lv_draw_mask_free_param(&fade_mask_param);
+    lv_draw_mask_remove_id(line_mask_id);
+    lv_draw_mask_remove_id(fade_mask_id);
+  }
+  /*Hook the division lines too*/
+  else if (dsc->part == LV_PART_MAIN) {
+    if (dsc->line_dsc == NULL || dsc->p1 == NULL || dsc->p2 == NULL) return;
+
+    /*Vertical line*/
+    if (dsc->p1->x == dsc->p2->x) {
+      dsc->line_dsc->color  = lv_palette_lighten(LV_PALETTE_GREY, 1);
+      if (dsc->id == 3) {
+        dsc->line_dsc->width  = 2;
+        dsc->line_dsc->dash_gap  = 0;
+        dsc->line_dsc->dash_width  = 0;
+      }
+      //            else {
+      //                dsc->line_dsc->width = 1;
+      //                dsc->line_dsc->dash_gap  = 6;
+      //                dsc->line_dsc->dash_width  = 6;
+      //            }
+    }
+    /*Horizontal line*/
+    else {
+      if (dsc->id == 2) {
+        dsc->line_dsc->width  = 2;
+        dsc->line_dsc->dash_gap  = 0;
+        dsc->line_dsc->dash_width  = 0;
+      }
+      //            else {
+      //                dsc->line_dsc->width = 2;
+      //                dsc->line_dsc->dash_gap  = 6;
+      //                dsc->line_dsc->dash_width  = 6;
+      //            }
+
+      if (dsc->id == 1  || dsc->id == 3) {
+        dsc->line_dsc->color  = lv_palette_main(LV_PALETTE_GREEN);
+      }
+      else {
+        dsc->line_dsc->color  = lv_palette_lighten(LV_PALETTE_GREY, 2);
+      }
+    }
+  }
+}
+int val;
+static void add_data(lv_timer_t * timer)
+{
+  LV_UNUSED(timer);
+  val  = random(100, 110);
+  lv_chart_set_next_value(chart1, ser1, val);
+}
+
+void lv_example_chart_2(void)
+{
+  /*Create a chart1*/
+  chart1 = lv_chart_create(lv_scr_act());
+  lv_obj_set_size(chart1, 210, 150);
+  lv_obj_align(chart1, LV_ALIGN_TOP_MID, 0, 30);
+  lv_obj_set_style_bg_color(chart1, LV_COLOR_MAKE(255, 255, 255), LV_STATE_DEFAULT);
+  lv_chart_set_type(chart1, LV_CHART_TYPE_LINE);   /*Show lines and points too*/
+
+  lv_chart_set_div_line_count(chart1, 5, 7);
+
+  lv_obj_add_event_cb(chart1, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+  lv_chart_set_update_mode(chart1, LV_CHART_UPDATE_MODE_SHIFT);
+
+  /*Add two data series*/
+  ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
+  lv_chart_set_point_count(chart1, 200);
+  lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
+  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,50,150);
+
+  lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(Graph_title, true);
+  lv_obj_align(Graph_title, LV_ALIGN_TOP_MID, 0, 0);
+  lv_label_set_text(Graph_title, "#FFFFFF Live Chart#");
+
+  uint32_t i;
+  for(i = 0; i < 200; i++) {
+      lv_chart_set_next_value(chart1, ser1, lv_rand(0, 90));
+  }
+  lv_timer_create(add_data, 50, NULL);
 }
