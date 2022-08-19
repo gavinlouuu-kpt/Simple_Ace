@@ -45,47 +45,6 @@ void my_print(const char * buf)
 }
 #endif
 
-/* Display flushing */
-void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
-{
-    uint32_t w = ( area->x2 - area->x1 + 1 );
-    uint32_t h = ( area->y2 - area->y1 + 1 );
-
-    tft.startWrite();
-    tft.setAddrWindow( area->x1, area->y1, w, h );
-    tft.pushColors( ( uint16_t * )&color_p->full, w * h, true );
-    tft.endWrite();
-
-    lv_disp_flush_ready( disp );
-}
-
-/*Read the touchpad*/
-void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
-{
-    uint16_t touchX, touchY;
-
-    bool touched = tft.getTouch( &touchX, &touchY, 600 );
-
-    if( !touched )
-    {
-        data->state = LV_INDEV_STATE_REL;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_PR;
-
-        /*Set the coordinates*/
-        data->point.x = touchX;
-        data->point.y = touchY;
-
-        Serial.print( "Data x " );
-        Serial.println( touchX );
-
-        Serial.print( "Data y " );
-        Serial.println( touchY );
-    }
-}
-
 void setup() {
   Serial.begin(115200);
   //  tftSetup();
@@ -155,6 +114,7 @@ void setup() {
     }
   }
   lv_example_chart_2();
+  value_label();
 }
 
 void loop() {
@@ -162,28 +122,28 @@ void loop() {
   lv_timer_handler();
   delay(5);
   // }
-  // for (int i = 0; i < 3; i++) {
-  //   sample_collection(i);
-  //   if ( store == true) {
-  //     file_label = EEPROM.read(EEP_add);
-  //     Serial.println(file_label);
-  //     String filename = format_1 + (String)file_label + format_2;
-  //     Serial.println(filename);
-  //     File dat_file_app = SPIFFS.open(filename, FILE_WRITE);
-  //     for (int i = 0; i < plot_size; i++) {
-  //       dat_file_app.print((unsigned long)millis()); dat_file_app.print(" , "); dat_file_app.print(CO2_arr[i]); dat_file_app.print(" , "); dat_file_app.println(O2_arr[i]);
-  //       Serial.println(i);
-  //     }
-  //     dat_file_app.close();
-  //     Serial.println("saved");
-  //     Serial.print(EEP_add); Serial.print("\t"); Serial.println(file_label, DEC);
-  //     file_label = file_label + 1;
-  //     Serial.println(file_label);
-  //     EEPROM.write(EEP_add, file_label);
-  //     EEPROM.commit();
-  //   }
-  //   delay(4000);
-  // }
+  for (int i = 0; i < 3; i++) {
+    sample_collection(i);
+    if ( store == true) {
+      file_label = EEPROM.read(EEP_add);
+      Serial.println(file_label);
+      String filename = format_1 + (String)file_label + format_2;
+      Serial.println(filename);
+      File dat_file_app = SPIFFS.open(filename, FILE_WRITE);
+      for (int i = 0; i < plot_size; i++) {
+        dat_file_app.print((unsigned long)millis()); dat_file_app.print(" , "); dat_file_app.print(CO2_arr[i]); dat_file_app.print(" , "); dat_file_app.println(O2_arr[i]);
+        Serial.println(i);
+      }
+      dat_file_app.close();
+      Serial.println("saved");
+      Serial.print(EEP_add); Serial.print("\t"); Serial.println(file_label, DEC);
+      file_label = file_label + 1;
+      Serial.println(file_label);
+      EEPROM.write(EEP_add, file_label);
+      EEPROM.commit();
+    }
+    delay(4000);
+  }
 
   // avg_ratio_Ace =  sort_reject(ratio_Ace, 3);
   // // avg_ratio_O2 = sort_reject(ratio_O2, 3);

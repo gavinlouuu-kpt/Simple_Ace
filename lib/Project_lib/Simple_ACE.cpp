@@ -109,6 +109,7 @@ void restore_humidity(){
     sht.read();
     int previous = sht.getHumidity();
     Serial.println(sht.getHumidity());
+    lv_timer_handler();
     if (sht.getHumidity() - previous  < 2) {
       ledcWrite(pumpChannel, dutyCycle);
       break;
@@ -243,6 +244,7 @@ void breath_check(){
     gradient  = (arr[4] - arr[0]) * 7 ;
     Serial.print("Grad :"); Serial.println(gradient);
     Serial.println(readAds(ASD1115,CO2_channel));
+    lv_timer_handler();
     delay(1);
     if (gradient > 0.4) {
       break;
@@ -287,6 +289,7 @@ int restore_baseline(){
       int temp = baselineRead(CO2_channel );
       delay(100);
       int ref = baselineRead(CO2_channel );
+      lv_timer_handler();
       if (temp + 3 >= ref && temp - 3 <= ref) {
         Serial.println("Found Baseline");
         delay(100);
@@ -316,6 +319,7 @@ void sample_collection(int i){
   // tft.setTextSize(4); tft.setCursor(0, 285); tft.print("1"); tft.print("/3");
   delay(10);
   Serial.println("Blow"); Serial.print(i + 1); Serial.println(" /3");
+  prompt_label();
   breath_check();
 
   
@@ -506,7 +510,7 @@ int val;
 static void add_data(lv_timer_t * timer)
 {
   LV_UNUSED(timer);
-  val  = random(100, 110);
+  val  = readAds(ASD1115, CO2_channel);
   lv_chart_set_next_value(chart1, ser1, val);
 }
 
@@ -528,7 +532,7 @@ void lv_example_chart_2(void)
   ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
   lv_chart_set_point_count(chart1, 200);
   lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
-  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,50,150);
+  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,19000,20000);
 
   lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
   lv_label_set_recolor(Graph_title, true);
@@ -536,8 +540,69 @@ void lv_example_chart_2(void)
   lv_label_set_text(Graph_title, "#FFFFFF Live Chart#");
 
   uint32_t i;
-  for(i = 0; i < 200; i++) {
-      lv_chart_set_next_value(chart1, ser1, lv_rand(0, 90));
-  }
   lv_timer_create(add_data, 50, NULL);
+}
+
+void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
+{
+    uint32_t w = ( area->x2 - area->x1 + 1 );
+    uint32_t h = ( area->y2 - area->y1 + 1 );
+
+    tft.startWrite();
+    tft.setAddrWindow( area->x1, area->y1, w, h );
+    tft.pushColors( ( uint16_t * )&color_p->full, w * h, true );
+    tft.endWrite();
+
+    lv_disp_flush_ready( disp );
+}
+
+/*Read the touchpad*/
+void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
+{
+    uint16_t touchX, touchY;
+
+    bool touched = tft.getTouch( &touchX, &touchY, 600 );
+
+    if( !touched )
+    {
+        data->state = LV_INDEV_STATE_REL;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_PR;
+
+        /*Set the coordinates*/
+        data->point.x = touchX;
+        data->point.y = touchY;
+
+        Serial.print( "Data x " );
+        Serial.println( touchX );
+
+        Serial.print( "Data y " );
+        Serial.println( touchY );
+    }
+}
+
+void value_label(void) {
+  static lv_obj_t * value = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(value, true);
+  lv_obj_set_style_bg_color(value, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+  lv_label_set_text(value, "#FFFFFF Value: #");
+  lv_obj_align(value, LV_ALIGN_LEFT_MID, 30, 40);
+}
+
+// void command_label(void) {
+//   static lv_obj_t * command = lv_label_create(lv_scr_act());
+//   lv_label_set_recolor(command, true);
+//   lv_obj_set_style_bg_color(command, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+//   lv_label_set_text(command, "#FFFFFF B #");
+//   lv_obj_align(command, LV_ALIGN_LEFT_MID, 30, 40);
+// }
+
+void prompt_label(void) {
+  lv_obj_t * prompt = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(prompt, true);
+  lv_obj_set_style_bg_color(prompt, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+  lv_label_set_text(prompt, "#FFFFFF Please Blow#" LV_SYMBOL_UP LV_SYMBOL_UP LV_SYMBOL_UP);
+  lv_obj_align(prompt, LV_ALIGN_BOTTOM_MID, 0, -10);
 }

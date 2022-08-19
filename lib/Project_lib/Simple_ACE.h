@@ -93,5 +93,9 @@ double sort_reject(double arr[], int arr_size);
 double concentration_ethanol( double temp, int baseline);
 unsigned long getTime();
 void lv_example_chart_2(void);
+void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p );
+void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data );
+void value_label(void);
+void prompt_label(void);
 
 #endif 
