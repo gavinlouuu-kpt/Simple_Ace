@@ -97,10 +97,11 @@ if (!EEPROM.begin(2)) {
 
   Serial.println("Setup Complete."); 
   
-  if (!Wire.begin(4,14)) {
+  if (!Wire.begin(21,22)) {
     Serial.println("Failed to initialize wire library");
     while (1);
   }
+  Wire.setClock(100000);
 }
 
 void restore_humidity(){
@@ -222,9 +223,9 @@ int readAds(byte asd, int buff) {
   Wire.write(buffer[0]);  // pointer
   Wire.endTransmission();
 
-  Wire.requestFrom(asd, size);
+  Wire.requestFrom(asd, (int)size,true);
   buffer[1] = Wire.read(); buffer[2] = Wire.read();
-  Wire.endTransmission();
+  Wire.endTransmission(true);
 
   val = buffer[1] << 8 | buffer[2];
   return val;

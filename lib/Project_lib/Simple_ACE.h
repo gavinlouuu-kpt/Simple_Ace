@@ -99,5 +99,7 @@ void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
 void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data );
 void value_label(void);
 void prompt_label(void);
+void wait_label(void);
+
 
 #endif 
