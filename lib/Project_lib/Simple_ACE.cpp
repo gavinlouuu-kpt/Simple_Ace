@@ -1,12 +1,11 @@
 #include "Simple_ACE.h"
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
-// #include <DFRobot_sht.h>
+#include <Adafruit_ADS1X15.h>
 #include <SHT2x.h>
 
-//  DFRobot_sht sht(&Wire, sht_I2C_ADDR);
+Adafruit_ADS1115 ads;
 SHT20 sht;
-// TFT_eSPI tft= TFT_eSPI();
 // BlynkTimer timer;
 
 const char* ntpServer = "pool.ntp.org";
@@ -111,7 +110,10 @@ void checkSetup(){
   uint8_t stat = sht.getStatus();
   Serial.println(stat, HEX);
 
-  Serial.println();
+  if (!ads.begin()) {
+  Serial.println("Failed to initialize ADS.");
+  while (1);
+  }
 
   Serial.println("Setup Complete."); 
 }
@@ -196,31 +198,31 @@ double sort_reject(double arr[], int arr_size) {
   return avg_rat;
 }
 
-int readAds(byte asd, int buff) {
-  byte setting[3];
-  byte channel[4];
-  byte buffer[3];
-  int val = 0;
-  int size  = 2;
-  setting[0] = 1; setting[1] = 0; setting[2] = 0b11100101;
-  channel[0] = 0b11000010; channel[1] = 0b11010010; channel[2] = 0b11100010; channel[3] = 0b11110010;
-  Wire.beginTransmission(asd);
-  setting[1] = channel[buff];
-  Wire.write(setting[0]); Wire.write(setting[1]); Wire.write(setting[2]);
-  Wire.endTransmission();
-  delay(5);
-  buffer[0] = 0; // pointer
-  Wire.beginTransmission(asd);
-  Wire.write(buffer[0]);  // pointer
-  Wire.endTransmission();
+// int readAds(byte asd, int buff) {
+//   byte setting[3];
+//   byte channel[4];
+//   byte buffer[3];
+//   int val = 0;
+//   int size  = 2;
+//   setting[0] = 1; setting[1] = 0; setting[2] = 0b11100101;
+//   channel[0] = 0b11000010; channel[1] = 0b11010010; channel[2] = 0b11100010; channel[3] = 0b11110010;
+//   Wire.beginTransmission(asd);
+//   setting[1] = channel[buff];
+//   Wire.write(setting[0]); Wire.write(setting[1]); Wire.write(setting[2]);
+//   Wire.endTransmission();
+//   delay(5);
+//   buffer[0] = 0; // pointer
+//   Wire.beginTransmission(asd);
+//   Wire.write(buffer[0]);  // pointer
+//   Wire.endTransmission();
 
-  Wire.requestFrom((int) asd, size);
-  buffer[1] = Wire.read(); buffer[2] = Wire.read();
-  Wire.endTransmission(true);
+//   Wire.requestFrom((int) asd, size);
+//   buffer[1] = Wire.read(); buffer[2] = Wire.read();
+//   Wire.endTransmission(true);
 
-  val = buffer[1] << 8 | buffer[2];
-  return val;
-}
+//   val = buffer[1] << 8 | buffer[2];
+//   return val;
+// }
 
 void breath_check(){
   while (true) {
@@ -321,7 +323,8 @@ void sample_collection(int i){
   delay(5);
   while (getTime() - previous < sampletime + 1) {
     lv_timer_handler_run_in_period(1);
-    adc_CO2 = readAds(ASD1115, CO2_channel );
+    adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+    // adc_CO2 = readAds(ASD1115, CO2_channel );
     // adc_O2 = readAds(ASD1115, O2_channel );
     if (store == false) {
       Serial.println(read_humidity());
@@ -337,8 +340,6 @@ void sample_collection(int i){
     q = q + 1;
   }
   delete_obj(wait);
-  // lv_timer_handler();
-  // delay(5);
   peak = concentration_ethanol(temperate,baseline);
   
   double peak_resist_Ace = ads_convert(peak, true);
@@ -367,7 +368,8 @@ int baselineRead(int channel) {
   int toSort[baseSample];
   float mean = 0;
   for (int i = 0; i < baseSample; ++i ) {
-    toSort[i] = readAds(ASD1115, channel);
+    toSort[i] = ads.readADC_SingleEnded(channel);
+    // toSort[i] = readAds(ASD1115, channel);
     delay(10);
   }
   for (int i = 0; i < baseSample; ++i) {
@@ -498,7 +500,8 @@ int val;
 static void add_data(lv_timer_t * timer)
 {
   LV_UNUSED(timer);
-  val  = readAds(ASD1115, CO2_channel);
+  // val  = readAds(ASD1115, CO2_channel);
+  val  = ads.readADC_SingleEnded(CO2_channel);
   delay(1);
   lv_chart_set_next_value(chart1, ser1, val);
   Serial.println(val);
@@ -522,7 +525,7 @@ void lv_example_chart_2(void)
   ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
   lv_chart_set_point_count(chart1, 500);
   lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
-  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,21000,23000);
+  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,14000,15500);
 
   lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
   lv_label_set_recolor(Graph_title, true);
