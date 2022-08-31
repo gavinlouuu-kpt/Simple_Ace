@@ -5,6 +5,7 @@
 // #include <BlynkSimpleEsp32.h>
 // BlynkWifi Blynk(_blynkTransport);
 #include <Simple_ACE.h>
+#include <lvgl.h>
 
 ////////////////////////SPIFFS File//////////////////////////////////////
 String format_1 = "/";
@@ -97,44 +98,46 @@ void setup() {
   Serial.println( "Setup done" );
 
   // only flush the file when EEPROM is rebooted
-  if (EEPROM.read(EEP_add) == 0) {
-    printf("Clearing Files");
-    for (int i = 0; i < 255 ; i ++) {
-      String filename = format_1 + (String)i + format_2;
-      SPIFFS.remove(filename);
-      if (!filename) {
-        File dat_file_w = SPIFFS.open(filename, FILE_WRITE);
-        Serial.println("cleared");
-        if (!dat_file_w) {
-          Serial.println("There was an error opening the file for writing");
-          return;
-        }
-        dat_file_w.close();
-      }
-    }
-  }
+  // if (EEPROM.read(EEP_add) == 0) {
+  //   printf("Clearing Files");
+  //   for (int i = 0; i < 255 ; i ++) {
+  //     String filename = format_1 + (String)i + format_2;
+  //     SPIFFS.remove(filename);
+  //     if (!filename) {
+  //       File dat_file_w = SPIFFS.open(filename, FILE_WRITE);
+  //       Serial.println("cleared");
+  //       if (!dat_file_w) {
+  //         Serial.println("There was an error opening the file for writing");
+  //         return;
+  //       }
+  //       dat_file_w.close();
+  //     }
+  //   }
+  // }
   lv_example_chart_2();
   value_label();
+  hyphen_label();
+  lv_timer_handler();
+  delay(5);
 }
 
 void loop() {
   // while(1){
-  lv_timer_handler();
-  delay(5);
   // }
+
   for (int i = 0; i < 3; i++) {
     sample_collection(i);
     if ( store == true) {
       file_label = EEPROM.read(EEP_add);
       Serial.println(file_label);
-      String filename = format_1 + (String)file_label + format_2;
+      String filename =  format_1 + (String)file_label + format_2;
       Serial.println(filename);
-      File dat_file_app = SPIFFS.open(filename, FILE_WRITE);
-      for (int i = 0; i < plot_size; i++) {
-        dat_file_app.print((unsigned long)millis()); dat_file_app.print(" , "); dat_file_app.print(CO2_arr[i]); dat_file_app.print(" , "); dat_file_app.println(O2_arr[i]);
-        Serial.println(i);
-      }
-      dat_file_app.close();
+      // File dat_file_app = SPIFFS.open(filename, FILE_WRITE);
+      // for (int i = 0; i < plot_size; i++) {
+      //   dat_file_app.print((unsigned long)millis()); dat_file_app.print(" , "); dat_file_app.print(CO2_arr[i]);
+      //   Serial.println(i);
+      // }
+      // dat_file_app.close();
       Serial.println("saved");
       Serial.print(EEP_add); Serial.print("\t"); Serial.println(file_label, DEC);
       file_label = file_label + 1;

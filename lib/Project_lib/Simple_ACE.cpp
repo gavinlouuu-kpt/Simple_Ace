@@ -1,8 +1,11 @@
 #include "Simple_ACE.h"
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
+// #include <DFRobot_sht.h>
+#include <SHT2x.h>
 
-SHT2x sht;
+//  DFRobot_sht sht(&Wire, sht_I2C_ADDR);
+SHT20 sht;
 // TFT_eSPI tft= TFT_eSPI();
 // BlynkTimer timer;
 
@@ -32,17 +35,6 @@ double upload_buffer_3;
 //  Blynk.virtualWrite(V4, upload_buffer_3);
 // }
 
-void analogSetup(){
-  ledcSetup(colChannel, freq, resolution);
-  ledcSetup(pumpChannel, freq, resolution);
-  ledcSetup(solChannel, freq, resolution);
-  ledcAttachPin(colPin, colChannel);
-  ledcAttachPin(pumpPin, pumpChannel);
-  ledcAttachPin(solPin, solChannel);
-  ledcWrite(colChannel, 220);
-  ledcWrite(pumpChannel, dutyCycle);
-}
-
 // void blynk_upload(double v1, double v2, double v3, double v4) {
 //   upload_buffer = v1;
 //   upload_buffer_1 = v2;
@@ -53,8 +45,28 @@ void analogSetup(){
 //   timer.run();
 // }
 
+void pinSetup(){
+  pinMode(pumpPin, OUTPUT);
+  pinMode(solPin, OUTPUT);
+  // pinMode(fanPin, OUTPUT);
+  pinMode(btn_rst, INPUT);
+}
+
+void analogSetup(){
+  ledcSetup(colChannel, freq, resolution);
+  ledcSetup(pumpChannel, freq, resolution);
+  ledcSetup(solChannel, freq, resolution);
+  ledcAttachPin(colPin, colChannel);
+  ledcAttachPin(pumpPin, pumpChannel);
+  ledcAttachPin(solPin, solChannel);
+  ledcWrite(colChannel, dutyCycle_col);
+  ledcWrite(pumpChannel, 255);
+  delay(100);
+  ledcWrite(pumpChannel, dutyCycle_pump);
+}
 
 void checkSetup(){
+  WiFi.begin(ssid,password);
   configTime(0, 0, ntpServer);
   unsigned long clk = getTime();
   // while (1) {
@@ -69,12 +81,16 @@ void checkSetup(){
   // }
 
   // timer.setInterval(1000L, myTimerEvent);
-  
+  if (!Wire.begin(21,22)) {
+  Serial.println("Failed to initialize wire library");
+  while (1);
+  }
+
   if (!SPIFFS.begin(true)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-if (!EEPROM.begin(2)) {
+  if (!EEPROM.begin(2)) {
     Serial.println("An Error has occurred while mounting EPPROM");
     return;
   }
@@ -90,29 +106,25 @@ if (!EEPROM.begin(2)) {
   int foo = EEPROM.read(EEP_add);
   Serial.println(foo);
   Serial.println(EEPROM.read(EEP_add_1));
-  sht.begin();
+
+  sht.begin(21,22);
   uint8_t stat = sht.getStatus();
-  Serial.print(stat, HEX);
+  Serial.println(stat, HEX);
+
   Serial.println();
 
   Serial.println("Setup Complete."); 
-  
-  if (!Wire.begin(21,22)) {
-    Serial.println("Failed to initialize wire library");
-    while (1);
-  }
-  Wire.setClock(100000);
 }
 
 void restore_humidity(){
   while(1){
-    ledcWrite(pumpChannel, 255);
-    sht.read();
+    // ledcWrite(pumpChannel, 255);
     int previous = sht.getHumidity();
+    sht.read();
     Serial.println(sht.getHumidity());
-    lv_timer_handler();
     if (sht.getHumidity() - previous  < 2) {
-      ledcWrite(pumpChannel, dutyCycle);
+      ledcWrite(pumpChannel, dutyCycle_pump);
+      delay(5);
       break;
     }    
   }
@@ -122,7 +134,7 @@ void power_saving(unsigned long last_time){
   while(1){
     if (digitalRead(btn_rst) == LOW) {
       Serial.println("New loop");
-      ledcWrite(pumpChannel, dutyCycle);
+      ledcWrite(pumpChannel, dutyCycle_pump);
       break;
     }
     if (getTime() - last_time > 10) {
@@ -130,27 +142,6 @@ void power_saving(unsigned long last_time){
     }
   }
 }
-
-void pinSetup(){
-  pinMode(pumpPin, OUTPUT);
-  pinMode(solPin, OUTPUT);
-  // pinMode(fanPin, OUTPUT);
-  pinMode(btn_rst, INPUT);
-}
-
-// void tftSetup(){
-//   tft.init();
-//   tft.setRotation(0); delay(100);
-//   tft.fillScreen(BLACK);
-//   // tft.setTextSize(3);  tft.setCursor(30, 80);  tft.println("CoCo");
-//   // tft.setTextSize(2);  tft.setCursor(5, 120);  tft.println("Setting Up");
-//   // comment the following two lines if using 2 inch screen
-//   tft.setTextSize(5);  tft.setCursor(60, 100);  tft.println("CoCo");
-//   tft.setTextSize(3);  tft.setCursor(30,160);  tft.println("Setting Up");
-//   uint16_t calData[5] = { 275, 3620, 264, 3532, 1 };
-//   tft.setTouch( calData );
-//   delay(400);
-// }
 
 double ads_convert(int value, bool resist) {
   double volt;
@@ -223,7 +214,7 @@ int readAds(byte asd, int buff) {
   Wire.write(buffer[0]);  // pointer
   Wire.endTransmission();
 
-  Wire.requestFrom(asd, (int)size,true);
+  Wire.requestFrom((int) asd, size);
   buffer[1] = Wire.read(); buffer[2] = Wire.read();
   Wire.endTransmission(true);
 
@@ -236,17 +227,19 @@ void breath_check(){
     double arr[5];
     float humd;
     double gradient;
-    long previous;
+    long previous;  
     for (int i = 0; i < 5; i++) {
       sht.read();
       arr[i] = sht.getHumidity();
+      Serial.println(arr[i]);
       previous = millis();
+      Serial.println(previous);
+      delay(1);
     }
     gradient  = (arr[4] - arr[0]) * 7 ;
     Serial.print("Grad :"); Serial.println(gradient);
-    Serial.println(readAds(ASD1115,CO2_channel));
     lv_timer_handler();
-    delay(1);
+    delay(5);
     if (gradient > 0.4) {
       break;
     }
@@ -290,7 +283,6 @@ int restore_baseline(){
       int temp = baselineRead(CO2_channel );
       delay(100);
       int ref = baselineRead(CO2_channel );
-      lv_timer_handler();
       if (temp + 3 >= ref && temp - 3 <= ref) {
         Serial.println("Found Baseline");
         delay(100);
@@ -300,10 +292,13 @@ int restore_baseline(){
     }
 }
 
+static void delete_obj(lv_obj_t* object){
+    lv_obj_del_async(object);
+    object= NULL;
+    }
+
 void sample_collection(int i){
   int peak = 0;
-  // int bottom_O2 = 100000;
-  // int baseline_O2 = baselineRead(O2_channel );
   int baseline;
   int q = 0;
   unsigned long previous ;
@@ -312,54 +307,45 @@ void sample_collection(int i){
 
   restore_humidity();
   baseline = restore_baseline();
-  // tft.fillScreen(BLACK);
-  // tft.setTextSize(3); tft.setCursor(30, 90); tft.println("BLOW");
-  // tft.setTextSize(3); tft.setCursor(35, 130); tft.print(i + 1); tft.print("/3");
-  // comment the following two lines if using 2 inch screen
-  // tft.setTextSize(5); tft.setCursor(0, 245); tft.println("Exhale");
-  // tft.setTextSize(4); tft.setCursor(0, 285); tft.print("1"); tft.print("/3");
   delay(10);
   Serial.println("Blow"); Serial.print(i + 1); Serial.println(" /3");
   prompt_label();
   breath_check();
 
-  lv_obj_del(prompt);
-  wait_label();
   store = false;
   previous = getTime();
-  // tft.fillScreen(BLACK);
-  // tft.setTextSize(2); tft.setCursor(5, 110); tft.print("Process...");
-  // comment the following line if using 2 inch screen
-  // tft.setTextSize(3); tft.setCursor(5, 160); tft.print("Processing..");
   delay(1);
+  delete_obj(prompt);
+  wait_label();
+  lv_timer_handler();
+  delay(5);
   while (getTime() - previous < sampletime + 1) {
+    lv_timer_handler_run_in_period(1);
     adc_CO2 = readAds(ASD1115, CO2_channel );
-    printf("%d\n",adc_CO2);
     // adc_O2 = readAds(ASD1115, O2_channel );
     if (store == false) {
       Serial.println(read_humidity());
-      if (read_humidity() > 75 ) {
-        store == true;
+      if (read_humidity() > 60 ) {
+        store = true;
         Serial.println("Certain a breathe. Recording...");
       }
     }
+    
     CO2_arr[q] = adc_CO2;
-    // O2_arr[q] = adc_O2;
-    // if (adc_CO2 > peak) {
-    //   peak = adc_CO2;
-    // }
-    // if (adc_O2 < bottom_O2) {
-    //   bottom_O2 = adc_O2;
-    // }
+    Serial.println(q);
     delay(1);
-    // Serial.println(q);
     q = q + 1;
   }
+  delete_obj(wait);
+  // lv_timer_handler();
+  // delay(5);
   peak = concentration_ethanol(temperate,baseline);
   
   double peak_resist_Ace = ads_convert(peak, true);
   double baseline_resist_Ace = ads_convert(baseline, true);
   ratio_Ace[i] =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);
+  // lv_obj_del_async(wait);
+  // number_label();
   // ratio_O2[i] = ratio_calibration(baseline_volt_O2, bottom_volt_O2, false);
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
@@ -513,7 +499,9 @@ static void add_data(lv_timer_t * timer)
 {
   LV_UNUSED(timer);
   val  = readAds(ASD1115, CO2_channel);
+  delay(1);
   lv_chart_set_next_value(chart1, ser1, val);
+  Serial.println(val);
 }
 
 void lv_example_chart_2(void)
@@ -532,9 +520,9 @@ void lv_example_chart_2(void)
 
   /*Add two data series*/
   ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
-  lv_chart_set_point_count(chart1, 200);
+  lv_chart_set_point_count(chart1, 500);
   lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
-  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,19000,20000);
+  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,21000,23000);
 
   lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
   lv_label_set_recolor(Graph_title, true);
@@ -542,7 +530,7 @@ void lv_example_chart_2(void)
   lv_label_set_text(Graph_title, "#FFFFFF Live Chart#");
 
   uint32_t i;
-  lv_timer_create(add_data, 50, NULL);
+  lv_timer_create(add_data, 1, NULL);
 }
 
 void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
@@ -602,17 +590,58 @@ void value_label(void) {
 // }
 
 void prompt_label(void) {
-  lv_obj_t * prompt = lv_label_create(lv_scr_act());
+  prompt = lv_label_create(lv_scr_act());
   lv_label_set_recolor(prompt, true);
   lv_obj_set_style_bg_color(prompt, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
   lv_label_set_text(prompt, "#FFFFFF Please Blow#" LV_SYMBOL_UP LV_SYMBOL_UP LV_SYMBOL_UP);
   lv_obj_align(prompt, LV_ALIGN_BOTTOM_MID, 0, -10);
+  Serial.println("Propted");
 }
 
 void wait_label(void) {
-  lv_obj_t * wait = lv_label_create(lv_scr_act());
+  wait = lv_label_create(lv_scr_act());
   lv_label_set_recolor(wait, true);
   lv_obj_set_style_bg_color(wait, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
   lv_label_set_text(wait, "#FFFFFF Processing #");
   lv_obj_align(wait, LV_ALIGN_BOTTOM_MID, 0, -10);
 }
+
+// void feedback_label(void) {
+//   feedback = lv_label_create(lv_scr_act());
+//   lv_label_set_recolor(feedback, true);
+//   lv_obj_set_style_bg_color(feedback, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+//   if (value < 103) {
+//     lv_label_set_text(feedback, "#FFFFFF Too less!!#" );
+//   } else if (value > 103 && value< 106) {
+//     lv_label_set_text(feedback, "#FFFFFF Too much!!#" );
+//   } else if(value >106){
+//     lv_label_set_text(feedback, "#FFFFFF Brilliant!!#" );
+//   }
+//   lv_obj_align(feedback, LV_ALIGN_BOTTOM_MID, 0, -30);
+// }
+// static void add_value(lv_timer_t * timer)
+// {
+//   LV_UNUSED(timer);
+//   lv_label_set_text_fmt(number, "#FFFFFF %f#",ratio_Ace[0]);
+//   Serial.println(ratio_Ace[0]);
+// }
+
+// void number_label(void) {
+//  number = lv_label_create(lv_scr_act());
+//   lv_label_set_recolor(number, true);
+//   lv_obj_set_style_bg_color(number, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+//   lv_obj_align(number, LV_ALIGN_LEFT_MID, 150, 40);
+//   lv_timer_create(add_value, 50, NULL);
+//   //  lv_label_set_text_fmt(number, "#FFFFFF %d#",15);
+// }
+
+void hyphen_label(void) {
+  hyphen = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(hyphen, true);
+  lv_obj_set_style_bg_color(hyphen, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+  lv_obj_align(hyphen, LV_ALIGN_LEFT_MID, 150, 40);
+  lv_label_set_text(hyphen,LV_SYMBOL_MINUS);
+}
+
+
+

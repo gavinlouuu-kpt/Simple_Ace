@@ -47,8 +47,8 @@
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			10500
-#define plot_size           9500
+#define store_size 			1200
+#define plot_size           1200
 
 #define pumpChannel 		0
 #define solChannel 			1
@@ -60,7 +60,8 @@
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle = 220;
+const int dutyCycle_pump = 160;
+const int dutyCycle_col = 160;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
 
@@ -71,11 +72,12 @@ extern short CO2_arr[store_size];
 extern short O2_arr[store_size];
 extern double ratio_Ace [3];
 extern double ratio_O2 [3];
-static lv_obj_t * chart1;
+static lv_obj_t *chart1;
 static lv_chart_series_t * ser1;
-static lv_obj_t * prompt;
-static lv_obj_t * wait;
-
+static lv_obj_t *prompt;
+static lv_obj_t *wait;
+static lv_obj_t *number;
+static lv_obj_t *hyphen;
 
 int baselineRead(int channel);
 int restore_baseline();
@@ -100,6 +102,8 @@ void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data );
 void value_label(void);
 void prompt_label(void);
 void wait_label(void);
+void number_label(void);
+void hyphen_label(void);
 
 
 #endif 
