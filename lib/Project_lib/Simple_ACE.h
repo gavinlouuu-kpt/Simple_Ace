@@ -47,15 +47,15 @@
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			1200 //Number of data collect within sample time //
-#define plot_size           1200 //Number of data to determine the acetone peak //
+#define store_size 			2000 //Number of data collect within sample time //
+#define plot_size           2000 //Number of data to determine the acetone peak //
 
 #define pumpChannel 		0
 #define solChannel 			1
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          120   // Time for the sensor take reading (seconds)//
+#define sampletime          10   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
 const int resolution = 8;

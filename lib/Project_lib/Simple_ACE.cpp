@@ -550,7 +550,7 @@ void power_saving(unsigned long last_time){
   while(1){
     lv_timer_handler();
     delay(5);
-    if (digitalRead(btn_rst) == LOW) {
+    if (digitalRead(btn_rst) == HIGH) {
       Serial.println("New loop");
       ledcWrite(pumpChannel, dutyCycle_pump);
       break;
@@ -586,12 +586,13 @@ void sample_collection(){
   delay(5);
   int count = 0 ;
   while (getTime() - previous < sampletime + 1) {
+    printf("Recording\n");
     lv_timer_handler_run_in_period(1);
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
     if (store == false) {
       count = count +1 ;
       Serial.println(read_humidity());
-      if (read_humidity() > 50 ) {
+      if (read_humidity() > 70 ) {
         store = true;
         Serial.println("Certain a breathe. Recording...");
       }
@@ -609,19 +610,26 @@ void sample_collection(){
     q = q + 1;
   }
   if(count==100){
+    delete_obj(wait);
+    lv_timer_handler();
+    delay(5);
     return;
   }
   delete_obj(wait);
-  peak = concentration_ethanol(temperate,baseline);
-  double peak_resist_Ace = ads_convert(peak, true);
-  double baseline_resist_Ace = ads_convert(baseline, true);
-  ratio_Ace =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);
-  // lv_obj_del_async(wait);
-  // number_label();
+  lv_timer_handler();
+  delay(5);
+  printf("Clear ok\n");
+  peak = concentration_ethanol(temperate,baseline);delay(1);
+  printf("Find peak ok\n");
+  double peak_resist_Ace = ads_convert(peak, true);delay(1);
+  printf("Find resist ok\n");
+  double baseline_resist_Ace = ads_convert(baseline, true);delay(1);
+  ratio_Ace =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
+
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
-  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
+  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
   // Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 
