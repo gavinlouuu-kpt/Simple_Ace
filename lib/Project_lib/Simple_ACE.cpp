@@ -1,11 +1,16 @@
 #include "Simple_ACE.h"
-// #include <SPIFFS.h>
-// #include <BlynkSimpleEsp32.h>
 #include <Adafruit_ADS1X15.h>
 #include <SHT2x.h>
+// #include <SPIFFS.h>
+// #include <BlynkSimpleEsp32.h>
+// #include <PID_v1.h>
 
 Adafruit_ADS1115 ads;
 SHT20 sht;
+// double Kp=2, Ki=5, Kd=1;
+// double Setpoint = 1550;
+// double Input, Output;
+// PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 // BlynkTimer timer;
 
 const char* ntpServer = "pool.ntp.org";
@@ -114,306 +119,100 @@ void checkSetup(){
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
-
+  
+  // myPID.SetMode(AUTOMATIC);
   Serial.println("Setup Complete."); 
 }
 
-void restore_humidity(){
-  while(1){
-    // ledcWrite(pumpChannel, 255);
-    int previous = sht.getHumidity();
-    sht.read();
-    Serial.println(sht.getHumidity());
-    if (sht.getHumidity() - previous  < 2) {
-      ledcWrite(pumpChannel, dutyCycle_pump);
-      delay(5);
-      break;
-    }    
-  }
+
+static const uint16_t screenWidth  = 240;
+static const uint16_t screenHeight = 320;
+static lv_disp_draw_buf_t draw_buf;
+static lv_color_t buf[ screenWidth * 10 ];
+TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight); /* TFT instance */
+void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
+{
+    uint32_t w = ( area->x2 - area->x1 + 1 );
+    uint32_t h = ( area->y2 - area->y1 + 1 );
+
+    tft.startWrite();
+    tft.setAddrWindow( area->x1, area->y1, w, h );
+    tft.pushColors( ( uint16_t * )&color_p->full, w * h, true );
+    tft.endWrite();
+
+    lv_disp_flush_ready( disp );
 }
 
-void power_saving(unsigned long last_time){
-  while(1){
-    if (digitalRead(btn_rst) == LOW) {
-      Serial.println("New loop");
-      ledcWrite(pumpChannel, dutyCycle_pump);
-      break;
+void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
+{
+    uint16_t touchX, touchY;
+
+    bool touched = tft.getTouch( &touchX, &touchY, 600 );
+
+    if( !touched )
+    {
+        data->state = LV_INDEV_STATE_REL;
     }
-    if (getTime() - last_time > 10) {
-      ledcWrite(pumpChannel, 0);
-    }
-  }
-}
+    else
+    {
+        data->state = LV_INDEV_STATE_PR;
 
-double ads_convert(int value, bool resist) {
-  double volt;
-  const double ref_r = 9990;
-  const double V_in = 3.3;
-  double sen_r;
-  volt = value * LSB;
-  switch (resist) {
-    case (false):
-      Serial.println(volt);
-      return volt;
-      break;
-    case (true):
-      sen_r = ref_r * (V_in - volt) / volt;
-      Serial.println(sen_r);
-      return sen_r;
-      break;
-  }
-}
+        /*Set the coordinates*/
+        data->point.x = touchX;
+        data->point.y = touchY;
 
-double sort_reject(double arr[], int arr_size) {
-  double buff;
-  double buff_1 = 0;
-  int len = arr_size;
-  for ( int j = 0 ; j < arr_size ; j++) {
-    for (int i = 0; i < arr_size - 1 - j; i ++) {
-      if (arr[i] > arr[i + 1]) {
-        buff = arr[i];
-        arr[i] = arr[i + 1];
-        arr[i + 1] = buff;
-      }
-    }
-  }
-  if (arr[0] < arr[1] * 0.8) {
-    arr[0] = 0;
-    len = len - 1;
-    Serial.println("rejected");
-  }
-  if (arr[2] > arr[1] * 0.8) {
-    arr[2] = 0;
-    len = len - 1;
-    Serial.println("rejected");
-  }
+        Serial.print( "Data x " );
+        Serial.println( touchX );
 
-  for (int i = 0; i < arr_size; i++) {
-    Serial.println(arr[i], 6);
-  }
-  for (int i = 0; i < arr_size; i++) {
-    buff_1 = buff_1 + arr[i];
-  }
-  double avg_rat = buff_1 / len;
-  return avg_rat;
-}
-
-// int readAds(byte asd, int buff) {
-//   byte setting[3];
-//   byte channel[4];
-//   byte buffer[3];
-//   int val = 0;
-//   int size  = 2;
-//   setting[0] = 1; setting[1] = 0; setting[2] = 0b11100101;
-//   channel[0] = 0b11000010; channel[1] = 0b11010010; channel[2] = 0b11100010; channel[3] = 0b11110010;
-//   Wire.beginTransmission(asd);
-//   setting[1] = channel[buff];
-//   Wire.write(setting[0]); Wire.write(setting[1]); Wire.write(setting[2]);
-//   Wire.endTransmission();
-//   delay(5);
-//   buffer[0] = 0; // pointer
-//   Wire.beginTransmission(asd);
-//   Wire.write(buffer[0]);  // pointer
-//   Wire.endTransmission();
-
-//   Wire.requestFrom((int) asd, size);
-//   buffer[1] = Wire.read(); buffer[2] = Wire.read();
-//   Wire.endTransmission(true);
-
-//   val = buffer[1] << 8 | buffer[2];
-//   return val;
-// }
-
-void breath_check(){
-  while (true) {
-    double arr[5];
-    float humd;
-    double gradient;
-    long previous;  
-    for (int i = 0; i < 5; i++) {
-      sht.read();
-      arr[i] = sht.getHumidity();
-      Serial.println(arr[i]);
-      previous = millis();
-      Serial.println(previous);
-      delay(1);
-    }
-    gradient  = (arr[4] - arr[0]) * 7 ;
-    Serial.print("Grad :"); Serial.println(gradient);
-    lv_timer_handler();
-    delay(5);
-    if (gradient > 0.4) {
-      break;
-    }
-  }
-}
-
-double read_humidity(){
-  double value;
-  sht.read();
-  value = sht.getHumidity();
-  return value;
-}
-
-double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
-    double cal_ratio;
-    double buffer;
-    double slope;
-    double constant;
-    buffer = uncal_base / uncal_reading;
-    switch (formula) {
-        case (true):
-          slope = 1;
-          constant = 0;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
-        case (false):
-          slope = -0.0809;
-          constant = 2.64;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
-  }
-}
-
-double ratio_Ace [3];
-double ratio_O2 [3];
-bool store;
-int restore_baseline(){
-  while (1) {
-      int temp = baselineRead(CO2_channel );
-      delay(100);
-      int ref = baselineRead(CO2_channel );
-      if (temp + 3 >= ref && temp - 3 <= ref) {
-        Serial.println("Found Baseline");
-        delay(100);
-        return temp;
-        break;
-      }
+        Serial.print( "Data y " );
+        Serial.println( touchY );
     }
 }
 
-static void delete_obj(lv_obj_t* object){
-    lv_obj_del_async(object);
-    object= NULL;
-    }
+void lvgl_Setup(){
+  String LVGL_Arduino = "Hello Arduino! ";
+  LVGL_Arduino += String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
 
-void sample_collection(int i){
-  int peak = 0;
-  int baseline;
-  int q = 0;
-  unsigned long previous ;
-  short adc_CO2;
-  // short adc_O2;
+  Serial.println( LVGL_Arduino );
+  Serial.println( "I am LVGL_Arduino" );
 
-  restore_humidity();
-  baseline = restore_baseline();
-  delay(10);
-  Serial.println("Blow"); Serial.print(i + 1); Serial.println(" /3");
-  prompt_label();
-  breath_check();
+  lv_init();
 
-  store = false;
-  previous = getTime();
-  delay(1);
-  delete_obj(prompt);
-  wait_label();
-  lv_timer_handler();
-  delay(5);
-  while (getTime() - previous < sampletime + 1) {
-    lv_timer_handler_run_in_period(1);
-    adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    // adc_CO2 = readAds(ASD1115, CO2_channel );
-    // adc_O2 = readAds(ASD1115, O2_channel );
-    if (store == false) {
-      Serial.println(read_humidity());
-      if (read_humidity() > 60 ) {
-        store = true;
-        Serial.println("Certain a breathe. Recording...");
-      }
-    }
-    
-    CO2_arr[q] = adc_CO2;
-    Serial.println(q);
-    delay(1);
-    q = q + 1;
-  }
-  delete_obj(wait);
-  peak = concentration_ethanol(temperate,baseline);
-  
-  double peak_resist_Ace = ads_convert(peak, true);
-  double baseline_resist_Ace = ads_convert(baseline, true);
-  ratio_Ace[i] =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);
-  // lv_obj_del_async(wait);
-  // number_label();
-  // ratio_O2[i] = ratio_calibration(baseline_volt_O2, bottom_volt_O2, false);
-//   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
-//   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
-  Serial.print(i + 1); Serial.print(" "); Serial.print("TH "); Serial.println("Breath");
-  Serial.print("Peak_CO2: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace[i], 6);
-  // Serial.print("bottom_O2: "); Serial.println(bottom_volt_O2, 6); Serial.print("baseline_O2: "); Serial.println(baseline_volt_O2, 6); Serial.print("Ratio_O2: "); Serial.println(ratio_O2[i], 6);
-  // tft.fillScreen(BLACK);
-  
-  // tft.setTextSize(2); tft.setCursor(0, 60); tft.print(i + 1); tft.setTextSize(2); tft.print("Th "); tft.setTextSize(2); tft.println("Breath:");
-  // tft.setCursor(0, 100); tft.print("CO2:"); tft.print(ratio_CO2[i], 3); tft.println("%");
-  // tft.setCursor(11, 130); tft.print("O2:"); tft.print(ratio_O2[i], 1); tft.println("%");
-  // comment the following two lines if using 2 inch screen
-  // tft.setTextSize(3); tft.setCursor(0, 230); tft.print(i); tft.setTextSize(3); tft.print("TH "); tft.setTextSize(3); tft.println("Breath");
-  // tft.setCursor(0, 265); tft.print("CO");tft.setCursor(35, 272);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 265);tft.print(":"); tft.print(ratio_Ace[i], 3); tft.println("%");
-  // tft.setCursor(18, 293); tft.print("O"); tft.setCursor(35, 300);tft.setTextSize(2);tft.print("2");tft.setTextSize(3);tft.setCursor(50, 293);tft.print(":");tft.print(ratio_O2[i], 1); tft.println("%");
+  #if LV_USE_LOG != 0
+    lv_log_register_print_cb( my_print ); /* register print function for debugging */
+  #endif
+
+  tft.begin();          /* TFT init */
+  tft.setRotation(0); /* Landscape orientation, flipped */
+  tft.fillScreen(TFT_BLACK);
+
+  /*Set the touchscreen calibration data,
+    the actual data for your display can be acquired using
+    the Generic -> Touch_calibrate example from the TFT_eSPI library*/
+  uint16_t calData[5] = { 485, 2909, 352, 3279, 0 };
+
+  tft.setTouch( calData );
+
+  lv_disp_draw_buf_init( &draw_buf, buf, NULL, screenWidth * 10 );//initialize draw buff
+
+  //  /*Initialize the display*/
+  static lv_disp_drv_t disp_drv;
+  lv_disp_drv_init( &disp_drv );
+  /*Change the following line to your display resolution*/
+  disp_drv.hor_res = screenWidth;       // set height of the screen
+  disp_drv.ver_res = screenHeight;      // set height of the screen
+  disp_drv.flush_cb = my_disp_flush;    // flush screen
+  disp_drv.draw_buf = &draw_buf;
+  lv_disp_drv_register( &disp_drv );
+
+  /*Initialize the (dummy) input device driver*/
+  static lv_indev_drv_t indev_drv;
+  lv_indev_drv_init( &indev_drv );      //driver initialize
+  indev_drv.type = LV_INDEV_TYPE_POINTER;
+  indev_drv.read_cb = my_touchpad_read;   // read touch pad
+  lv_indev_drv_register( &indev_drv );
+
 }
-
-int baselineRead(int channel) {
-  int toSort[baseSample];
-  float mean = 0;
-  for (int i = 0; i < baseSample; ++i ) {
-    toSort[i] = ads.readADC_SingleEnded(channel);
-    // toSort[i] = readAds(ASD1115, channel);
-    delay(10);
-  }
-  for (int i = 0; i < baseSample; ++i) {
-    mean += toSort[i];
-  }
-  mean /= baseSample;
-  return int(mean);
-}
-
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return (0);
-  }
-  time(&now);
-  return now;
-}
-
-double concentration_ethanol( double temp, int baseline) {
-  double acetone_start = 6923;
-  double acetone_end = 9000;
-  double coec  = 55 / temp;
-  int peak = 0;
-  acetone_start = acetone_start * coec;
-  acetone_end = acetone_end * coec;
-  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
-  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
-    printf("%d\n", CO2_arr[i]);
-    printf("%d\n", i);
-    if ( CO2_arr[i] > peak) {
-      peak = CO2_arr[i];
-      printf("Replaced\n");
-    }
-  }
-  printf("Peak value is %d.\n", peak);
-  printf("Baseline value is %d.\n", baseline);
-  // double ratio =  peak / baseline;
-  // printf("%d\n", baseline);
-  // printf(" Acetone Concentration: %.5f \n", ratio);
-  return(peak);
-}
-
 
 static void draw_event_cb(lv_event_t * e)
 {
@@ -496,6 +295,7 @@ static void draw_event_cb(lv_event_t * e)
     }
   }
 }
+
 int val;
 static void add_data(lv_timer_t * timer)
 {
@@ -525,7 +325,7 @@ void lv_example_chart_2(void)
   ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
   lv_chart_set_point_count(chart1, 500);
   lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
-  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,14000,15500);
+  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,14500,16000);
 
   lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
   lv_label_set_recolor(Graph_title, true);
@@ -536,46 +336,6 @@ void lv_example_chart_2(void)
   lv_timer_create(add_data, 1, NULL);
 }
 
-void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
-{
-    uint32_t w = ( area->x2 - area->x1 + 1 );
-    uint32_t h = ( area->y2 - area->y1 + 1 );
-
-    tft.startWrite();
-    tft.setAddrWindow( area->x1, area->y1, w, h );
-    tft.pushColors( ( uint16_t * )&color_p->full, w * h, true );
-    tft.endWrite();
-
-    lv_disp_flush_ready( disp );
-}
-
-/*Read the touchpad*/
-void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
-{
-    uint16_t touchX, touchY;
-
-    bool touched = tft.getTouch( &touchX, &touchY, 600 );
-
-    if( !touched )
-    {
-        data->state = LV_INDEV_STATE_REL;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_PR;
-
-        /*Set the coordinates*/
-        data->point.x = touchX;
-        data->point.y = touchY;
-
-        Serial.print( "Data x " );
-        Serial.println( touchX );
-
-        Serial.print( "Data y " );
-        Serial.println( touchY );
-    }
-}
-
 void value_label(void) {
   static lv_obj_t * value = lv_label_create(lv_scr_act());
   lv_label_set_recolor(value, true);
@@ -583,14 +343,6 @@ void value_label(void) {
   lv_label_set_text(value, "#FFFFFF Value: #");
   lv_obj_align(value, LV_ALIGN_LEFT_MID, 30, 40);
 }
-
-// void command_label(void) {
-//   static lv_obj_t * command = lv_label_create(lv_scr_act());
-//   lv_label_set_recolor(command, true);
-//   lv_obj_set_style_bg_color(command, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-//   lv_label_set_text(command, "#FFFFFF B #");
-//   lv_obj_align(command, LV_ALIGN_LEFT_MID, 30, 40);
-// }
 
 void prompt_label(void) {
   prompt = lv_label_create(lv_scr_act());
@@ -608,6 +360,289 @@ void wait_label(void) {
   lv_label_set_text(wait, "#FFFFFF Processing #");
   lv_obj_align(wait, LV_ALIGN_BOTTOM_MID, 0, -10);
 }
+
+void hyphen_label(void) {
+  hyphen = lv_label_create(lv_scr_act());
+  lv_label_set_recolor(hyphen, true);
+  lv_obj_set_style_bg_color(hyphen, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+  lv_obj_align(hyphen, LV_ALIGN_LEFT_MID, 150, 40);
+  lv_label_set_text(hyphen,LV_SYMBOL_MINUS);
+}
+void restore_humidity(){
+  while(1){
+    // ledcWrite(pumpChannel, 255);
+    int previous = sht.getHumidity();
+    sht.read();
+    Serial.println(sht.getHumidity());
+    if (sht.getHumidity() - previous  < 2) {
+      ledcWrite(pumpChannel, dutyCycle_pump);
+      delay(5);
+      break;
+    }    
+  }
+}
+
+double ads_convert(int value, bool resist) {
+  double volt;
+  const double ref_r = 9990;
+  const double V_in = 3.3;
+  double sen_r;
+  volt = value * LSB;
+  switch (resist) {
+    case (false):
+      Serial.println(volt);
+      return volt;
+      break;
+    case (true):
+      sen_r = ref_r * (V_in - volt) / volt;
+      Serial.println(sen_r);
+      return sen_r;
+      break;
+  }
+}
+
+double sort_reject(double arr[], int arr_size) {
+  double buff;
+  double buff_1 = 0;
+  int len = arr_size;
+  for ( int j = 0 ; j < arr_size ; j++) {
+    for (int i = 0; i < arr_size - 1 - j; i ++) {
+      if (arr[i] > arr[i + 1]) {
+        buff = arr[i];
+        arr[i] = arr[i + 1];
+        arr[i + 1] = buff;
+      }
+    }
+  }
+  if (arr[0] < arr[1] * 0.8) {
+    arr[0] = 0;
+    len = len - 1;
+    Serial.println("rejected");
+  }
+  if (arr[2] > arr[1] * 0.8) {
+    arr[2] = 0;
+    len = len - 1;
+    Serial.println("rejected");
+  }
+
+  for (int i = 0; i < arr_size; i++) {
+    Serial.println(arr[i], 6);
+  }
+  for (int i = 0; i < arr_size; i++) {
+    buff_1 = buff_1 + arr[i];
+  }
+  double avg_rat = buff_1 / len;
+  return avg_rat;
+}
+
+void breath_check(){
+  while (true) {
+    double arr[5];
+    float humd;
+    double gradient;
+    long previous;  
+    for (int i = 0; i < 5; i++) {
+      sht.read();
+      arr[i] = sht.getHumidity();
+      Serial.println(arr[i]);
+      previous = millis();
+      Serial.println(previous);
+      delay(1);
+    }
+    gradient  = (arr[4] - arr[0]) * 7 ;
+    printf("Grad: %.3f\n",gradient);
+    lv_timer_handler();
+    delay(5);
+    if (gradient > 0.4) {
+      break;
+    }
+  }
+}
+
+double read_humidity(){
+  double value;
+  sht.read();
+  value = sht.getHumidity();
+  return value;
+}
+
+double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
+    double cal_ratio;
+    double buffer;
+    double slope;
+    double constant;
+    buffer = uncal_base / uncal_reading;
+    switch (formula) {
+        case (true):
+          slope = 1;
+          constant = 0;
+          cal_ratio = (buffer - constant) / slope;
+          return cal_ratio;
+          break;
+        case (false):
+          slope = -0.0809;
+          constant = 2.64;
+          cal_ratio = (buffer - constant) / slope;
+          return cal_ratio;
+          break;
+  }
+}
+
+int baselineRead(int channel) {
+  int toSort[baseSample];
+  float mean = 0;
+  for (int i = 0; i < baseSample; ++i ) {
+    toSort[i] = ads.readADC_SingleEnded(channel);
+    // toSort[i] = readAds(ASD1115, channel);
+    delay(10);
+  }
+  for (int i = 0; i < baseSample; ++i) {
+    mean += toSort[i];
+  }
+  mean /= baseSample;
+  return int(mean);
+}
+
+int restore_baseline(){
+  while (1) {
+      int temp = baselineRead(CO2_channel );
+      delay(100);
+      int ref = baselineRead(CO2_channel );
+      if (temp + 3 >= ref && temp - 3 <= ref) {
+        Serial.println("Found Baseline");
+        delay(100);
+        return temp;
+        break;
+      }
+    }
+}
+
+static void delete_obj(lv_obj_t* object){
+  lv_obj_del_async(object);
+  object= NULL;
+}
+
+double concentration_ethanol( double temp, int baseline) {
+  double acetone_start = 900;
+  double acetone_end = 1200;
+  double coec  = 55 / temp;
+  int peak = 0;
+  acetone_start = acetone_start * coec;
+  acetone_end = acetone_end * coec;
+  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
+  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
+    printf("%d\n", CO2_arr[i]);
+    printf("%d\n", i);
+    if ( CO2_arr[i] > peak) {
+      peak = CO2_arr[i];
+      printf("Replaced\n");
+    }
+  }
+  printf("Peak value is %d.\n", peak);
+  printf("Baseline value is %d.\n", baseline);
+  // double ratio =  peak / baseline;
+  // printf("%d\n", baseline);
+  // printf(" Acetone Concentration: %.5f \n", ratio);
+  return(peak);
+}
+
+void power_saving(unsigned long last_time){
+  while(1){
+    lv_timer_handler();
+    delay(5);
+    if (digitalRead(btn_rst) == LOW) {
+      Serial.println("New loop");
+      ledcWrite(pumpChannel, dutyCycle_pump);
+      break;
+    }
+    if (getTime() - last_time > 10) {
+      ledcWrite(pumpChannel, 0);
+    }
+  }
+}
+
+double ratio_Ace;
+bool store;
+void sample_collection(){
+  int peak = 0;
+  int baseline;
+  int q = 0;
+  unsigned long previous ;
+  short adc_CO2;
+
+  restore_humidity();
+  baseline = restore_baseline();
+  delay(10);
+  Serial.println("Blow Now");Serial.println();
+  prompt_label();
+  breath_check();
+
+  store = false;
+  previous = getTime();
+  delay(1);
+  delete_obj(prompt);
+  wait_label();
+  lv_timer_handler();
+  delay(5);
+  int count = 0 ;
+  while (getTime() - previous < sampletime + 1) {
+    lv_timer_handler_run_in_period(1);
+    adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+    if (store == false) {
+      count = count +1 ;
+      Serial.println(read_humidity());
+      if (read_humidity() > 50 ) {
+        store = true;
+        Serial.println("Certain a breathe. Recording...");
+      }
+      if (count== 100){
+        printf("This is a failed breath");
+        break;
+      }
+    }
+    // Input = analogRead(NTCC);
+    // myPID.Compute();
+    // ledcWrite(colChannel,Output); //220
+    CO2_arr[q] = adc_CO2;
+    Serial.println(q);
+    delay(1);
+    q = q + 1;
+  }
+  if(count==100){
+    return;
+  }
+  delete_obj(wait);
+  peak = concentration_ethanol(temperate,baseline);
+  double peak_resist_Ace = ads_convert(peak, true);
+  double baseline_resist_Ace = ads_convert(baseline, true);
+  ratio_Ace =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);
+  // lv_obj_del_async(wait);
+  // number_label();
+//   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
+//   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
+  printf("Breath Analysis Result:\n");
+  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
+  // Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+}
+
+unsigned long getTime() {
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return (0);
+  }
+  time(&now);
+  return now;
+}
+
+// void command_label(void) {
+//   static lv_obj_t * command = lv_label_create(lv_scr_act());
+//   lv_label_set_recolor(command, true);
+//   lv_obj_set_style_bg_color(command, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
+//   lv_label_set_text(command, "#FFFFFF B #");
+//   lv_obj_align(command, LV_ALIGN_LEFT_MID, 30, 40);
+// }
 
 // void feedback_label(void) {
 //   feedback = lv_label_create(lv_scr_act());
@@ -638,13 +673,6 @@ void wait_label(void) {
 //   //  lv_label_set_text_fmt(number, "#FFFFFF %d#",15);
 // }
 
-void hyphen_label(void) {
-  hyphen = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(hyphen, true);
-  lv_obj_set_style_bg_color(hyphen, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-  lv_obj_align(hyphen, LV_ALIGN_LEFT_MID, 150, 40);
-  lv_label_set_text(hyphen,LV_SYMBOL_MINUS);
-}
 
 
 
