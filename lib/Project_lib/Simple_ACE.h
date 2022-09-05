@@ -76,10 +76,10 @@ static lv_obj_t *wait;
 static lv_obj_t *number;
 static lv_obj_t *hyphen;
 
-void checkSetup();
-void pinSetup();
-void lvgl_Setup();
-void analogSetup();
+void checkSetup(void);
+void pinSetup(void);
+void lvgl_Setup(void);
+void analogSetup(void);
 
 void sample_collection();
 void power_saving(unsigned long last_time);
