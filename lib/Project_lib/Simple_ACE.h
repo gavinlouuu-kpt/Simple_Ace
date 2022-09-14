@@ -10,7 +10,6 @@
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include <EEPROM.h>
-#include <lvgl.h>
 
 #define PASSWORD            "10200718"
 #define SSID                "KPTESP32"
@@ -68,27 +67,16 @@ const int temperate = 55;
 extern bool clean;
 extern bool store;
 extern short CO2_arr[store_size];
-extern double ratio_Ace ;
-static lv_obj_t *chart1;
-static lv_chart_series_t * ser1;
-static lv_obj_t *prompt;
-static lv_obj_t *wait;
-static lv_obj_t *number;
-static lv_obj_t *hyphen;
+extern double ratio_Ace;
 
 void checkSetup(void);
 void pinSetup(void);
-void lvgl_Setup(void);
 void analogSetup(void);
+void output_result();
 
 void sample_collection();
 void power_saving(unsigned long last_time);
 unsigned long getTime();
-void lv_example_chart_2(void);
-void value_label(void);
-void hyphen_label(void);
-void prompt_label(void);
-void wait_label(void);
-void number_label(void);
+
 
 #endif 

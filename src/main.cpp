@@ -3,7 +3,7 @@
 // #include <BlynkSimpleEsp32.h>
 // BlynkWifi Blynk(_blynkTransport);
 #include <Simple_ACE.h>
-#include <lvgl.h>
+#include <Screen.h>
 
 // ////////////////////////SPIFFS File//////////////////////////////////////
 // String format_1 = "/";
@@ -24,23 +24,13 @@ short CO2_arr[store_size] = {0};
 short O2_arr[store_size] = {0};
 File dat_file_app;
 
-#if LV_USE_LOG != 0
-/* Serial debugging */
-void my_print(const char * buf)
-{
-    Serial.printf(buf);
-    Serial.flush();
-}
-#endif
 
 void setup() {
   Serial.begin(115200);
-  //  tftSetup();
+  tft_setup();
   pinSetup();
   analogSetup();
   checkSetup();
-  lvgl_Setup();
-
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //
   // only flush the file when EEPROM is rebooted
@@ -60,15 +50,11 @@ void setup() {
   //     }
   //   }
   // }
-  lv_example_chart_2();
-  value_label();
-  hyphen_label();
-  lv_timer_handler();
-  delay(5);
 }
 
 void loop() {
   sample_collection();
+  output_result();
 
   // Use only when SPIFFS is enabel here//
   // if ( store == true) {

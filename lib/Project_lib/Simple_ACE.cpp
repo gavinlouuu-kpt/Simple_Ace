@@ -1,6 +1,7 @@
 #include "Simple_ACE.h"
 #include <Adafruit_ADS1X15.h>
 #include <SHT2x.h>
+#include <Screen.h>
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
 // #include <PID_v1.h>
@@ -124,250 +125,6 @@ void checkSetup(){
   Serial.println("Setup Complete."); 
 }
 
-
-static const uint16_t screenWidth  = 240;
-static const uint16_t screenHeight = 320;
-static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[ screenWidth * 10 ];
-TFT_eSPI tft = TFT_eSPI(screenWidth, screenHeight); /* TFT instance */
-void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
-{
-    uint32_t w = ( area->x2 - area->x1 + 1 );
-    uint32_t h = ( area->y2 - area->y1 + 1 );
-
-    tft.startWrite();
-    tft.setAddrWindow( area->x1, area->y1, w, h );
-    tft.pushColors( ( uint16_t * )&color_p->full, w * h, true );
-    tft.endWrite();
-
-    lv_disp_flush_ready( disp );
-}
-
-void my_touchpad_read( lv_indev_drv_t * indev_driver, lv_indev_data_t * data )
-{
-    uint16_t touchX, touchY;
-
-    bool touched = tft.getTouch( &touchX, &touchY, 600 );
-
-    if( !touched )
-    {
-        data->state = LV_INDEV_STATE_REL;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_PR;
-
-        /*Set the coordinates*/
-        data->point.x = touchX;
-        data->point.y = touchY;
-
-        Serial.print( "Data x " );
-        Serial.println( touchX );
-
-        Serial.print( "Data y " );
-        Serial.println( touchY );
-    }
-}
-
-void lvgl_Setup(){
-  String LVGL_Arduino = "Hello Arduino! ";
-  LVGL_Arduino += String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
-
-  Serial.println( LVGL_Arduino );
-  Serial.println( "I am LVGL_Arduino" );
-
-  lv_init();
-
-  #if LV_USE_LOG != 0
-    lv_log_register_print_cb( my_print ); /* register print function for debugging */
-  #endif
-
-  tft.begin();          /* TFT init */
-  tft.setRotation(0); /* Landscape orientation, flipped */
-  tft.fillScreen(TFT_BLACK);
-
-  /*Set the touchscreen calibration data,
-    the actual data for your display can be acquired using
-    the Generic -> Touch_calibrate example from the TFT_eSPI library*/
-  uint16_t calData[5] = { 485, 2909, 352, 3279, 0 };
-
-  tft.setTouch( calData );
-
-  lv_disp_draw_buf_init( &draw_buf, buf, NULL, screenWidth * 10 );//initialize draw buff
-
-  //  /*Initialize the display*/
-  static lv_disp_drv_t disp_drv;
-  lv_disp_drv_init( &disp_drv );
-  /*Change the following line to your display resolution*/
-  disp_drv.hor_res = screenWidth;       // set height of the screen
-  disp_drv.ver_res = screenHeight;      // set height of the screen
-  disp_drv.flush_cb = my_disp_flush;    // flush screen
-  disp_drv.draw_buf = &draw_buf;
-  lv_disp_drv_register( &disp_drv );
-
-  /*Initialize the (dummy) input device driver*/
-  static lv_indev_drv_t indev_drv;
-  lv_indev_drv_init( &indev_drv );      //driver initialize
-  indev_drv.type = LV_INDEV_TYPE_POINTER;
-  indev_drv.read_cb = my_touchpad_read;   // read touch pad
-  lv_indev_drv_register( &indev_drv );
-
-}
-
-static void draw_event_cb(lv_event_t * e)
-{
-  lv_obj_t * obj = lv_event_get_target(e);
-
-  /*Add the faded area before the lines are drawn*/
-  lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
-  if (dsc->part == LV_PART_ITEMS) {
-    if (!dsc->p1 || !dsc->p2) return;
-
-    /*Add a line mask that keeps the area below the line*/
-    lv_draw_mask_line_param_t line_mask_param;
-    lv_draw_mask_line_points_init(&line_mask_param, dsc->p1->x, dsc->p1->y, dsc->p2->x, dsc->p2->y,
-                                  LV_DRAW_MASK_LINE_SIDE_BOTTOM);
-    int16_t line_mask_id = lv_draw_mask_add(&line_mask_param, NULL);
-
-    /*Add a fade effect: transparent bottom covering top*/
-    lv_coord_t h = lv_obj_get_height(obj);
-    lv_draw_mask_fade_param_t fade_mask_param;
-    lv_draw_mask_fade_init(&fade_mask_param, &obj->coords, LV_OPA_COVER, obj->coords.y1 + h / 8, LV_OPA_TRANSP,
-                           obj->coords.y2);
-    int16_t fade_mask_id = lv_draw_mask_add(&fade_mask_param, NULL);
-
-    /*Draw a rectangle that will be affected by the mask*/
-    lv_draw_rect_dsc_t draw_rect_dsc;
-    lv_draw_rect_dsc_init(&draw_rect_dsc);
-    draw_rect_dsc.bg_opa = LV_OPA_20;
-    draw_rect_dsc.bg_color = dsc->line_dsc->color;
-
-    lv_area_t a;
-    a.x1 = dsc->p1->x;
-    a.x2 = dsc->p2->x - 1;
-    a.y1 = LV_MIN(dsc->p1->y, dsc->p2->y);
-    a.y2 = obj->coords.y2;
-    lv_draw_rect(dsc->draw_ctx, &draw_rect_dsc, &a);
-
-    /*Remove the masks*/
-    lv_draw_mask_free_param(&line_mask_param);
-    lv_draw_mask_free_param(&fade_mask_param);
-    lv_draw_mask_remove_id(line_mask_id);
-    lv_draw_mask_remove_id(fade_mask_id);
-  }
-  /*Hook the division lines too*/
-  else if (dsc->part == LV_PART_MAIN) {
-    if (dsc->line_dsc == NULL || dsc->p1 == NULL || dsc->p2 == NULL) return;
-
-    /*Vertical line*/
-    if (dsc->p1->x == dsc->p2->x) {
-      dsc->line_dsc->color  = lv_palette_lighten(LV_PALETTE_GREY, 1);
-      if (dsc->id == 3) {
-        dsc->line_dsc->width  = 2;
-        dsc->line_dsc->dash_gap  = 0;
-        dsc->line_dsc->dash_width  = 0;
-      }
-      //            else {
-      //                dsc->line_dsc->width = 1;
-      //                dsc->line_dsc->dash_gap  = 6;
-      //                dsc->line_dsc->dash_width  = 6;
-      //            }
-    }
-    /*Horizontal line*/
-    else {
-      if (dsc->id == 2) {
-        dsc->line_dsc->width  = 2;
-        dsc->line_dsc->dash_gap  = 0;
-        dsc->line_dsc->dash_width  = 0;
-      }
-      //            else {
-      //                dsc->line_dsc->width = 2;
-      //                dsc->line_dsc->dash_gap  = 6;
-      //                dsc->line_dsc->dash_width  = 6;
-      //            }
-
-      if (dsc->id == 1  || dsc->id == 3) {
-        dsc->line_dsc->color  = lv_palette_main(LV_PALETTE_GREEN);
-      }
-      else {
-        dsc->line_dsc->color  = lv_palette_lighten(LV_PALETTE_GREY, 2);
-      }
-    }
-  }
-}
-
-int val;
-static void add_data(lv_timer_t * timer)
-{
-  LV_UNUSED(timer);
-  // val  = readAds(ASD1115, CO2_channel);
-  val  = ads.readADC_SingleEnded(CO2_channel);
-  delay(1);
-  lv_chart_set_next_value(chart1, ser1, val);
-  Serial.println(val);
-}
-
-void lv_example_chart_2(void)
-{
-  /*Create a chart1*/
-  chart1 = lv_chart_create(lv_scr_act());
-  lv_obj_set_size(chart1, 210, 150);
-  lv_obj_align(chart1, LV_ALIGN_TOP_MID, 0, 30);
-  lv_obj_set_style_bg_color(chart1, LV_COLOR_MAKE(255, 255, 255), LV_STATE_DEFAULT);
-  lv_chart_set_type(chart1, LV_CHART_TYPE_LINE);   /*Show lines and points too*/
-
-  lv_chart_set_div_line_count(chart1, 5, 7);
-
-  lv_obj_add_event_cb(chart1, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
-  lv_chart_set_update_mode(chart1, LV_CHART_UPDATE_MODE_SHIFT);
-
-  /*Add two data series*/
-  ser1 = lv_chart_add_series(chart1, lv_palette_main(LV_PALETTE_PINK), LV_CHART_AXIS_PRIMARY_Y);
-  lv_chart_set_point_count(chart1, 500);
-  lv_obj_set_style_line_width(chart1, 1 , LV_PART_ITEMS);
-  lv_chart_set_range(chart1,LV_CHART_AXIS_PRIMARY_Y,14500,16000);
-
-  lv_obj_t * Graph_title = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(Graph_title, true);
-  lv_obj_align(Graph_title, LV_ALIGN_TOP_MID, 0, 0);
-  lv_label_set_text(Graph_title, "#FFFFFF Live Chart#");
-
-  uint32_t i;
-  lv_timer_create(add_data, 1, NULL);
-}
-
-void value_label(void) {
-  static lv_obj_t * value = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(value, true);
-  lv_obj_set_style_bg_color(value, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-  lv_label_set_text(value, "#FFFFFF Value: #");
-  lv_obj_align(value, LV_ALIGN_LEFT_MID, 30, 40);
-}
-
-void prompt_label(void) {
-  prompt = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(prompt, true);
-  lv_obj_set_style_bg_color(prompt, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-  lv_label_set_text(prompt, "#FFFFFF Please Blow#" LV_SYMBOL_UP LV_SYMBOL_UP LV_SYMBOL_UP);
-  lv_obj_align(prompt, LV_ALIGN_BOTTOM_MID, 0, -10);
-  Serial.println("Propted");
-}
-
-void wait_label(void) {
-  wait = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(wait, true);
-  lv_obj_set_style_bg_color(wait, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-  lv_label_set_text(wait, "#FFFFFF Processing #");
-  lv_obj_align(wait, LV_ALIGN_BOTTOM_MID, 0, -10);
-}
-
-void hyphen_label(void) {
-  hyphen = lv_label_create(lv_scr_act());
-  lv_label_set_recolor(hyphen, true);
-  lv_obj_set_style_bg_color(hyphen, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-  lv_obj_align(hyphen, LV_ALIGN_LEFT_MID, 150, 40);
-  lv_label_set_text(hyphen,LV_SYMBOL_MINUS);
-}
 void restore_humidity(){
   while(1){
     // ledcWrite(pumpChannel, 255);
@@ -375,6 +132,7 @@ void restore_humidity(){
     sht.read();
     Serial.println(sht.getHumidity());
     if (sht.getHumidity() - previous  < 2) {
+      printf("Humiditty Restored\n");
       ledcWrite(pumpChannel, dutyCycle_pump);
       delay(5);
       break;
@@ -444,15 +202,11 @@ void breath_check(){
     for (int i = 0; i < 5; i++) {
       sht.read();
       arr[i] = sht.getHumidity();
-      Serial.println(arr[i]);
-      previous = millis();
-      Serial.println(previous);
-      delay(1);
+      printf("%.2f\n",arr[i]);
     }
     gradient  = (arr[4] - arr[0]) * 7 ;
     printf("Grad: %.3f\n",gradient);
-    lv_timer_handler();
-    delay(5);
+    delay(1);
     if (gradient > 0.4) {
       break;
     }
@@ -493,8 +247,7 @@ int baselineRead(int channel) {
   float mean = 0;
   for (int i = 0; i < baseSample; ++i ) {
     toSort[i] = ads.readADC_SingleEnded(channel);
-    // toSort[i] = readAds(ASD1115, channel);
-    delay(10);
+    delay(5);
   }
   for (int i = 0; i < baseSample; ++i) {
     mean += toSort[i];
@@ -510,16 +263,11 @@ int restore_baseline(){
       int ref = baselineRead(CO2_channel );
       if (temp + 3 >= ref && temp - 3 <= ref) {
         Serial.println("Found Baseline");
-        delay(100);
+        delay(10);
         return temp;
         break;
       }
     }
-}
-
-static void delete_obj(lv_obj_t* object){
-  lv_obj_del_async(object);
-  object= NULL;
 }
 
 double concentration_ethanol( double temp, int baseline) {
@@ -548,7 +296,6 @@ double concentration_ethanol( double temp, int baseline) {
 
 void power_saving(unsigned long last_time){
   while(1){
-    lv_timer_handler();
     delay(5);
     if (digitalRead(btn_rst) == HIGH) {
       Serial.println("New loop");
@@ -563,8 +310,8 @@ void power_saving(unsigned long last_time){
 
 double ratio_Ace;
 bool store;
+int baseline;
 void sample_collection(){
-  int peak = 0;
   int baseline;
   int q = 0;
   unsigned long previous ;
@@ -572,66 +319,59 @@ void sample_collection(){
 
   restore_humidity();
   baseline = restore_baseline();
-  delay(10);
-  Serial.println("Blow Now");Serial.println();
-  prompt_label();
+
+  delay(1);
+  printf("Blow Now\n");
   breath_check();
 
   store = false;
   previous = getTime();
-  delay(1);
-  delete_obj(prompt);
-  wait_label();
-  lv_timer_handler();
-  delay(5);
   int count = 0 ;
   while (getTime() - previous < sampletime + 1) {
     printf("Recording\n");
-    lv_timer_handler_run_in_period(1);
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+    draw_sensor();
     if (store == false) {
       count = count +1 ;
-      Serial.println(read_humidity());
-      if (read_humidity() > 70 ) {
-        store = true;
-        Serial.println("Certain a breathe. Recording...");
-      }
       if (count== 100){
         printf("This is a failed breath");
         break;
+      }
+      if (read_humidity() > 70 ) {
+        store = true;
+        Serial.println("Certain a breathe. Recording...");
       }
     }
     // Input = analogRead(NTCC);
     // myPID.Compute();
     // ledcWrite(colChannel,Output); //220
     CO2_arr[q] = adc_CO2;
-    Serial.println(q);
-    delay(1);
+    Serial.println(q);delay(1);
     q = q + 1;
   }
   if(count==100){
-    delete_obj(wait);
-    lv_timer_handler();
     delay(5);
     return;
   }
-  delete_obj(wait);
-  lv_timer_handler();
-  delay(5);
+
+}
+
+void output_result(){
   printf("Clear ok\n");
+  int peak=0;
   peak = concentration_ethanol(temperate,baseline);delay(1);
   printf("Find peak ok\n");
   double peak_resist_Ace = ads_convert(peak, true);delay(1);
   printf("Find resist ok\n");
   double baseline_resist_Ace = ads_convert(baseline, true);delay(1);
   ratio_Ace =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
-
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
   printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
   // Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
+
 
 unsigned long getTime() {
   time_t now;
