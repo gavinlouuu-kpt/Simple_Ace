@@ -59,13 +59,9 @@ void pinSetup(){
 
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
-  ledcSetup(pumpChannel, freq, resolution);
-  ledcSetup(solChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
-  ledcAttachPin(pumpPin, pumpChannel);
-  ledcAttachPin(solPin, solChannel);
   ledcWrite(colChannel, dutyCycle_col);
-  ledcWrite(pumpChannel, 255);
+  dacWrite(pumpChannel, 255);
   delay(100);
   ledcWrite(pumpChannel, dutyCycle_pump);
 }
@@ -133,7 +129,7 @@ void restore_humidity(){
     Serial.println(sht.getHumidity());
     if (sht.getHumidity() - previous  < 2) {
       printf("Humiditty Restored\n");
-      ledcWrite(pumpChannel, dutyCycle_pump);
+      dacWrite(pumpChannel, dutyCycle_pump);
       delay(5);
       break;
     }    
@@ -193,32 +189,37 @@ double sort_reject(double arr[], int arr_size) {
   return avg_rat;
 }
 
-void breath_check(){
-  while (true) {
-    double arr[5];
-    float humd;
-    double gradient;
-    long previous;  
-    for (int i = 0; i < 5; i++) {
-      sht.read();
-      arr[i] = sht.getHumidity();
-      printf("%.2f\n",arr[i]);
-    }
-    gradient  = (arr[4] - arr[0]) * 7 ;
-    printf("Grad: %.3f\n",gradient);
-    delay(1);
-    if (gradient > 0.4) {
-      break;
-    }
-  }
-}
-
 double read_humidity(){
   double value;
   sht.read();
   value = sht.getHumidity();
   return value;
 }
+
+void breath_check(){
+  while (true) {
+    double arr[3];
+    float humd;
+    double gradient;
+    long previous;  
+    for (int i = 0; i < 3; i++) {
+      sht.read();
+      arr[i] = sht.getHumidity();
+      printf("%.2f\n",arr[i]);
+    }
+    short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+    draw_sensor((double)adc_CO2);
+    draw_humid(read_humidity());
+    gradient  = (arr[2] - arr[0]) * 7 ;
+    printf("Grad: %.3f\n",gradient);
+    delay(1);
+    if (gradient > 0.6) {
+      break;
+    }
+  }
+}
+
+
 
 double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
     double cal_ratio;
@@ -299,11 +300,11 @@ void power_saving(unsigned long last_time){
     delay(5);
     if (digitalRead(btn_rst) == HIGH) {
       Serial.println("New loop");
-      ledcWrite(pumpChannel, dutyCycle_pump);
+      dacWrite(pumpChannel, dutyCycle_pump);
       break;
     }
-    if (getTime() - last_time > 10) {
-      ledcWrite(pumpChannel, 0);
+    if (millis() - last_time > wait_time) {
+      dacWrite(pumpChannel, 0);
     }
   }
 }
@@ -325,12 +326,12 @@ void sample_collection(){
   breath_check();
 
   store = false;
-  previous = getTime();
+  previous = millis();
   int count = 0 ;
-  while (getTime() - previous < sampletime + 1) {
-    printf("Recording\n");
+  while (millis() - previous < sampletime + 1) {
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    draw_sensor();
+    draw_sensor((double)adc_CO2);
+    draw_humid(read_humidity());
     if (store == false) {
       count = count +1 ;
       if (count== 100){
@@ -349,6 +350,7 @@ void sample_collection(){
     Serial.println(q);delay(1);
     q = q + 1;
   }
+
   if(count==100){
     delay(5);
     return;
@@ -364,12 +366,12 @@ void output_result(){
   double peak_resist_Ace = ads_convert(peak, true);delay(1);
   printf("Find resist ok\n");
   double baseline_resist_Ace = ads_convert(baseline, true);delay(1);
-  ratio_Ace =  ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
+  ratio_Ace = 12.0; //ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
   printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
-  // Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  draw_result(ratio_Ace);// Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 
 

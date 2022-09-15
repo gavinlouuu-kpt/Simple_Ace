@@ -32,7 +32,7 @@
 // #define NTCC                39
 
 //Wrover 2.8" display//
-#define pumpPin             32
+#define pumpPin             25
 #define solPin              33
 #define buz                 13
 #define colPin              27
@@ -54,12 +54,13 @@
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          10   // Time for the sensor take reading (seconds)//
+#define sampletime          10000
+#define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle_pump = 160;
+const int dutyCycle_pump = 80;
 const int dutyCycle_col = 160;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 

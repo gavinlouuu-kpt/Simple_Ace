@@ -31,6 +31,7 @@ void setup() {
   pinSetup();
   analogSetup();
   checkSetup();
+  draw_framework();
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //
   // only flush the file when EEPROM is rebooted
@@ -77,8 +78,8 @@ void loop() {
   // }
 
   delay(1000);
-  previous_time = getTime();
-  power_saving(previous_time);
+  // previous_time = millis();
+  // power_saving(previous_time);
   // // mapping(avg_ratio_CO2, avg_ratio_O2);
 
   // // Blynk.connect();
