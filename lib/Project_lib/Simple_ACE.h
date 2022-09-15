@@ -54,7 +54,7 @@
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          10000
+#define sampletime          30000
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;

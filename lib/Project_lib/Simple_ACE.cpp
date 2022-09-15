@@ -2,16 +2,12 @@
 #include <Adafruit_ADS1X15.h>
 #include <SHT2x.h>
 #include <Screen.h>
+#include <PID.h>
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
-// #include <PID_v1.h>
 
 Adafruit_ADS1115 ads;
 SHT20 sht;
-// double Kp=2, Ki=5, Kd=1;
-// double Setpoint = 1550;
-// double Input, Output;
-// PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 // BlynkTimer timer;
 
 const char* ntpServer = "pool.ntp.org";
@@ -53,6 +49,8 @@ double upload_buffer_3;
 void pinSetup(){
   pinMode(pumpPin, OUTPUT);
   pinMode(solPin, OUTPUT);
+  pinMode(colPin,OUTPUT);
+  pinMode(NTCC,INPUT);
   // pinMode(fanPin, OUTPUT);
   pinMode(btn_rst, INPUT);
 }
@@ -61,9 +59,9 @@ void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
   ledcWrite(colChannel, dutyCycle_col);
-  dacWrite(pumpChannel, 255);
+  dacWrite(pumpPin, 255);
   delay(100);
-  ledcWrite(pumpChannel, dutyCycle_pump);
+  dacWrite(pumpPin, dutyCycle_pump);
 }
 
 void checkSetup(){
@@ -210,9 +208,10 @@ void breath_check(){
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
     draw_sensor((double)adc_CO2);
     draw_humid(read_humidity());
+    PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
     printf("Grad: %.3f\n",gradient);
-    delay(1);
+    delay(10);
     if (gradient > 0.6) {
       break;
     }
@@ -320,42 +319,39 @@ void sample_collection(){
 
   restore_humidity();
   baseline = restore_baseline();
-
   delay(1);
   printf("Blow Now\n");
   breath_check();
-
   store = false;
   previous = millis();
   int count = 0 ;
+  int previous_counter;
   while (millis() - previous < sampletime + 1) {
+    if (millis() -previous_counter >1000){
+      previous_counter= millis();
+      PID_control();
+      draw_humid(read_humidity());
+    }
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
     draw_sensor((double)adc_CO2);
-    draw_humid(read_humidity());
     if (store == false) {
       count = count +1 ;
       if (count== 100){
         printf("This is a failed breath");
         break;
       }
-      if (read_humidity() > 70 ) {
+      if (read_humidity() > 70) {
         store = true;
         Serial.println("Certain a breathe. Recording...");
       }
     }
-    // Input = analogRead(NTCC);
-    // myPID.Compute();
-    // ledcWrite(colChannel,Output); //220
     CO2_arr[q] = adc_CO2;
     Serial.println(q);delay(1);
     q = q + 1;
   }
-
   if(count==100){
-    delay(5);
     return;
   }
-
 }
 
 void output_result(){
