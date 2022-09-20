@@ -1,13 +1,16 @@
 #include "Simple_ACE.h"
 #include <Adafruit_ADS1X15.h>
-#include <SHT2x.h>
+// #include <SHT2x.h>
+// #include "DFRobot_SHT20.h"
+#include "uFire_SHT20.h"
 #include <Screen.h>
 #include <PID.h>
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
 
 Adafruit_ADS1115 ads;
-SHT20 sht;
+// DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
+uFire_SHT20 sht20;
 // BlynkTimer timer;
 
 const char* ntpServer = "pool.ntp.org";
@@ -48,7 +51,6 @@ double upload_buffer_3;
 
 void pinSetup(){
   pinMode(pumpPin, OUTPUT);
-  pinMode(solPin, OUTPUT);
   pinMode(colPin,OUTPUT);
   pinMode(NTCC,INPUT);
   // pinMode(fanPin, OUTPUT);
@@ -59,7 +61,7 @@ void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
   ledcWrite(colChannel, dutyCycle_col);
-  dacWrite(pumpPin, 255);
+  dacWrite(pumpPin, 128);
   delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
 }
@@ -106,26 +108,28 @@ void checkSetup(){
   Serial.println(foo);
   Serial.println(EEPROM.read(EEP_add_1));
 
-  sht.begin(21,22);
-  uint8_t stat = sht.getStatus();
-  Serial.println(stat, HEX);
+  sht20.begin();
+  //  sht20.checkSHT20();
+
+  // uint8_t stat = sht20.getStatus();
+  // Serial.println(stat, HEX);
 
   if (!ads.begin()) {
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
-  
-  // myPID.SetMode(AUTOMATIC);
+
+  // PID_setup();
   Serial.println("Setup Complete."); 
 }
 
 void restore_humidity(){
   while(1){
     // ledcWrite(pumpChannel, 255);
-    int previous = sht.getHumidity();
-    sht.read();
-    Serial.println(sht.getHumidity());
-    if (sht.getHumidity() - previous  < 2) {
+    float previous = sht20.humidity();
+    // sht20.read();
+    Serial.println(sht20.humidity());
+    if (sht20.humidity() - previous  < 2) {
       printf("Humiditty Restored\n");
       dacWrite(pumpChannel, dutyCycle_pump);
       delay(5);
@@ -134,111 +138,35 @@ void restore_humidity(){
   }
 }
 
-double ads_convert(int value, bool resist) {
-  double volt;
-  const double ref_r = 9990;
-  const double V_in = 3.3;
-  double sen_r;
-  volt = value * LSB;
-  switch (resist) {
-    case (false):
-      Serial.println(volt);
-      return volt;
-      break;
-    case (true):
-      sen_r = ref_r * (V_in - volt) / volt;
-      Serial.println(sen_r);
-      return sen_r;
-      break;
-  }
-}
-
-double sort_reject(double arr[], int arr_size) {
-  double buff;
-  double buff_1 = 0;
-  int len = arr_size;
-  for ( int j = 0 ; j < arr_size ; j++) {
-    for (int i = 0; i < arr_size - 1 - j; i ++) {
-      if (arr[i] > arr[i + 1]) {
-        buff = arr[i];
-        arr[i] = arr[i + 1];
-        arr[i + 1] = buff;
-      }
-    }
-  }
-  if (arr[0] < arr[1] * 0.8) {
-    arr[0] = 0;
-    len = len - 1;
-    Serial.println("rejected");
-  }
-  if (arr[2] > arr[1] * 0.8) {
-    arr[2] = 0;
-    len = len - 1;
-    Serial.println("rejected");
-  }
-
-  for (int i = 0; i < arr_size; i++) {
-    Serial.println(arr[i], 6);
-  }
-  for (int i = 0; i < arr_size; i++) {
-    buff_1 = buff_1 + arr[i];
-  }
-  double avg_rat = buff_1 / len;
-  return avg_rat;
-}
-
 double read_humidity(){
-  double value;
-  sht.read();
-  value = sht.getHumidity();
+  float value;
+  value = sht20.humidity();
   return value;
 }
 
 void breath_check(){
   while (true) {
-    double arr[3];
+    float arr[3];
     float humd;
     double gradient;
     long previous;  
     for (int i = 0; i < 3; i++) {
-      sht.read();
-      arr[i] = sht.getHumidity();
-      printf("%.2f\n",arr[i]);
+      // sht20.read();
+      arr[i] = sht20.humidity();
+      // printf("%.2f\n",arr[i]);
+      previous= millis();
+      // printf("%d\n",previous);
     }
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+    printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2);
-    draw_humid(read_humidity());
-    PID_control();
+    // draw_humid(arr[2]);
+    // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
-    printf("Grad: %.3f\n",gradient);
-    delay(10);
+    // printf("Grad: %.3f\n",gradient);
     if (gradient > 0.6) {
       break;
     }
-  }
-}
-
-
-
-double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
-    double cal_ratio;
-    double buffer;
-    double slope;
-    double constant;
-    buffer = uncal_base / uncal_reading;
-    switch (formula) {
-        case (true):
-          slope = 1;
-          constant = 0;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
-        case (false):
-          slope = -0.0809;
-          constant = 2.64;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
   }
 }
 
@@ -269,31 +197,6 @@ int restore_baseline(){
       }
     }
 }
-
-double concentration_ethanol( double temp, int baseline) {
-  double acetone_start = 900;
-  double acetone_end = 1200;
-  double coec  = 55 / temp;
-  int peak = 0;
-  acetone_start = acetone_start * coec;
-  acetone_end = acetone_end * coec;
-  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
-  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
-    printf("%d\n", CO2_arr[i]);
-    printf("%d\n", i);
-    if ( CO2_arr[i] > peak) {
-      peak = CO2_arr[i];
-      printf("Replaced\n");
-    }
-  }
-  printf("Peak value is %d.\n", peak);
-  printf("Baseline value is %d.\n", baseline);
-  // double ratio =  peak / baseline;
-  // printf("%d\n", baseline);
-  // printf(" Acetone Concentration: %.5f \n", ratio);
-  return(peak);
-}
-
 void power_saving(unsigned long last_time){
   while(1){
     delay(5);
@@ -312,13 +215,13 @@ double ratio_Ace;
 bool store;
 int baseline;
 void sample_collection(){
-  int baseline;
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
 
   restore_humidity();
   baseline = restore_baseline();
+  set_range(baseline);
   delay(1);
   printf("Blow Now\n");
   breath_check();
@@ -326,14 +229,18 @@ void sample_collection(){
   previous = millis();
   int count = 0 ;
   int previous_counter;
+  draw_wait();
   while (millis() - previous < sampletime + 1) {
     if (millis() -previous_counter >1000){
+      int time;
+      time = (60-((millis()-previous))/1000)-1;
       previous_counter= millis();
-      PID_control();
-      draw_humid(read_humidity());
+      draw_time(time);
     }
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    draw_sensor((double)adc_CO2);
+    printf("%d\n",adc_CO2);
+    draw_sensor((double)adc_CO2); 
+    // PID_control();
     if (store == false) {
       count = count +1 ;
       if (count== 100){
@@ -346,7 +253,7 @@ void sample_collection(){
       }
     }
     CO2_arr[q] = adc_CO2;
-    Serial.println(q);delay(1);
+    // Serial.println(q);delay(1);
     q = q + 1;
   }
   if(count==100){
@@ -354,19 +261,116 @@ void sample_collection(){
   }
 }
 
-void output_result(){
-  printf("Clear ok\n");
-  int peak=0;
-  peak = concentration_ethanol(temperate,baseline);delay(1);
-  printf("Find peak ok\n");
-  double peak_resist_Ace = ads_convert(peak, true);delay(1);
+int peak_acetone( double temp) {
+  double acetone_start = 500;
+  double acetone_end = 1000;
+  double coec  = 55.0 / temp;
+  int peak = 0;
+  acetone_start = acetone_start * coec;
+  acetone_end = acetone_end * coec;
+  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
+    printf("Find peak ok\n");
+  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
+    // Serial.println(CO2_arr[i]);
+    // printf("%d\n", i);
+    if ( CO2_arr[i] > peak) {
+      peak = CO2_arr[i];
+      // printf("Replaced\n");
+    }
+  }
+  // printf("Peak value is %d.\n", peak);
+  // printf("Baseline value is %d.\n", baseline);
+  return(peak);
+}
+
+double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
+    double cal_ratio;
+    double buffer;
+    double slope;
+    double constant;
+    buffer =  uncal_reading / uncal_base;
+    switch (formula) {
+        case (true):
+          slope = 1;
+          constant = 0;
+          cal_ratio = (buffer - constant) / slope;
+          return cal_ratio;
+          break;
+        case (false):
+          slope = -0.0809;
+          constant = 2.64;
+          cal_ratio = (buffer - constant) / slope;
+          return cal_ratio;
+          break;
+  }
+}
+
+double ads_convert(int value, bool resist) {
+  double volt;
+  const double ref_r = 560*1000;
+  const double V_in = 5;
+  double sen_r;
+  volt = value * LSB;      
+  const double offset_volt =  5*(100.00/(120.0+100.0)) ; 
+  double volt_out = offset_volt+volt;
   printf("Find resist ok\n");
+  printf("%d\n",value);
+  switch (resist) {
+    case (false):           //voltage of adc reading 
+      Serial.println(volt);
+      return volt;
+      break;
+    case (true): // resistance of adc reading
+      sen_r = (V_in*ref_r/volt_out) - ref_r; 
+      // Serial.println(sen_r);
+      return sen_r;
+      break;
+  }
+}
+
+// double sort_reject(double arr[], int arr_size) {
+//   double buff;
+//   double buff_1 = 0;
+//   int len = arr_size;
+//   for ( int j = 0 ; j < arr_size ; j++) {
+//     for (int i = 0; i < arr_size - 1 - j; i ++) {
+//       if (arr[i] > arr[i + 1]) {
+//         buff = arr[i];
+//         arr[i] = arr[i + 1];
+//         arr[i + 1] = buff;
+//       }
+//     }
+//   }
+//   if (arr[0] < arr[1] * 0.8) {
+//     arr[0] = 0;
+//     len = len - 1;
+//     Serial.println("rejected");
+//   }
+//   if (arr[2] > arr[1] * 0.8) {
+//     arr[2] = 0;
+//     len = len - 1;
+//     Serial.println("rejected");
+//   }
+
+//   for (int i = 0; i < arr_size; i++) {
+//     Serial.println(arr[i], 6);
+//   }
+//   for (int i = 0; i < arr_size; i++) {
+//     buff_1 = buff_1 + arr[i];
+//   }
+//   double avg_rat = buff_1 / len;
+//   return avg_rat;
+// }
+
+void output_result(){
+  int peak = peak_acetone(temperate);delay(1);
+  double peak_resist_Ace = ads_convert(peak, true);delay(1);
   double baseline_resist_Ace = ads_convert(baseline, true);delay(1);
-  ratio_Ace = 12.0; //ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
+  ratio_Ace = ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
-  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\n Ratio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
+  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\nRatio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
   draw_result(ratio_Ace);// Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 
@@ -375,7 +379,7 @@ unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
+    // Serial.println("Failed to obtain time");
     return (0);
   }
   time(&now);

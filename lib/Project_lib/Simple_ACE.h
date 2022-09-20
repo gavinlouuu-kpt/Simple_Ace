@@ -3,7 +3,6 @@
 
 #include <time.h>
 #include <WiFiClient.h>
-#include <SHT2x.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <SPI.h>
@@ -46,22 +45,21 @@
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			2000 //Number of data collect within sample time //
-#define plot_size           2000 //Number of data to determine the acetone peak //
+#define store_size 			5000 //Number of data collect within sample time //
 
 #define pumpChannel 		0
 #define solChannel 			1
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          30000
+#define sampletime          60000//60000
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle_pump = 80;
-const int dutyCycle_col = 160;
+const int dutyCycle_pump = 65; //to be changed
+const int dutyCycle_col = 150;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
 

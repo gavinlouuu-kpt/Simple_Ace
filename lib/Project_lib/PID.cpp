@@ -15,8 +15,8 @@ void PID_control(){
     Input = analogRead(NTCC);
     myPID.Compute();
     ledcWrite(colChannel,Output); //220
-    Serial.println(Output);
-    printf("%.2f,%.2f\n",Input, Output);
+    // Serial.println(Output);
+    // printf("%.2f\n",Input);
 }
 
 
