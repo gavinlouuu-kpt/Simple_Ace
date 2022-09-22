@@ -54,8 +54,12 @@ void setup() {
 }
 
 void loop() {
-  sample_collection();
-  output_result();
+  // if(click a button){
+  //   enter calibration mode
+  // }  
+  // sample_collection();
+
+  // output_result();
 
   // Use only when SPIFFS is enabel here//
   // if ( store == true) {
@@ -77,7 +81,7 @@ void loop() {
   //   EEPROM.commit();
   // }
 
-  delay(1000);
+  // delay(1000);
   // previous_time = millis();
   // power_saving(previous_time);
   // // mapping(avg_ratio_CO2, avg_ratio_O2);

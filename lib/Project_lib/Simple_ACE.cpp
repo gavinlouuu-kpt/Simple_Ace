@@ -1,14 +1,14 @@
 #include "Simple_ACE.h"
-#include <Adafruit_ADS1X15.h>
 // #include <SHT2x.h>
 // #include "DFRobot_SHT20.h"
 #include "uFire_SHT20.h"
 #include <Screen.h>
 #include <PID.h>
+#include "Calibration.h"
 // #include <SPIFFS.h>
 // #include <BlynkSimpleEsp32.h>
 
-Adafruit_ADS1115 ads;
+// Adafruit_ADS1115 ads;
 // DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
 uFire_SHT20 sht20;
 // BlynkTimer timer;
@@ -238,7 +238,7 @@ void sample_collection(){
       draw_time(time);
     }
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    printf("%d\n",adc_CO2);
+    // printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2); 
     // PID_control();
     if (store == false) {
@@ -286,8 +286,6 @@ int peak_acetone( double temp) {
 double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
     double cal_ratio;
     double buffer;
-    double slope;
-    double constant;
     buffer =  uncal_reading / uncal_base;
     switch (formula) {
         case (true):
