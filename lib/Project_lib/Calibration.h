@@ -9,7 +9,9 @@ extern double slope;
 extern double constant;
 const double ref_1_conc = 1;
 const double ref_2_conc = 2;
-extern int ref_position[2];
+
+float ref_position[2];
+
 
 void calibration_setup(int value);
 void calibration();

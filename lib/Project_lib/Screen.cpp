@@ -1,7 +1,7 @@
 #include "Screen.h"
 #include <TFT_eSPI.h>
 #include <Simple_ACE.h>
-
+#include "Calibration.h"
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -24,7 +24,6 @@ float HighY = 100;
 float LowY = 40;
 uint16_t t_x = 0, t_y = 0;
 int stage = 0;
-
 
 void tft_setup(){
   tft.init();
@@ -166,7 +165,7 @@ void TouchScreen(){
             tft.fillRoundRect(10, 90, 220, 60,30 ,TFT_RED);
             tft.drawRoundRect(10, 90, 220, 60, 30,TFT_WHITE);
             // tft.setTextColor(TFT_WHITE);
-            tft.drawString("Collaboration",80,110,2);
+            tft.drawString("Calibration",80,110,2);
             
             tft.fillRoundRect(10, 170, 220, 60,30 ,TFT_RED);
             tft.drawRoundRect(10, 170, 220, 60,30, TFT_WHITE);
@@ -212,29 +211,17 @@ void TouchScreen(){
           tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
           tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_RED);
           tft.setTextColor(TFT_WHITE, TFT_RED);
-          tft.drawString("Collaboration", 80,15,2);
+          tft.drawString("Calibration", 80,15,2);
           printf("stage3 \n");
           stage = 3;
           ResetXY();
 
           tft.fillRect(10,250,80,40,TFT_RED);     //Start Button
           tft.drawString("START", 30,260,2);
-          if(t_x > 26 && t_x < 62  && t_y >9  && t_y < 79){
-            tft.setTextColor(TFT_WHITE, TFT_BLACK);
-            tft.drawString("3",120,180,3);
-            delay(1000);
-            tft.fillRect(120,180,40,40,TFT_BLACK);
-            tft.drawString("2",120,180,3);
-            delay(1000);
-            tft.fillRect(120,180,40,40,TFT_BLACK);
-            tft.drawString("1",120,180,3);
-            delay(1000);
-            tft.fillRect(120,180,40,40,TFT_BLACK);
-            tft.drawString("Detecting",120,180,3);
-            delay(1000);
-          
-          } 
         }
+
+        
+        
 
         if(t_x > 200 && t_x < 240  && t_y >20  && t_y < 290){ //OTA Setting
           tft.fillScreen(TFT_BLACK);
@@ -249,6 +236,34 @@ void TouchScreen(){
         } 
 
       }
+      if(stage == 3){                                           //Calibration Start Button
+          if(t_x > 22 && t_x < 47  && t_y >13  && t_y < 108){
+            tft.fillRect(10,80,200,150,TFT_BLACK);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.drawString("3",110,120,6);
+            delay(1000);
+
+            tft.fillRect(10,80,200,150,TFT_BLACK);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.drawString("2",110,120,6);
+            delay(1000);
+
+            tft.fillRect(10,80,200,150,TFT_BLACK);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.drawString("1",110,120,6);
+            delay(1000);
+
+            tft.fillRect(10,80,200,150,TFT_BLACK);
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.drawString("Calibrating",55,120,4);
+            
+            extern float ref_position[2];
+            calibration();
+            tft.fillRect(10,80,200,150,TFT_BLACK);
+            tft.drawFloat(float(ref_position[1]),0, 55,120, 1);
+            printf("%d\n", ref_position[1]);
+          } 
+        }
     }
 }
 
