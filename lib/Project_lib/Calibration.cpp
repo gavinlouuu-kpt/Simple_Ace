@@ -34,6 +34,7 @@ double update_parameters(){
 }
 
 void draw_process(int trial){
+    tft.fillRect(80,140,140,180,TFT_NEIGHBOUR_GREEN);
     String text = "Calibration: Trial" + (String)trial;
     text = text.c_str();
     tft.setTextDatum(CC_DATUM);
@@ -54,7 +55,7 @@ void calibration(){
     int counter = 0;
     double baseline =  baselineRead(CO2_channel);
     for (int sample=0; sample<2; sample ++){
-        draw_process();
+        draw_process(sample);
         while(millis() - previous_time< sampletime -1){
             array[counter] = ads.readADC_SingleEnded(CO2_channel);
             counter +=1;

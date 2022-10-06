@@ -67,11 +67,14 @@ extern bool clean;
 extern bool store;
 extern short CO2_arr[store_size];
 extern double ratio_Ace;
+extern Adafruit_ADS1115 ads;
 
 void checkSetup(void);
 void pinSetup(void);
 void analogSetup(void);
 void output_result();
+int baselineRead(int channel);
+double ads_convert(int value, bool resist);
 
 void sample_collection();
 void power_saving(unsigned long last_time);
