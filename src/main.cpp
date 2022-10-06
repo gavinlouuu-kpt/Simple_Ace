@@ -30,7 +30,7 @@ void setup() {
   tft_setup();
   pinSetup();
   analogSetup();
-  checkSetup();
+  //checkSetup();
   draw_framework();
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //
@@ -54,6 +54,8 @@ void setup() {
 }
 
 void loop() {
+
+  TouchScreen();
   // if(click a button){
   //   enter calibration mode
   // }  

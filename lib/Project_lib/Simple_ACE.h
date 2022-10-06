@@ -9,6 +9,7 @@
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include <EEPROM.h>
+#include <Adafruit_ADS1X15.h>
 
 #define PASSWORD            "10200718"
 #define SSID                "KPTESP32"

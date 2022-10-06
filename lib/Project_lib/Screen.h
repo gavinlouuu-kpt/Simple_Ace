@@ -13,6 +13,7 @@ void draw_time(int time);
 void draw_result(double value);
 void set_range(int value);
 void draw_wait(void);
+void TouchScreen();
 
 #endif
 
