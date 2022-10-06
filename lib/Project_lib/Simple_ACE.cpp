@@ -6,8 +6,6 @@
 #include <PID.h>
 #include "Calibration.h"
 // #include <SPIFFS.h>
-// #include <BlynkSimpleEsp32.h>
-
 // Adafruit_ADS1115 ads;
 // DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
 uFire_SHT20 sht20;

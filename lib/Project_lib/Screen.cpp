@@ -13,6 +13,8 @@
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
+extern float ref_position[2];
+
 
 
 int rangeL = 0;
@@ -256,12 +258,11 @@ void TouchScreen(){
             tft.fillRect(10,80,200,150,TFT_BLACK);
             tft.setTextColor(TFT_WHITE, TFT_BLACK);
             tft.drawString("Calibrating",55,120,4);
-            
-            extern float ref_position[2];
+
             calibration();
             tft.fillRect(10,80,200,150,TFT_BLACK);
             tft.drawFloat(float(ref_position[1]),0, 55,120, 1);
-            printf("%d\n", ref_position[1]);
+            printf("%f\n", ref_position[1]);
           } 
         }
     }

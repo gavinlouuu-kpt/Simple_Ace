@@ -98,8 +98,7 @@ int peak_count = 1;
 int position[10] = {0};
 int position_average = 0;
 int position_counter = 0;
-
-
+float ref_position[2];
 
 int finding_baseline();
 void process_data();
@@ -192,16 +191,6 @@ void update_parameters(){
 void calibration() { //put your main code here, to run repeatedly:
   delay(5000);
   long previous = millis(); 
-  int count = 3;
-  while(millis()-previous < 4000){// countdown for start calibration
-    long prev;
-    if((millis()-prev)>1000){
-      printf("%d\n", count);
-      count -= 1;
-      prev =millis();
-    }
-  }
-  previous = millis();
 
   while(millis() - previous < 3000){
     // array[entry_counter] = ads.readADC_SingleEnded(1);
