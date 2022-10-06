@@ -213,11 +213,28 @@ void TouchScreen(){
           tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_RED);
           tft.setTextColor(TFT_WHITE, TFT_RED);
           tft.drawString("Collaboration", 80,15,2);
-
           printf("stage3 \n");
           stage = 3;
           ResetXY();
-        } 
+
+          tft.fillRect(10,250,80,40,TFT_RED);     //Start Button
+          tft.drawString("START", 30,260,2);
+          if(t_x > 26 && t_x < 62  && t_y >9  && t_y < 79){
+            tft.setTextColor(TFT_WHITE, TFT_BLACK);
+            tft.drawString("3",120,180,3);
+            delay(1000);
+            tft.fillRect(120,180,40,40,TFT_BLACK);
+            tft.drawString("2",120,180,3);
+            delay(1000);
+            tft.fillRect(120,180,40,40,TFT_BLACK);
+            tft.drawString("1",120,180,3);
+            delay(1000);
+            tft.fillRect(120,180,40,40,TFT_BLACK);
+            tft.drawString("Detecting",120,180,3);
+            delay(1000);
+          
+          } 
+        }
 
         if(t_x > 200 && t_x < 240  && t_y >20  && t_y < 290){ //OTA Setting
           tft.fillScreen(TFT_BLACK);
