@@ -21,6 +21,8 @@
         "initializer_list": "cpp",
         "iterator": "cpp",
         "atomic": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "fstream": "cpp",
+        "sstream": "cpp"
     }
 }
