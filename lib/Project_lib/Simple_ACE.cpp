@@ -5,6 +5,7 @@
 #include <Screen.h>
 #include <PID.h>
 #include "Calibration.h"
+#include <EEPROM.h>
 // #include <SPIFFS.h>
 // Adafruit_ADS1115 ads;
 // DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
@@ -94,18 +95,7 @@ void checkSetup(){
     return;
   }
    //To rewrite each file from the first file
-  EEPROM.write(EEP_add_1, 255); EEPROM.commit();
-
-  if(EEPROM.read(EEP_add_1)== 255){
-    EEPROM.write(EEP_add, 0);
-    EEPROM.write(EEP_add_1,0);
-    Serial.println("Rewrite from zero.");
-  }
-  EEPROM.commit();
-  int foo = EEPROM.read(EEP_add);
-  Serial.println(foo);
-  Serial.println(EEPROM.read(EEP_add_1));
-
+  EEPROM_setup();
   sht20.begin();
   //  sht20.checkSHT20();
 
@@ -116,7 +106,6 @@ void checkSetup(){
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
-
   // PID_setup();
   Serial.println("Setup Complete."); 
 }
@@ -260,10 +249,11 @@ void sample_collection(){
   }
 }
 
-int peak_value(int position) {
+int peak_value(int address) {
   int peak = 0;
-  int start = ref_position[1]-100;
-  int end = ref_position[1] + 100;
+  int position;
+  int start = EEPROM.get(address,position)-100;
+  int end =  EEPROM.get(address,position) + 100;
   printf("%d , %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
     if ( CO2_arr[i] > peak) {
@@ -373,8 +363,8 @@ double ads_convert(int value, bool resist) {
 // }
 
 void output_result(){
-  int CO2_peak = peak_value(ref_position[0]);
-  int ace_peak = peak_value(ref_position[1]);
+  int CO2_peak = peak_value(0);
+  int ace_peak = peak_value(4);
   double baseline_resist = ads_convert(baseline, true); 
   double peak_resist_CO2 = ads_convert(CO2_peak, true);
   double peak_resist_Ace = ads_convert(ace_peak, true);

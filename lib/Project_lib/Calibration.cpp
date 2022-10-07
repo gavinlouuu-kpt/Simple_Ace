@@ -2,38 +2,9 @@
 #include "Simple_ACE.h"
 #include "Screen.h"
 #include <Adafruit_ADS1X15.h>
-
+#include <EEPROM.h>
 
 Adafruit_ADS1115 ads;
-// TFT_eSPI tft = TFT_eSPI();
-
-// short array[store_size] = {0};
-// void calibration_setup(int temperature){
-//     //convert temperature to pwm signal cycle//
-//     ledcWrite(colPin,temperature);
-// }
-
-// int acetone_i,acetone_o;
-// void array_locate(double temperature){
-//     //convert temperature to the array entry 
-//     const double std_temp = 55;
-//     const int std_acetone_i = 500;
-//     const int std_elution_size = 500;
-//     double factor = std_temp/temperature;
-
-//     int elution_size = std_elution_size * factor;
-//     acetone_i = std_acetone_i * factor;
-//     acetone_o = acetone_i + elution_size;
-// }
-
-// double ratio[2];
-// double update_parameters(){
-//     double ref_1[2]={ref_1_conc,ratio[0]};
-//     double ref_2[2]= {ref_2_conc,ratio[1]};
-//     double slope = (ref_2[1] - ref_1[1])/(ref_2[0]-ref_1[0]);
-//     double constant = ref_1[1]/(slope*ref_1[0]);
-//     draw_result();
-// }
 
 // void draw_process(int trial){
 //     tft.fillRect(80,140,140,180,TFT_NEIGHBOUR_GREEN);
@@ -105,21 +76,9 @@ int finding_baseline();
 void process_data();
 void find_peak();
 
-
-// int finding_baseline(){
-//   int toSort[baseSample];
-//   float mean = 0;
-//   for (int i = 0; i < baseSample; ++i ) {
-//     toSort[i] = ads.readADC_SingleEnded(1);
-//     delay(5);
-//   }
-//   for (int i = 0; i < baseSample; ++i) {
-//     mean += toSort[i];
-//   }
-//   mean /= baseSample;
-//   return int(mean);
-// }
-
+void EEPROM_setup(){
+  EEPROM.begin(20);
+}
 
 void process_data(){
   for(int i = 0; i < sizeof(array)/sizeof(array[0])-10; i ++){
@@ -183,12 +142,18 @@ void find_peak(){
 }
 
 void update_parameters(){
-
     ref_position[0] = float(position[0]);
     ref_position[1] = float(position[1]);
     printf("updated: %f\n",ref_position[1]);
-
-    // draw_result();
+    int address = 0;
+    EEPROM.put(address, position[0]);
+    address += sizeof(int);
+    EEPROM.put(address, position[1]);
+    EEPROM.commit();
+    EEPROM.end();
+    printf("EEPROM address: %d, value: %d\n", address,position[0]);
+    printf("EEPROM address: %d, value: %d\n", address, position[1]);
+    
 }
 
 void calibration() { //put your main code here, to run repeatedly:
@@ -207,5 +172,4 @@ void calibration() { //put your main code here, to run repeatedly:
   process_data();
   find_peak();
   update_parameters();
-
 }
