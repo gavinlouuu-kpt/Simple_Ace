@@ -67,7 +67,6 @@ const int temperate = 55;
 extern bool clean;
 extern bool store;
 extern short CO2_arr[store_size];
-extern double ratio_Ace;
 extern Adafruit_ADS1115 ads;
 
 void checkSetup(void);

@@ -59,9 +59,9 @@ void loop() {
   // if(click a button){
   //   enter calibration mode
   // }  
-  // sample_collection();
+  sample_collection();
 
-  // output_result();
+  output_result();
 
   // Use only when SPIFFS is enabel here//
   // if ( store == true) {
