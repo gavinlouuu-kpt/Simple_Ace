@@ -209,7 +209,8 @@ void power_saving(unsigned long last_time){
   }
 }
 
-double ratio_Ace;
+double conc_Ace;
+double conc_CO2;
 bool store;
 int baseline;
 void sample_collection(){
@@ -225,7 +226,7 @@ void sample_collection(){
   breath_check();
   store = false;
   previous = millis();
-  int count = 0 ;
+  int fail_count = 0 ;
   int previous_counter;
   draw_wait();
   while (millis() - previous < sampletime + 1) {
@@ -236,12 +237,12 @@ void sample_collection(){
       draw_time(time);
     }
     adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    // printf("%d\n",adc_CO2);
+    printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2); 
     // PID_control();
     if (store == false) {
-      count = count +1 ;
-      if (count== 100){
+      fail_count += 1 ;
+      if (fail_count== 100){
         printf("This is a failed breath");
         break;
       }
@@ -254,45 +255,59 @@ void sample_collection(){
     // Serial.println(q);delay(1);
     q = q + 1;
   }
-  if(count==100){
+  if(fail_count==100){
     return;
   }
 }
 
-int peak_acetone( double temp) {
-  double acetone_start = 500;
-  double acetone_end = 1000;
-  double coec  = 55.0 / temp;
+int peak_value(int position) {
   int peak = 0;
-  acetone_start = acetone_start * coec;
-  acetone_end = acetone_end * coec;
-  printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
-    printf("Find peak ok\n");
-  for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
-    // Serial.println(CO2_arr[i]);
-    // printf("%d\n", i);
+  int start = ref_position[1]-100;
+  int end = ref_position[1] + 100;
+  printf("%d , %d\n", (int)start, (int)end);
+  for (int i = start ; i < end; i++){
     if ( CO2_arr[i] > peak) {
       peak = CO2_arr[i];
       // printf("Replaced\n");
     }
   }
-  // printf("Peak value is %d.\n", peak);
-  // printf("Baseline value is %d.\n", baseline);
-  return(peak);
+  printf("Peak value is %d.\n", peak);
+return (peak);
+
+
+  // double acetone_start = 500;
+  // double acetone_end = 1000;
+  // double coec  = 55.0 / temp;
+  // int peak = 0;
+  // acetone_start = acetone_start * coec;
+  // acetone_end = acetone_end * coec;
+  // printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
+  //   printf("Find peak ok\n");
+  // for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
+  //   // Serial.println(CO2_arr[i]);
+  //   // printf("%d\n", i);
+  //   if ( CO2_arr[i] > peak) {
+  //     peak = CO2_arr[i];
+  //     // printf("Replaced\n");
+  //   }
+  // }
+  // // printf("Peak value is %d.\n", peak);
+  // // printf("Baseline value is %d.\n", baseline);
+  // return(peak);
 }
 
 double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
     double cal_ratio;
     double buffer;
     buffer =  uncal_reading / uncal_base;
-    switch (formula) {
-        case (true):
+    switch (formula) { 
+        case (true): // acetone _concentration
           slope = 1;
           constant = 0;
           cal_ratio = (buffer - constant) / slope;
           return cal_ratio;
           break;
-        case (false):
+        case (false): // CO2 concentration
           slope = -0.0809;
           constant = 2.64;
           cal_ratio = (buffer - constant) / slope;
@@ -303,22 +318,21 @@ double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
 
 double ads_convert(int value, bool resist) {
   double volt;
-  const double ref_r = 560*1000;
-  const double V_in = 5;
+  const double load_r = 300*1000;
+  const double V_in = 3.3;
+  const double off_volt= 3.3*10/256;
   double sen_r;
   volt = value * LSB;      
-  const double offset_volt =  5*(100.00/(120.0+100.0)) ; 
-  double volt_out = offset_volt+volt;
-  printf("Find resist ok\n");
-  printf("%d\n",value);
+  double Vout = off_volt + volt;
+  printf("adc value: %d\n",value);
   switch (resist) {
     case (false):           //voltage of adc reading 
       Serial.println(volt);
       return volt;
       break;
     case (true): // resistance of adc reading
-      sen_r = (V_in*ref_r/volt_out) - ref_r; 
-      // Serial.println(sen_r);
+      sen_r = load_r*(V_in-Vout)/Vout;
+      printf("Sensor Resistance: %.2f\n",sen_r);
       return sen_r;
       break;
   }
@@ -359,15 +373,18 @@ double ads_convert(int value, bool resist) {
 // }
 
 void output_result(){
-  int peak = peak_acetone(temperate);delay(1);
-  double peak_resist_Ace = ads_convert(peak, true);delay(1);
-  double baseline_resist_Ace = ads_convert(baseline, true);delay(1);
-  ratio_Ace = ratio_calibration(baseline_resist_Ace, peak_resist_Ace, true);delay(1);
+  int CO2_peak = peak_value(ref_position[0]);
+  int ace_peak = peak_value(ref_position[1]);
+  double baseline_resist = ads_convert(baseline, true); 
+  double peak_resist_CO2 = ads_convert(CO2_peak, true);
+  double peak_resist_Ace = ads_convert(ace_peak, true);
+  conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, true);
+  conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, false);
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
-  printf("Peak_Acetone: %.6f\nBaseline Resistance (Ohm): %.6f\nRatio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist_Ace,ratio_Ace);
-  draw_result(ratio_Ace);// Serial.print("Peak_Acetone: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  printf("peal_value: %.6f\nBaseline Resistance (Ohm): %.6f\nRatio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist,conc_Ace);
+  draw_result(conc_Ace);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 
 
@@ -381,43 +398,6 @@ unsigned long getTime() {
   time(&now);
   return now;
 }
-
-// void command_label(void) {
-//   static lv_obj_t * command = lv_label_create(lv_scr_act());
-//   lv_label_set_recolor(command, true);
-//   lv_obj_set_style_bg_color(command, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-//   lv_label_set_text(command, "#FFFFFF B #");
-//   lv_obj_align(command, LV_ALIGN_LEFT_MID, 30, 40);
-// }
-
-// void feedback_label(void) {
-//   feedback = lv_label_create(lv_scr_act());
-//   lv_label_set_recolor(feedback, true);
-//   lv_obj_set_style_bg_color(feedback, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-//   if (value < 103) {
-//     lv_label_set_text(feedback, "#FFFFFF Too less!!#" );
-//   } else if (value > 103 && value< 106) {
-//     lv_label_set_text(feedback, "#FFFFFF Too much!!#" );
-//   } else if(value >106){
-//     lv_label_set_text(feedback, "#FFFFFF Brilliant!!#" );
-//   }
-//   lv_obj_align(feedback, LV_ALIGN_BOTTOM_MID, 0, -30);
-// }
-// static void add_value(lv_timer_t * timer)
-// {
-//   LV_UNUSED(timer);
-//   lv_label_set_text_fmt(number, "#FFFFFF %f#",ratio_Ace[0]);
-//   Serial.println(ratio_Ace[0]);
-// }
-
-// void number_label(void) {
-//  number = lv_label_create(lv_scr_act());
-//   lv_label_set_recolor(number, true);
-//   lv_obj_set_style_bg_color(number, LV_COLOR_MAKE(0, 0, 0), LV_STATE_DEFAULT);
-//   lv_obj_align(number, LV_ALIGN_LEFT_MID, 150, 40);
-//   lv_timer_create(add_value, 50, NULL);
-//   //  lv_label_set_text_fmt(number, "#FFFFFF %d#",15);
-// }
 
 
 
