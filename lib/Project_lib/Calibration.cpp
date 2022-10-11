@@ -94,13 +94,14 @@ void process_data(){
 }
 
 void find_peak(){
+  printf("average data");
   for (int q = 0; q < sizeof(Sensor_arr)/sizeof(Sensor_arr[0])-10 -200; q ++){
     if (Sensor_arr[q] != 0){
-      printf("%d\n",q);
+      // printf("%d\n",q);
       int diff =Sensor_arr[q+99] -Sensor_arr[q];
       int diff2=Sensor_arr[q+199] -Sensor_arr[q+99];
       int diff3 =Sensor_arr[q+99-5] -Sensor_arr[q+99+5];
-      printf("Previous : %d, Difference:  %d\n",diff,diff2);
+      // printf("Previous : %d, Difference:  %d\n",diff,diff2);
     // if(diff >15 && diff2< -15 && (fabsf(filtered_array[i]-filtered_array[i+199])<10||fabsf(filtered_array[i]-filtered_array[i+199]) > 50)){
       if(diff >15 && diff2< -15 && fabsf(diff3)<10){
         peak_buffer[peak_counter] = q+99;
@@ -111,9 +112,10 @@ void find_peak(){
   }
 
   previous_buf = peak_buffer[0];
+  printf("Finding peak...");
   for (int j = 0; j < peak_candidate; j++){
     if(peak_buffer[j] != 0){
-      printf("Grabbed point %d : %d\n",j+1,peak_buffer[j]);
+      // printf("Grabbed point %d : %d\n",j+1,peak_buffer[j]);
       if(peak_buffer[j]-previous_buf >100){
         if(position_counter==0){
           position_average = position_average/1;
@@ -122,8 +124,8 @@ void find_peak(){
           position_average = position_average/position_counter;
         }
         position[peak_count-1]= position_average;
-        printf("Peak_count: %d\n",peak_count);
-        printf("Peak position: %d\n", position[peak_count-1]);
+        // printf("Peak_count: %d\n",peak_count);
+        // printf("Peak position: %d\n", position[peak_count-1]);
         
         peak_count +=1;
 
@@ -131,9 +133,9 @@ void find_peak(){
         position_counter = 0;
       }
       position_average += peak_buffer[j];
-      printf("position sum: %d\n",position_average);
+      // printf("position sum: %d\n",position_average);
       position_counter += 1;
-      printf("position counte: %d\n",position_counter);
+      // printf("position counte: %d\n",position_counter);
       previous_buf = peak_buffer[j];
     }
   }
@@ -144,43 +146,48 @@ void find_peak(){
       position_average = position_average/position_counter;
     }
   position[peak_count-1]= position_average;
-  printf("Peak Total: %d\n", peak_count);
+  // printf("Peak Total: %d\n", peak_count);
   for (int i =0; i< show_peak; i++){
-    printf("Peak position: %d\n", position[i]);
+    // printf("Peak position: %d\n", position[i]);
   }
 }
 
 void update_parameters(){
-    int past =0;
-    past= EEPROM.read(0);
+  EEPROM.begin(20);
+  printf("EEPROM begin\n");
+    int past =0; 
+    byte address = 0;
+    EEPROM.get(0,past);
     printf("EEPROM write value : %d\n", past);
 
     ref_position[0] = float(position[0]);
     ref_position[1] = float(position[1]);
     printf("updated: %f\n",ref_position[0]);
-    int address = 0;
-    EEPROM.write(address, position[0]);    
-    printf("EEPROM address: %d, value: %d\n", address,position[0]);
+   
+    EEPROM.put(address, position[0]);  
+    delay(100);  
+    // printf("EEPROM address: %d, value: %d\n", address,position[0]);
     address += sizeof(int);
-    EEPROM.write(address, position[1]);  
-    printf("EEPROM address: %d, value: %d\n", address, position[1]);
+    EEPROM.put(address, position[1]);  
+    delay(100); 
+    // printf("EEPROM address: %d, value: %d\n", address, position[1]);
 
     EEPROM.commit();
     address = 0;
-    past = EEPROM.read(address);
+    EEPROM.get(address,past);
+    delay(500);
     printf("EEPROM write address: %d, value : %d\n",address, past);
     address += sizeof(int);
-    past = EEPROM.read(address);
+    EEPROM.get(address,past);
+    delay(500);
     printf("EEPROM write address: %d, value : %d\n",address, past);
     EEPROM.end();
 }
 
 void calibration() { //put your main code here, to run repeatedly:
-  delay(5000);
   long previous = millis(); 
-
   entry_counter = 0;
-  while(millis() - previous < 30000){
+  while(millis() - previous < 90000){
     Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
     printf(" %d\n", Sensor_arr[entry_counter]);
     entry_counter += 1;

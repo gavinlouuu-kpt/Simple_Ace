@@ -242,7 +242,7 @@ void sample_collection(){
         printf("This is a failed breath");
         break;
       }
-      if (read_humidity() > 70) {
+      if (read_humidity() > 60) {
         store = true;
         Serial.println("Certain a breathe. Recording...");
       }

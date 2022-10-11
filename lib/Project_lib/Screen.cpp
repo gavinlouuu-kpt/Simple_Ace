@@ -4,6 +4,7 @@
 #include "Calibration.h"
 #include <SPI.h>
 #include <TFT_eSPI.h>
+#include <EEPROM.h>
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -84,7 +85,7 @@ void draw_wait(void){
 
 void set_range(int value){
   rangeL = value -1000;
-  rangeH = (value +3000)*2;
+  rangeH = (value +3000*1.3); 
 }
 
 void draw_sensor(double value){
@@ -104,7 +105,7 @@ void draw_result(double value){
   tft.pushImage(45,200,A7_w,A7_h,Asset_7,0x0000);
   tft.pushImage(85,200,A8_w,A8_h,Asset_8,0x0000);
   tft.pushImage(127,200,A10_w,A10_h,Asset_10,0x0000);
-  tft.pushImage(167,200,A13_w,A13_h,Asset_13,0x0000);
+  tft.pushImage(167,200,A13_w,A13_h,Asset_13,0x0000);          
   tft.setTextDatum(TC_DATUM); 
   tft.drawString("Acetone",180, 270,2);
   tft.drawFloat((float)value,2,180,290,2);
@@ -129,6 +130,8 @@ void draw_result(double value){
 void TouchScreen(){
     if(stage == 0){
       draw_framework();
+      sample_collection();
+      output_result();
       
         // float T = millis();
         // // float H = sht20.humidity();
@@ -262,8 +265,15 @@ void TouchScreen(){
 
             calibration();
             tft.fillRect(10,80,200,150,TFT_BLACK);
-            tft.drawFloat(float(ref_position[1]),0, 55,120, 1);
-            printf("%f\n", ref_position[1]);
+            EEPROM.begin(20);
+            int value;
+            EEPROM.get(0,value);
+            delay(100);
+            tft.drawFloat(float(value),0, 55,120, 1);
+            EEPROM.get(4,value);
+            delay(100);
+            tft.drawFloat(float(value),0, 100,120, 1);
+            EEPROM.end();
           } 
         }
     }
