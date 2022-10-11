@@ -184,7 +184,7 @@ int restore_baseline(){
       delay(100);
       int ref = baselineRead(CO2_channel );
       if (temp + 3 >= ref && temp - 3 <= ref) {
-        Serial.println("Found Baseline");
+        printf("Found Baseline %d\n", temp);
         delay(10);
         return temp;
         break;
@@ -224,6 +224,7 @@ void sample_collection(){
   previous = millis();
   int fail_count = 0 ;
   int previous_counter;
+  int previosu_counter_2;
   draw_wait();
   while (millis() - previous < sampletime + 1) {
     if (millis() -previous_counter >1000){
@@ -232,9 +233,11 @@ void sample_collection(){
       previous_counter= millis();
       draw_time(time);
     }
-    adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    printf("%d\n",adc_CO2);
-    draw_sensor((double)adc_CO2); 
+    if (millis()-previosu_counter_2>100){
+        adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
+        printf("%d\n",adc_CO2);
+        draw_sensor((double)adc_CO2); 
+    }
     // PID_control();
     if (store == false) {
       fail_count += 1 ;
@@ -259,13 +262,20 @@ void sample_collection(){
 int peak_value(int address) {
   int peak = 0;
   int position;
+  EEPROM.begin(20);
   int start = EEPROM.get(address,position)-100;
+  delay(100); 
+  if(start<0){
+    start=0;
+  }
   int end =  EEPROM.get(address,position) + 100;
-  printf("%d , %d\n", (int)start, (int)end);
+  delay(100);
+  EEPROM.end();
+  printf("start: %d , end: %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
     if ( Sensor_arr[i] > peak) {
       peak = Sensor_arr[i];
-      printf("Replaced\n");
+      printf("Replaced %d\n", i);
     }
   }
   printf("Peak value is %d.\n", peak);
@@ -279,6 +289,11 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
   switch (formula) { 
     case (1):
       { // CO2 concentration
+        const float ref_baseline_resist= 867623;// assignn value
+        float ratio_baseline = base_resist/ref_baseline_resist;
+        float correct_factor = 1.8764 * ratio_baseline * ratio_baseline * ratio_baseline - 3.9471 * ratio_baseline * ratio_baseline + 2.3844 * ratio_baseline + 0.6869;
+        buffer = buffer/correct_factor;
+
         float coeff_1 = 0.596;
         float coeff_2 = -1.0194;
         float coeff_3 = 0.4467;
