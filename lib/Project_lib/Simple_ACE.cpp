@@ -1,14 +1,21 @@
 #include "Simple_ACE.h"
-// #include <SHT2x.h>
-// #include "DFRobot_SHT20.h"
 #include "uFire_SHT20.h"
-#include <Screen.h>
-#include <PID.h>
+#include "Screen.h"
 #include "Calibration.h"
+#include <PID.h>
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
 #include <EEPROM.h>
-// #include <SPIFFS.h>
-// Adafruit_ADS1115 ads;
-// DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
+
+#include <time.h>
+#include <WiFiClient.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+
+#define PASSWORD            "10200718"
+#define SSID                "KPTESP32"
+
+Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
 // BlynkTimer timer;
 
@@ -17,11 +24,13 @@ const char* ntpServer = "pool.ntp.org";
 char ssid[] = SSID;
 char password[] = PASSWORD;
 
+
 double upload_buffer;
 double upload_buffer_1;
 double upload_buffer_2;
 double upload_buffer_3; 
 
+short Sensor_arr[store_size]={0};
 // BLYNK_CONNECTED()
 // {
 //   // Change Web Link Button message to "Congratulations!"
@@ -63,6 +72,7 @@ void analogSetup(){
   dacWrite(pumpPin, 128);
   delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
+  // EEPROM_setup();
 }
 
 void checkSetup(){
@@ -86,14 +96,11 @@ void checkSetup(){
   while (1);
   }
 
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  if (!EEPROM.begin(2)) {
-    Serial.println("An Error has occurred while mounting EPPROM");
-    return;
-  }
+  // if (!SPIFFS.begin(true)) {
+  //   Serial.println("An Error has occurred while mounting SPIFFS");
+  //   return;
+  // }
+
    //To rewrite each file from the first file
   EEPROM_setup();
   sht20.begin();
@@ -240,8 +247,8 @@ void sample_collection(){
         Serial.println("Certain a breathe. Recording...");
       }
     }
-    CO2_arr[q] = adc_CO2;
-    // Serial.println(q);delay(1);
+    Sensor_arr[q] = adc_CO2;
+    Serial.println(q);delay(1);
     q = q + 1;
   }
   if(fail_count==100){
@@ -256,53 +263,37 @@ int peak_value(int address) {
   int end =  EEPROM.get(address,position) + 100;
   printf("%d , %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
-    if ( CO2_arr[i] > peak) {
-      peak = CO2_arr[i];
-      // printf("Replaced\n");
+    if ( Sensor_arr[i] > peak) {
+      peak = Sensor_arr[i];
+      printf("Replaced\n");
     }
   }
   printf("Peak value is %d.\n", peak);
 return (peak);
-
-
-  // double acetone_start = 500;
-  // double acetone_end = 1000;
-  // double coec  = 55.0 / temp;
-  // int peak = 0;
-  // acetone_start = acetone_start * coec;
-  // acetone_end = acetone_end * coec;
-  // printf("%d , %d\n", (int)acetone_start, (int)acetone_end);
-  //   printf("Find peak ok\n");
-  // for ( int i = (int)acetone_start - 1 ; i <= (int) acetone_end - 1; i++) {
-  //   // Serial.println(CO2_arr[i]);
-  //   // printf("%d\n", i);
-  //   if ( CO2_arr[i] > peak) {
-  //     peak = CO2_arr[i];
-  //     // printf("Replaced\n");
-  //   }
-  // }
-  // // printf("Peak value is %d.\n", peak);
-  // // printf("Baseline value is %d.\n", baseline);
-  // return(peak);
 }
 
-double ratio_calibration(double uncal_base, double uncal_reading, bool formula){
-    double cal_ratio;
-    double buffer;
-    buffer =  uncal_reading / uncal_base;
-    switch (formula) { 
-        case (true): // acetone _concentration
-          slope = 1;
-          constant = 0;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
-        case (false): // CO2 concentration
-          slope = -0.0809;
-          constant = 2.64;
-          cal_ratio = (buffer - constant) / slope;
-          return cal_ratio;
-          break;
+double ratio_calibration(double base_resist, double peak_resist, int formula){
+  double concentration;
+  double buffer;
+  buffer =  peak_resist / base_resist;
+  switch (formula) { 
+    case (1):
+      { // CO2 concentration
+        float coeff_1 = 0.596;
+        float coeff_2 = -1.0194;
+        float coeff_3 = 0.4467;
+        concentration = coeff_1 * buffer * buffer + coeff_2 * buffer + coeff_3;
+        return concentration;
+        break;
+      }
+    case (2): // acetone _concentration
+      {
+        float slope = 1;
+        float constant = 0;
+        concentration = (buffer - constant) / slope;
+        return concentration;
+        break;
+      }
   }
 }
 
@@ -310,7 +301,7 @@ double ads_convert(int value, bool resist) {
   double volt;
   const double load_r = 300*1000;
   const double V_in = 3.3;
-  const double off_volt= 3.3*10/256;
+  const double off_volt= 2.27272727273;
   double sen_r;
   volt = value * LSB;      
   double Vout = off_volt + volt;
@@ -328,39 +319,6 @@ double ads_convert(int value, bool resist) {
   }
 }
 
-// double sort_reject(double arr[], int arr_size) {
-//   double buff;
-//   double buff_1 = 0;
-//   int len = arr_size;
-//   for ( int j = 0 ; j < arr_size ; j++) {
-//     for (int i = 0; i < arr_size - 1 - j; i ++) {
-//       if (arr[i] > arr[i + 1]) {
-//         buff = arr[i];
-//         arr[i] = arr[i + 1];
-//         arr[i + 1] = buff;
-//       }
-//     }
-//   }
-//   if (arr[0] < arr[1] * 0.8) {
-//     arr[0] = 0;
-//     len = len - 1;
-//     Serial.println("rejected");
-//   }
-//   if (arr[2] > arr[1] * 0.8) {
-//     arr[2] = 0;
-//     len = len - 1;
-//     Serial.println("rejected");
-//   }
-
-//   for (int i = 0; i < arr_size; i++) {
-//     Serial.println(arr[i], 6);
-//   }
-//   for (int i = 0; i < arr_size; i++) {
-//     buff_1 = buff_1 + arr[i];
-//   }
-//   double avg_rat = buff_1 / len;
-//   return avg_rat;
-// }
 
 void output_result(){
   int CO2_peak = peak_value(0);
@@ -368,12 +326,14 @@ void output_result(){
   double baseline_resist = ads_convert(baseline, true); 
   double peak_resist_CO2 = ads_convert(CO2_peak, true);
   double peak_resist_Ace = ads_convert(ace_peak, true);
-  conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, true);
-  conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, false);
+    conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
+    conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
+
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
   printf("Breath Analysis Result:\n");
-  printf("peal_value: %.6f\nBaseline Resistance (Ohm): %.6f\nRatio_Acetone: %.6f\n",peak_resist_Ace, baseline_resist,conc_Ace);
+  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
+  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
   draw_result(conc_Ace);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 

@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "SPIFFS.h"
 // #include <BlynkSimpleEsp32.h>
 // BlynkWifi Blynk(_blynkTransport);
 #include <Simple_ACE.h>
@@ -20,9 +19,6 @@ double avg_ratio_O2 ;
 double rq;
 double map_rq;
 int file_label;
-short CO2_arr[store_size] = {0};
-short O2_arr[store_size] = {0};
-File dat_file_app;
 
 
 void setup() {
@@ -30,7 +26,7 @@ void setup() {
   tft_setup();
   pinSetup();
   analogSetup();
-  //checkSetup();
+  checkSetup();
   draw_framework();
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //

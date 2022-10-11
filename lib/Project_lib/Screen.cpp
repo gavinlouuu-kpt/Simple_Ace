@@ -2,6 +2,8 @@
 #include <TFT_eSPI.h>
 #include <Simple_ACE.h>
 #include "Calibration.h"
+#include <SPI.h>
+#include <TFT_eSPI.h>
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -14,8 +16,6 @@
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
 extern float ref_position[2];
-
-
 
 int rangeL = 0;
 int rangeH = 8000;
@@ -95,6 +95,7 @@ void draw_sensor(double value){
     // printf("%f\n",value); 
     graph1.drawFastVLine(199, 150 - (int)(150*(sin((value/150.0)-(3.14/2.0))+1.0)),5, beige);
     graph1.pushSprite(20, 40);
+    // graph1.drawString("Breathe Here, ")
 }
 // bool store;
 void draw_result(double value){

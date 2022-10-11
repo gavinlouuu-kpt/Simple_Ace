@@ -1,24 +1,12 @@
 #ifndef Simple_ACE_h 
 #define Simple_ACE_h
 
-#include <time.h>
-#include <WiFiClient.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <SPI.h>
-#include <TFT_eSPI.h>
-#include <Wire.h>
-#include <EEPROM.h>
-#include <Adafruit_ADS1X15.h>
 
-#define PASSWORD            "10200718"
-#define SSID                "KPTESP32"
 // #define BLYNK_TEMPLATE_ID   "TMPL7mbkwSQ6"
 // #define BLYNK_DEVICE_NAME   "SimpleCoCo 1"
 // #define BLYNK_AUTH_TOKEN    "pcRimMdKvxJzGShG1ApwLPZzGzt6GKRM"
 // #define BLYNK_PRINT         Serial
 
-#define ASD1115 			0x48
 #define BLACK				0x0000
 #define baseSample 			20
 
@@ -66,8 +54,6 @@ const int temperate = 55;
 
 extern bool clean;
 extern bool store;
-extern short CO2_arr[store_size];
-extern Adafruit_ADS1115 ads;
 
 void checkSetup(void);
 void pinSetup(void);
