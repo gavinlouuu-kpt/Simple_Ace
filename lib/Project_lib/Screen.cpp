@@ -13,6 +13,7 @@
 #include "Asset_13.h"
 #include "Asset_14.h"
 #include "setting.h"
+#include "Beagle.h"
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
@@ -65,9 +66,9 @@ void draw_framework(){
   tft.setTextDatum(TC_DATUM); 
   tft.drawString("Acetone Level",120, 10,4);
   tft.setTextDatum(TL_DATUM); 
-  tft.drawString("King's ",8, 250,2);
-  tft.drawString("Phase",8,270,2);
-  tft.drawString("Technologies",8,290,2);
+  // tft.drawString("King's ",8, 250,2);
+  // tft.drawString("Phase",8,270,2);
+  // tft.drawString("Technologies",8,290,2);
   tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
 }
 
@@ -127,11 +128,23 @@ void draw_result(double value){
   tft.fillRect(10,120,240,30,TFT_BLACK);
 }
 
+  void HomeScreen(){
+    tft.pushImage(20,50,BeagleWidth, BeagleHeight, Beagle);
+    
+  }
+
 void TouchScreen(){
     if(stage == 0){
-      draw_framework();
-      sample_collection();
-      output_result();
+      // tft.fillScreen(TFT_BLACK);
+      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
+      HomeScreen();
+      // tft.drawString("Beagle",100, 60 , 4);
+
+      tft.drawString("King's ",1, 250,2);
+      tft.drawString("Technologies",1,270,1);
+      tft.drawString("Phase",1,280,2);
+
       
         // float T = millis();
         // // float H = sht20.humidity();
@@ -176,7 +189,7 @@ void TouchScreen(){
             tft.fillRoundRect(10, 170, 220, 60,30 ,TFT_RED);
             tft.drawRoundRect(10, 170, 220, 60,30, TFT_WHITE);
             // tft.setTextColor(TFT_WHITE);
-            tft.drawString("PID Controller",80,190,2);
+            tft.drawString("Sampling",90,190,2);
 
             tft.fillRoundRect(10, 250, 220, 60,30 ,TFT_RED);
             tft.drawRoundRect(10, 250, 220, 60,30, TFT_WHITE);
@@ -191,25 +204,30 @@ void TouchScreen(){
       }
       if(stage == 1){ 
       
-        if(t_x > 10 && t_x < 50  && t_y >20  && t_y < 290){
-                                  //return button
+        if(t_x > 10 && t_x < 50  && t_y >20  && t_y < 290){              //return button
+
           DrawHomescreen();
           stage = 0;
           ResetXY();
         }
 
         if(t_x > 75 && t_x < 115  && t_y >20  && t_y < 290){ //PID_controller
+          ResetXY();
           tft.fillScreen(TFT_BLACK);
-          tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
-          tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_RED);
+          draw_framework();
+          tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_RED);
+          tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_WHITE);
           tft.setTextColor(TFT_WHITE, TFT_RED);
-          tft.drawString("PID_controller", 80,15,2);
+          tft.drawString("Start", 20,285,2);
 
+          // tft.fillRoundRect(90, 270, 60, 46,23 ,TFT_RED);
+          // tft.drawRoundRect(90, 270, 60, 46,23 ,TFT_WHITE);
+          // tft.drawString("END", 110,285,2);
           //drawKeypad();
 
           stage = 2;
           printf("stage2 \n");
-          ResetXY();
+          
         } 
 
         if(t_x > 140 && t_x < 180  && t_y >20  && t_y < 290){ //Collaboration
@@ -276,6 +294,23 @@ void TouchScreen(){
             EEPROM.end();
           } 
         }
+      if(stage == 2){
+          int Open = 1;
+
+          if(t_x > 11 && t_x < 32  && t_y > 15 && t_y < 75){
+            Open = 1;
+            if(Open = 1){
+              sample_collection();
+              output_result();
+            }
+            else if(t_x > 5 && t_x < 27  && t_y > 110 && t_y < 196){
+              Open = 0;
+            }  
+          }
+
+
+      }
+
     }
 }
 
