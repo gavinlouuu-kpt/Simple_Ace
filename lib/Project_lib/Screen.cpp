@@ -294,7 +294,7 @@ void TouchScreen(){
         EEPROM.get(address,value);
         delay(100);
         tft.drawFloat(float(value),0, 80,120, 2);
-        address ++ sizeof(int);
+        address += sizeof(int);
         EEPROM.get(address,value_1);
         delay(100);
         tft.drawFloat(float(value_1),0, 160,120,2);
