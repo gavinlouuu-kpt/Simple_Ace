@@ -182,17 +182,21 @@ void update_parameters(){
     delay(500);
     printf("EEPROM write address: %d, value : %d\n",address, past);
     EEPROM.end();
+    delay(500);
 }
 
 void calibration() { //put your main code here, to run repeatedly:
   long previous = millis(); 
+  long previous_2;
   entry_counter = 0;
   while(millis() - previous < 90000){
-    Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
-    printf(" %d\n", Sensor_arr[entry_counter]);
-    entry_counter += 1;
-    delay(5);
-    printf("Counter 1: %d\n", entry_counter);
+    if (millis()-previous_2>10){
+      Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
+      printf(" %d\n", Sensor_arr[entry_counter]);
+      entry_counter += 1;
+      printf("Counter 1: %d\n", entry_counter);
+      previous_2 = millis();
+    }
   }
 
   process_data();

@@ -6,6 +6,7 @@
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
 #include <EEPROM.h>
+#include <math.h>
 
 #include <time.h>
 #include <WiFiClient.h>
@@ -209,6 +210,7 @@ double conc_Ace;
 double conc_CO2;
 bool store;
 int baseline;
+int fail_count = 0 ;
 void sample_collection(){
   int q = 0;
   unsigned long previous ;
@@ -222,7 +224,6 @@ void sample_collection(){
   breath_check();
   store = false;
   previous = millis();
-  int fail_count = 0 ;
   int previous_counter;
   int previosu_counter_2;
   draw_wait();
@@ -233,15 +234,16 @@ void sample_collection(){
       previous_counter= millis();
       draw_time(time);
     }
-    if (millis()-previosu_counter_2>100){
+    if (millis()-previosu_counter_2>10){
         adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
         printf("%d\n",adc_CO2);
+        previosu_counter_2 = millis();
         draw_sensor((double)adc_CO2); 
     }
     // PID_control();
     if (store == false) {
       fail_count += 1 ;
-      if (fail_count== 100){
+      if (fail_count== 50){
         printf("This is a failed breath");
         break;
       }
@@ -254,7 +256,7 @@ void sample_collection(){
     Serial.println(q);delay(1);
     q = q + 1;
   }
-  if(fail_count==100){
+  if(fail_count==50){
     return;
   }
 }
@@ -263,16 +265,17 @@ int peak_value(int address) {
   int peak = 0;
   int position;
   EEPROM.begin(20);
-  int start = EEPROM.get(address,position)-100;
+  int start = EEPROM.get(address,position)-200;
   delay(100); 
   if(start<0){
     start=0;
   }
-  int end =  EEPROM.get(address,position) + 100;
+  int end =  EEPROM.get(address,position) + 200;
   delay(100);
   EEPROM.end();
   printf("start: %d , end: %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
+    printf("value: %d\n", Sensor_arr[i]);
     if ( Sensor_arr[i] > peak) {
       peak = Sensor_arr[i];
       printf("Replaced %d\n", i);
@@ -289,15 +292,19 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
   switch (formula) { 
     case (1):
       { // CO2 concentration
-        const float ref_baseline_resist= 867623;// assignn value
+        const float ref_baseline_resist= 86762.3;// assignn value
         float ratio_baseline = base_resist/ref_baseline_resist;
-        float correct_factor = 1.8764 * ratio_baseline * ratio_baseline * ratio_baseline - 3.9471 * ratio_baseline * ratio_baseline + 2.3844 * ratio_baseline + 0.6869;
-        buffer = buffer/correct_factor;
-
-        float coeff_1 = 0.596;
-        float coeff_2 = -1.0194;
-        float coeff_3 = 0.4467;
-        concentration = coeff_1 * buffer * buffer + coeff_2 * buffer + coeff_3;
+        // float correct_factor = 1.8764 * ratio_baseline * ratio_baseline * ratio_baseline - 3.9471 * ratio_baseline * ratio_baseline + 2.3844 * ratio_baseline + 0.6869;
+        float correct_factor = -0.208 * log(ratio_baseline) + 0.9922;
+        printf(" baseline ratio: %.6f\n", ratio_baseline);
+        printf("buffer: %.6f\n",buffer);
+        
+        buffer = buffer*correct_factor;
+        
+        // float coeff_1 = 0.596;
+        // float coeff_2 = -1.0194;
+        // float coeff_3 = 0.4467;
+        concentration = 1.9433 * exp(-6.143* buffer) ;
         return concentration;
         break;
       }
@@ -349,7 +356,7 @@ void output_result(){
   printf("Breath Analysis Result:\n");
   printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
   printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
-  draw_result(conc_Ace);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
 }
 
 
