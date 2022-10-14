@@ -238,7 +238,7 @@ void TouchScreen(){
         tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);     //Start Button
         tft.drawString("START", 50,270,2);
       }
-      else(t_x > 200 && t_x < 240  && t_y >20  && t_y < 290){ //OTA Setting
+      else if (t_x > 200 && t_x < 240  && t_y >20  && t_y < 290){ //OTA Setting
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
         tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_NEIGHBOUR_BLUE);

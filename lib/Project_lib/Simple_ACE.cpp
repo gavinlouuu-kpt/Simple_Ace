@@ -64,6 +64,7 @@ void pinSetup(){
   pinMode(NTCC,INPUT);
   // pinMode(fanPin, OUTPUT);
   pinMode(btn_rst, INPUT);
+  pinMode(senH,OUTPUT);
 }
 
 void analogSetup(){
@@ -73,6 +74,7 @@ void analogSetup(){
   dacWrite(pumpPin, 128);
   delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
+  dacWrite(senH,220);
   // EEPROM_setup();
 }
 
