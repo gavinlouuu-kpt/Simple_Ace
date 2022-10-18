@@ -10,7 +10,7 @@
 #define BLACK				0x0000
 #define baseSample 			20
 
-//Lilygo T-Disaply//
+//Lilygo T-Disaply////////////////////////////////////////////////
 // #define fanPin              15
 // #define pumpPin             25
 // #define solPin              26
@@ -19,8 +19,8 @@
 // #define btn_rst             33
 // #define NTCC                39
 
-//Wrover 2.8" display//         // IB
-#define pumpPin             32  //25
+//Wrover 2.8" display///////////////////////////////////////////////      
+#define pumpPin             25  
 #define solPin              33
 #define buz                 13
 #define colPin              27  
@@ -28,8 +28,18 @@
 #define btn_1               36
 #define NTCC                34
 #define BOOT                0
-#define dacW                26
-#define senH                25
+
+// //Wrover IB///////////////////////////////////////////////////
+// #define pumpPin             32  
+// #define solPin              33
+// #define buz                 13
+// #define colPin              27  
+// #define btn_rst             39
+// #define btn_1               36
+// #define NTCC                34
+// #define BOOT                0
+// #define Off_s               26
+// #define senH                25
 
 #define CO2_channel  		1
 #define EEP_add 			0
