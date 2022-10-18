@@ -62,9 +62,8 @@ void pinSetup(){
   pinMode(pumpPin, OUTPUT);
   pinMode(colPin,OUTPUT);
   pinMode(NTCC,INPUT);
-  // pinMode(fanPin, OUTPUT);
   pinMode(btn_rst, INPUT);
-  pinMode(senH,OUTPUT);
+  // pinMode(senH,OUTPUT);
 }
 
 void analogSetup(){
@@ -74,8 +73,7 @@ void analogSetup(){
   dacWrite(pumpPin, 128);
   delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
-  dacWrite(senH,220);
-  // EEPROM_setup();
+  // dacWrite(senH,220);
 }
 
 void checkSetup(){
@@ -107,10 +105,6 @@ void checkSetup(){
    //To rewrite each file from the first file
   EEPROM_setup();
   sht20.begin();
-  //  sht20.checkSHT20();
-
-  // uint8_t stat = sht20.getStatus();
-  // Serial.println(stat, HEX);
 
   if (!ads.begin()) {
   Serial.println("Failed to initialize ADS.");
