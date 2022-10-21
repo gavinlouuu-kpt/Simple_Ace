@@ -7,15 +7,19 @@
 #include <Adafruit_ADS1X15.h>
 #include <EEPROM.h>
 #include <math.h>
+#include <TFT_eSPI.h>
 
 #include <time.h>
 #include <WiFiClient.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 
+#include "Loading.h"
+
 #define PASSWORD            "10200718"
 #define SSID                "KPTESP32"
 
+extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
 // BlynkTimer timer;
@@ -181,9 +185,19 @@ int baselineRead(int channel) {
 
 int restore_baseline(){
   while (1) {
+
+
       int temp = baselineRead(CO2_channel );
-      delay(100);
+      
+      for(int i= 0;i<10;i++){
+        tft.pushImage(80, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
+        delay(100);
+      }
+      tft.fillRect(80,250,70,70,TFT_NEIGHBOUR_GREEN);
       int ref = baselineRead(CO2_channel );
+
+
+
       if (temp + 3 >= ref && temp - 3 <= ref) {
         printf("Found Baseline %d\n", temp);
         delay(10);
