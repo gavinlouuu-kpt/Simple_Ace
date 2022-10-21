@@ -5,6 +5,8 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
+#include "uFire_SHT20.h"
+#include <Adafruit_ADS1X15.h>
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -17,6 +19,8 @@
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
+extern Adafruit_ADS1115 ads;
+extern uFire_SHT20 sht20;
 extern float ref_position[2];
 
 int rangeL = 0;
@@ -24,7 +28,7 @@ int rangeH = 8000;
 uint16_t beige =    tft.color565(239, 227, 214);
 // uint32_t beige =    tft.color565(255, 244, 225);
 
-float HighY = 100;
+float HighY = 60;
 float LowY = 40;
 uint16_t t_x = 0, t_y = 0;
 int stage = 0;
@@ -172,48 +176,53 @@ void TouchScreen(){
   if(tft.getTouch(&t_x, &t_y)){
     printf("%d\n", t_x);
     printf("%d\n", t_y);
-    if(stage == 0 || stage ==2 || stage ==3 || stage ==4){
+    if(stage == 0 || stage ==2 || stage ==3 || stage ==4 || stage ==5){
       if(t_x > 0 && t_x < 35  && t_y > 245 && t_y < 290){
+
+        ResetXY();
         tft.fillScreen(TFT_NEIGHBOUR_GREEN); 
-        tft.setTextColor(TFT_NEIGHBOUR_BLUE, TFT_NEIGHBOUR_BEIGE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
         tft.setTextDatum(4);
         
-        tft.fillRoundRect(10, 10, 220, 60,30 ,TFT_NEIGHBOUR_BEIGE);
-        tft.drawRoundRect(10, 10, 220, 60,30, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("OTA Setting",120,40,4);
+        tft.fillRoundRect(10, 10, 220, 44,22 ,TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 10, 220, 44,22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("OTA Setting",120,35,4);
 
-        tft.fillRoundRect(10, 90, 220, 60,30 , TFT_NEIGHBOUR_BEIGE);
-        tft.drawRoundRect(10, 90, 220, 60, 30,TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Calibration",120,120,4);
+        tft.fillRoundRect(10, 75, 220, 44,22 , TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 75, 220, 44, 22,TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Calibration",120,100,4);
         
-        tft.fillRoundRect(10, 170, 220, 60,30 ,TFT_NEIGHBOUR_BEIGE);
-        tft.drawRoundRect(10, 170, 220, 60,30, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Sampling",120,200,4);
+        tft.fillRoundRect(10, 135, 220, 44,22 ,TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 135, 220, 44,22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Sampling",120,160,4);
 
-        tft.fillRoundRect(10, 250, 220, 60,30 ,TFT_NEIGHBOUR_BEIGE);
-        tft.drawRoundRect(10, 250, 220, 60,30, TFT_NEIGHBOUR_BLUE);
+        tft.fillRoundRect(10, 195, 220, 44,22 ,TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 195, 220, 44,22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Developer Mode",120,220,4);
+
+        tft.fillRoundRect(10, 255, 220, 44,22 ,TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 255, 220, 44,22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Return",120,280,4);
 
         stage= 1;
-        ResetXY();
         delay(400);
       }
     }
 
     if(stage == 1){ // Navigation
-      if(t_x > 10 && t_x < 50  && t_y >20  && t_y < 290){              //return button
+      if(t_x > 15 && t_x < 45  && t_y >10  && t_y < 295){              //return button
         // DrawHomescreen();
         stage = 0;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         ResetXY();
       }
-      else if(t_x > 75 && t_x < 115  && t_y >20  && t_y < 290){ //PID_controller
+      else if(t_x > 110 && t_x < 140  && t_y >10  && t_y < 295){ //Sampling
         ResetXY();
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         draw_framework();
         tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
         tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_WHITE);
-        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_BLUE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
 
         tft.drawString("Start", 20,285,2);
 
@@ -225,11 +234,11 @@ void TouchScreen(){
         stage = 2;
         printf("stage2 \n");
       } 
-      else if(t_x > 140 && t_x < 180  && t_y >20  && t_y < 290){ //Collaboration
+      else if(t_x > 160 && t_x < 190  && t_y >10  && t_y < 295){ //Collaboration
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
         tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_NEIGHBOUR_BLUE);
-        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_BLUE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Calibration", 120,25,2);
         printf("stage3 \n");
 
@@ -238,17 +247,28 @@ void TouchScreen(){
         tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);     //Start Button
         tft.drawString("START", 50,270,2);
       }
-      else(t_x > 200 && t_x < 240  && t_y >20  && t_y < 290){ //OTA Setting
+      else if(t_x > 210 && t_x < 235  && t_y >10  && t_y < 295){ //OTA Setting
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
         tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_NEIGHBOUR_BLUE);
-        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("OTA Setting", 80,15,2);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("OTA Setting", 100,25,2);
         printf("stage4 \n");
         
         stage = 4;
         ResetXY();
       } 
+      else if(t_x > 60 && t_x < 95  && t_y >10  && t_y < 295){   //developer mode
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
+        printf("stage5 \n");
+        tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);     //Start Button
+        tft.drawString("START", 50,270,2);
+        stage = 5;
+        ResetXY();
+
+      }
     }
 
     if(stage == 2){
@@ -262,6 +282,72 @@ void TouchScreen(){
         else if(t_x > 5 && t_x < 27  && t_y > 110 && t_y < 196){
           Open = 0;
         }  
+      }
+    }
+    if(stage == 5){                                                                 //developer mode
+
+      float max = 60;
+      float diff;
+      int i =0;
+      float H[65556]; 
+      tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+
+      if(t_x > 22 && t_x < 47  && t_y >13  && t_y < 108){
+        graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+        while(1){
+          // if(tft.getTouch(&t_x, &t_y)){
+          //   printf("%d\n",t_x);
+          //   printf("%d\n",t_y);
+          // }
+
+            float ADS0 = ads.readADC_SingleEnded(0);
+            float ADS1 = ads.readADC_SingleEnded(1);
+            int num = i;
+
+              H[i] = sht20.humidity();
+              tft.drawString("ADS0:",25,200,2);
+              tft.drawString("ADS1:",110,200,2);
+              tft.drawString("H:",200,200,2);
+              tft.drawFloat(float(ADS0),0,65,200,2);
+              tft.drawFloat(float(ADS1),0,150,200,2);
+              tft.drawFloat(float(H[i]),0,220,200,2);
+              printf("%d\n", H[i]);
+
+              draw_sensor(ADS0);
+
+
+              // graph1.scroll(-1);                                                                      //AUTO-SCALE
+              // graph1.pushSprite(20, 40);
+              // graph1.drawFastVLine(199,100-100*((H[i]-LowY)/(HighY-LowY)),3,TFT_YELLOW);
+              
+
+              // if(H[i]>HighY){
+              //   graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+              //   HighY = H[i] +5 ;
+              //   if(i<199){
+              //     int num = i;
+              //     while(num >0){
+                    
+              //       graph1.drawFastVLine(199-num,100-100*((H[i-num]-LowY)/(HighY-LowY)),3,TFT_YELLOW);  //AUTO-SCALE FAIL
+              //       num = num -1;
+              //     }
+                  
+              //   }
+              // }
+            
+          
+
+            tft.drawFloat(float(rangeH),0,15, 32,1);
+            tft.drawFloat(float(rangeL),0,10, 132,1);
+            
+            i++;
+            if(tft.getTouch(&t_x, &t_y)){
+              if(t_x > 0 && t_x < 35  && t_y > 245 && t_y < 290){
+                break;
+              }
+            }
+          
+        }
       }
     }
 
@@ -302,6 +388,8 @@ void TouchScreen(){
         delay(500);
       } 
     }
+
+
   }
 }
 
