@@ -354,21 +354,30 @@ void TouchScreen(){
     if(stage == 3){                                           //Calibration Start Button
       if(t_x > 22 && t_x < 47  && t_y >13  && t_y < 108){
         tft.setTextDatum(4);
-        long previous = 0;
-        int i = 3;
-        while(i >= 0){
-          if(millis()- previous> 1000){
-            previous = millis();
-            tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
-            tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-            tft.drawFloat((float) i, 0,120,160,6);
-            i--;
-          }
-        }
-
-        tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        // long previous = 0;
+        // int i = 3;
+        // while(i >= 0){
+        //   if(millis()- previous> 1000){
+        //     previous = millis();
+        //     tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        //     tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+        //     tft.drawFloat((float) i, 0,120,160,6);
+        //     i--;
+        //   }
+        // }
         tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-        tft.drawString("Calibrating",120,160,4);
+        tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
+        tft.drawString("Starting in 3",120,120,4);
+        delay(1000);
+        tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        tft.drawString("Starting in 2",120,120,4);
+        delay(1000);
+        tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        tft.drawString("Starting in 1",120,120,4);
+        delay(1000);
+        
+        tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        // tft.drawString("Calibrating",120,120,4);
 
         calibration();
         tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
