@@ -270,6 +270,7 @@ void TouchScreen(){
         tft.setTextDatum(4);
         long previous = 0;
         int i = 3;
+        tft.drawString("Count Down", 120,60,4);
         while(i >= 0){
           if(millis()- previous> 1000){
             previous = millis();
@@ -280,7 +281,7 @@ void TouchScreen(){
           }
         }
 
-        tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
+        tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
         tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
         tft.drawString("Calibrating",120,160,4);
 

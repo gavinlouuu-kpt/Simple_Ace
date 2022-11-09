@@ -3,7 +3,7 @@
 
 #define SAMPLE_LENGTH 10000
 #define show_peak 3
-#define peak_candidate 100
+#define peak_candidate 2000
 
 // float ref_position[2];
 
