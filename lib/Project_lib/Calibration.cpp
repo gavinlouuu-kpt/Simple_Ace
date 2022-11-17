@@ -2,6 +2,10 @@
 #include "Simple_ACE.h"
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
+#include "TFT_eSPI.h"
+#include "Loading.h"
+
+extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
 
 // void draw_process(int trial){
@@ -304,6 +308,59 @@ void  calibration() { //put your main code here, to run repeatedly:
   long previous = millis(); 
   long previous_2;
   entry_counter = 0;
+
+  int i = 0;
+  int time = 0;
+  int num = 3;
+  tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+  int counter = 0;
+  int counter2 = 0;
+  while(millis() - previous < 15000){
+    
+    if(millis() - time > 1000 && num >0){
+      tft.drawString("Sample in ",110,120,4);
+      tft.drawFloat(float(num),0,180,120,4);
+      num--;
+      time = millis();
+    }
+    if(num == 0 && counter == 0 && millis() - time > 1000){
+      tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
+      counter++;
+    }
+    printf("%d\n",time);
+    printf("%d\n",num);
+    if(num == 0 && millis() - time > 1000){
+      tft.drawString("Remain ",120,120,4);
+      if((15000-(millis() - previous))/1000 == 9 && counter2 == 0){
+        tft.fillRect(165,100,40,40,TFT_NEIGHBOUR_GREEN);
+        counter2 ++;
+      }
+      tft.drawFloat(float((15000-(millis() - previous))/1000),0,180,120,4);
+    }
+
+    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[i]);
+    delay(10);
+    i++;
+    if(i>10){
+      i = 0;
+    }
+    // tft.drawFloat(float((9000-millis())/1000),0,200,120,2);
+    
+    printf("%d\n", millis());
+
+    if (millis()-previous_2>10){
+      Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
+      //printf(" %d\n", Sensor_arr[entry_counter]);
+      entry_counter += 1;
+      //printf("Counter 1: %d\n", entry_counter);
+      previous_2 = millis();
+      
+    }
+
+    
+  }
+  
+
   // while(millis() - previous < 90000){
   //   if (millis()-previous_2>10){
   //     Sensor_arr_numb[entry_counter] = ads.readADC_SingleEnded(1);
@@ -315,7 +372,9 @@ void  calibration() { //put your main code here, to run repeatedly:
   //   }
   // }
   check_sample();
+
   process_data();
   find_peak();
   update_parameters();
+  
 }
