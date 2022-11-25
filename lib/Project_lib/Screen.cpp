@@ -159,7 +159,7 @@ void HomeScreen()
 {
 
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
-  tft.setTextDatum(0);
+   tft.setTextDatum(0);
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   tft.drawString("King's ", 1, 250, 2);
   tft.drawString("Technologies", 1, 270, 1);
@@ -348,8 +348,7 @@ void TouchScreen()
       }
     }
 
-    if (stage == 5)
-    { // developer mode choices
+    if (stage == 5){                                                                           // developer mode choices
       if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295)
       {
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
@@ -374,16 +373,19 @@ void TouchScreen()
 
     if (stage == 7)
     {
-      float max = 60;
-      float diff;
-      int i = 0;
-      float H[65556];
-      float LowY = 40;
-      float HighY = 60;
-      int present = H[0];
+      
+      // int MaxNum, MinNum;
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
+        int Change = 0;
+        int max1 = 57;
+        int min1 = 40;
+        int i = 0;
+        int H[210];
+        float LowY;
+        float HighY;
+        int counter =0;
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         while (1)
         {
@@ -392,31 +394,105 @@ void TouchScreen()
           //   printf("%d\n",t_y);
           // }
 
-          float ADS0 = ads.readADC_SingleEnded(0);
-          float ADS1 = ads.readADC_SingleEnded(1);
-          int num = i;
+          // float ADS0 = ads.readADC_SingleEnded(0);
+          // float ADS1 = ads.readADC_SingleEnded(1);
 
-          H[i] = sht20.humidity();
-          tft.drawString("ADS0:", 25, 200, 2);
-          tft.drawString("ADS1:", 110, 200, 2);
-          tft.drawString("H:", 200, 200, 2);
-          tft.drawFloat(float(ADS0), 0, 65, 200, 2);
-          tft.drawFloat(float(ADS1), 0, 150, 200, 2);
-          tft.drawFloat(float(H[i]), 0, 220, 200, 2);
-          printf("%d\n", H[i]);
+          
+          // tft.drawString("ADS0:", 25, 200, 2);
+          // tft.drawString("ADS1:", 110, 200, 2);
+          // tft.drawString("H:", 200, 200, 2);
+          // tft.drawFloat(float(ADS0), 0, 65, 200, 2);
+          // tft.drawFloat(float(ADS1), 0, 150, 200, 2);
+          // tft.drawFloat(float(H[i]), 0, 220, 200, 2);
+          // printf("%d\n", H[i]);
 
-          graph1.scroll(-1); // AUTO-SCALE
+                                              // AUTO-SCALE
           graph1.pushSprite(20, 40);
+          if(i<201){
+            H[i] = sht20.humidity(); 
+            if(i == 10){                                  // When i >200, H[i-1] = H[i]
+              for(int j= 1;j <= 10 ; j++){
+                H[j-1] = H[j];
+                // printf("%d\n",H[j]);
+                 printf("%d\n",j);
+              }
+              counter = 1;
+              Change = 1;
+            } 
 
-          // if(max>LowY && max<HighY){
+            // for(int a = 0; a = i; a++){
+            //   if(H[a]>max1){
+            //     max1 = H[a];
+            //     Change = 1;
+            //   }
 
-          // }
-          graph1.drawFastVLine(199, 100 - 100 * ((H[i] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
+            //   if(H[a]<min1){
+            //     min1 = H[a];
+            //     Change = 1;
+            //   }
+            // }
+            printf("%d\n",i);
+            // printf("%d\n",H[i]);
+            printf("%d\n", max1);
+            printf("%d\n", counter);
+            printf("%d\n", Change);
+            // HighY = max1 +2;
+            // LowY = min1 -2;
 
-          tft.drawFloat(float(HighY), 0, 15, 32, 1);
-          tft.drawFloat(float(LowY), 0, 10, 132, 1);
+            // tft.drawFloat(float(HighY), 0, 15, 32, 1);
+            // tft.drawFloat(float(LowY), 0, 10, 132, 1);
 
-          i++;
+            if(Change == 0){
+              graph1.scroll(-1);
+              graph1.drawFastVLine(199, 100 - 100 * ((H[i] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
+              // if(i >10){
+              //   graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+              //   i = 0;
+              // }
+            }
+            if(Change == 1){
+              graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+              // for(int c =0 ; c < (i+1) ; c++){
+              //   graph1.drawFastVLine(199-(i-c), 100 - 100 * ((H[c] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
+              // }
+              Change = 0;
+            }
+            i++;
+
+            if(counter == 1){
+              i = 10;
+            }
+
+          }
+
+
+
+            // if(MaxNum<0){                                   //find the max when MaxNum <0
+            //   H[0] = max;
+            //   for(int a = 0; a++; a == i){
+            //     if(H[a]> max){
+            //       max = H[a];
+            //       MaxNum = a;
+            //     }
+            //   }
+            // }
+
+            // if(MinNum<0){                                   //find the min when MinNum <0
+            //   H[0] = min;
+            //   for(int b = 0; b++; b == i){
+            //     if(H[b]< min){
+            //       min = H[b];
+            //       MinNum = b;
+            //     }
+            //   }
+              
+            // }
+
+
+
+
+
+
           if (tft.getTouch(&t_x, &t_y))
           {
             if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290)

@@ -27,8 +27,9 @@ void setup()
   pinSetup();
   analogSetup();
   checkSetup();
+  ///////////////////
   // draw_framework();
-  Serial.println("Setup done");
+  // Serial.println("Setup done");
   // use only when data has to write into spiffs //
   // only flush the file when EEPROM is rebooted
   // if (EEPROM.read(EEP_add) == 0) {
