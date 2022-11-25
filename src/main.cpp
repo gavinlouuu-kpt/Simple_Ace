@@ -11,22 +11,23 @@
 //////////////////////////Request time//////////////////////////////////////
 unsigned long previous_time;
 //////////////////////////functions/////////////////////////////////////////
-int data_logging(double value, double value_1, double value_2, double value_3,  int storage);
+int data_logging(double value, double value_1, double value_2, double value_3, int storage);
 double mapping(double CO2, double O2);
 ///////////////////////////////////Global Data.//////////////////////////////////////
 double avg_ratio_Ace;
-double avg_ratio_O2 ;
+double avg_ratio_O2;
 double rq;
 double map_rq;
 int file_label;
 
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   tft_setup();
   pinSetup();
   analogSetup();
   checkSetup();
+
   draw_framework();
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //
@@ -49,7 +50,8 @@ void setup() {
   // }
 }
 
-void loop() {
+void loop()
+{
 
   TouchScreen();
 
