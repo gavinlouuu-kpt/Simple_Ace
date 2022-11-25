@@ -265,8 +265,8 @@ void TouchScreen()
         tft.fillRect(10, 250, 80, 40, TFT_NEIGHBOUR_BLUE); // Start Button
         tft.drawString("START", 50, 270, 2);
       }
-      else if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295)
-      { // OTA Setting
+
+      else if(t_x > 210 && t_x < 235  && t_y >10  && t_y < 295){ //OTA Setting
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(180, 260, settingWidth, settingHeight, setting);
 
@@ -587,6 +587,7 @@ void TouchScreen()
         //     i--;
         //   }
         // }
+        tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
         tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
         tft.fillRect(0, 100, 240, 40, TFT_NEIGHBOUR_GREEN);
         tft.drawString("Starting in 3", 120, 120, 4);
