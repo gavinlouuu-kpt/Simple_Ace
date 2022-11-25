@@ -180,9 +180,7 @@ void TouchScreen()
 
   if (stage == 0)
   {
-    // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
     HomeScreen();
-    // tft.drawString("Beagle",100, 60 , 4);
   }
   if (tft.getTouch(&t_x, &t_y))
   {
@@ -379,8 +377,8 @@ void TouchScreen()
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
         int Change = 0;
-        int max1 = 57;
-        int min1 = 40;
+        int max1 ;
+        int min1 ;
         int i = 0;
         int H[210];
         float LowY;
@@ -410,41 +408,47 @@ void TouchScreen()
           graph1.pushSprite(20, 40);
           if(i<201){
             H[i] = sht20.humidity(); 
-            if(i == 10){                                  // When i >200, H[i-1] = H[i]
-              for(int j= 1;j <= 10 ; j++){
+            if(i == 199){                                  // When i >200, H[i-1] = H[i]
+              for(int j= 1;j <= 199 ; j++){
                 H[j-1] = H[j];
                 // printf("%d\n",H[j]);
-                 printf("%d\n",j);
+                //  printf("%d\n",j);
               }
               counter = 1;
-              Change = 1;
             } 
 
-            // for(int a = 0; a = i; a++){
-            //   if(H[a]>max1){
-            //     max1 = H[a];
-            //     Change = 1;
-            //   }
+            for(int a = 0; a <= i; a++){
+              max1 = H[0];
+              min1 = H[0];
+              if(H[a]>max1){
+                max1 = H[a];
+                Change = 1;
+              }
 
-            //   if(H[a]<min1){
-            //     min1 = H[a];
-            //     Change = 1;
-            //   }
-            // }
-            printf("%d\n",i);
-            // printf("%d\n",H[i]);
+              if(H[a]<min1){
+                min1 = H[a];
+                Change = 1;
+              }
+            }
+
+            // printf("%d\n",i);
+            printf("%d\n",H[i]);
+
+            
+            // printf("%d\n", counter);
+            // printf("%d\n", Change);
+            HighY = max1 +5;
+            LowY = min1 -5;
+
+            printf("%f\n", ((H[i] - LowY) / (HighY - LowY)));
             printf("%d\n", max1);
-            printf("%d\n", counter);
-            printf("%d\n", Change);
-            // HighY = max1 +2;
-            // LowY = min1 -2;
 
-            // tft.drawFloat(float(HighY), 0, 15, 32, 1);
-            // tft.drawFloat(float(LowY), 0, 10, 132, 1);
+            tft.drawFloat(float(HighY), 0, 10, 40, 1);
+            tft.drawFloat(float(LowY), 0, 10, 190, 1);
 
             if(Change == 0){
               graph1.scroll(-1);
-              graph1.drawFastVLine(199, 100 - 100 * ((H[i] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
+              graph1.drawFastVLine(199, 150 - 150 * ((H[i] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
               // if(i >10){
               //   graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
               //   i = 0;
@@ -452,15 +456,15 @@ void TouchScreen()
             }
             if(Change == 1){
               graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-              // for(int c =0 ; c < (i+1) ; c++){
-              //   graph1.drawFastVLine(199-(i-c), 100 - 100 * ((H[c] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
-              // }
+              for(int c =0 ; c <= i; c++){
+                graph1.drawFastVLine(199-(i-c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 3, TFT_YELLOW);
+              }
               Change = 0;
             }
             i++;
 
             if(counter == 1){
-              i = 10;
+              i = 199;
             }
 
           }
