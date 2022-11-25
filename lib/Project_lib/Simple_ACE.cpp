@@ -7,27 +7,25 @@
 #include <Adafruit_ADS1X15.h>
 #include <EEPROM.h>
 #include <math.h>
+#include <time.h>
 #include <TFT_eSPI.h>
 
-#include <time.h>
-#include <WiFiClient.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
+#include "Cloud_storage.h"
 
 #include "Loading.h"
 
-#define PASSWORD            "10200718"
-#define SSID                "KPTESP32"
+// #define PASSWORD            "10200718"
+// #define SSID                "KPTESP32"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
 // BlynkTimer timer;
 
-const char* ntpServer = "pool.ntp.org";
+// const char* ntpServer = "pool.ntp.org";
 // char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = SSID;
-char password[] = PASSWORD;
+// char ssid[] = SSID;
+// char password[] = PASSWORD;
 
 
 double upload_buffer;
@@ -81,9 +79,8 @@ void analogSetup(){
 }
 
 void checkSetup(){
-  WiFi.begin(ssid,password);
-  configTime(0, 0, ntpServer);
-  unsigned long clk = getTime();
+  // configTime(0, 0, ntpServer);
+  // unsigned long clk = getTime();
   // while (1) {
   //   if (clk - getTime() < 10) {
   //     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
@@ -237,7 +234,8 @@ void sample_collection(){
   int previous_counter;
   int previosu_counter_2;
   draw_wait();
-  while (millis() - previous < sampletime + 1) {
+  // while (millis() - previous < sampletime + 1) {
+  while (q<4096+1) {
     if (millis() -previous_counter >1000){
       int time;
       time = (60-((millis()-previous))/1000)-1;
@@ -251,17 +249,17 @@ void sample_collection(){
         draw_sensor((double)adc_CO2); 
     }
     // PID_control();
-    if (store == false) {
-      fail_count += 1 ;
-      if (fail_count== 50){
-        printf("This is a failed breath");
-        break;
-      }
-      if (read_humidity() > 60) {
-        store = true;
-        Serial.println("Certain a breathe. Recording...");
-      }
-    }
+    // if (store == false) {
+    //   fail_count += 1 ;
+    //   if (fail_count== 50){
+    //     printf("This is a failed breath");
+    //     break;
+    //   }
+    //   if (read_humidity() > 60) {
+    //     store = true;
+    //     Serial.println("Certain a breathe. Recording...");
+    //   }
+    // }
     Sensor_arr[q] = adc_CO2;
     Serial.println(q);delay(1);
     q = q + 1;
@@ -270,6 +268,11 @@ void sample_collection(){
     return;
   }
 }
+
+void storing_data(){
+  cloud_upload();
+}
+
 
 int peak_value(int address) {
   int peak = 0;
@@ -370,16 +373,16 @@ void output_result(){
 }
 
 
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    // Serial.println("Failed to obtain time");
-    return (0);
-  }
-  time(&now);
-  return now;
-}
+// unsigned long getTime() {
+//   time_t now;
+//   struct tm timeinfo;
+//   if (!getLocalTime(&timeinfo)) {
+//     // Serial.println("Failed to obtain time");
+//     return (0);
+//   }
+//   time(&now);
+//   return now;
+// }
 
 
 

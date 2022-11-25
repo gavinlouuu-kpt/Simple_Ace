@@ -278,6 +278,7 @@ void TouchScreen(){
         Open = 1;
         if(Open = 1){
           sample_collection();
+          storing_data();
           output_result();
         }
         else if(t_x > 5 && t_x < 27  && t_y > 110 && t_y < 196){

@@ -1,4 +1,5 @@
-// #ifndef Cloud_storage_h
-// #define Cloud_storage_h
+#ifndef Cloud_storage_h
+#define Cloud_storage_h
 
-// #endif
+void cloud_upload();
+#endif
