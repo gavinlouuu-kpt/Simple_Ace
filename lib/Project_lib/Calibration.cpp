@@ -7,6 +7,8 @@
 
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
+const int waittime =1000;
+const int caltime =15000;
 
 // void draw_process(int trial){
 //     tft.fillRect(80,140,140,180,TFT_NEIGHBOUR_GREEN);
@@ -313,30 +315,37 @@ void  calibration() { //put your main code here, to run repeatedly:
   int time = 0;
   int num = 3;
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-  int counter = 0;
-  int counter2 = 0;
-  while(millis() - previous < 15000){
-    
-    if(millis() - time > 1000 && num >0){
-      tft.drawString("Sample in ",110,120,4);
-      tft.drawFloat(float(num),0,180,120,4);
-      num--;
-      time = millis();
+  bool fillscreen = true;
+  bool istenth=true;
+  while(millis() - previous < caltime){
+      if(millis() - time > waittime && num >0){
+        tft.drawString("Sample in ",110,120,4);
+        tft.drawFloat(float(num),0,180,120,4);
+        num--;
+        time = millis();
+      }
+    //work simultaneously?
+    if(millis()-time >1000 && num == 0 && fillscreen == true){
+    tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
+    fillscreen = false;
     }
-    if(num == 0 && counter == 0 && millis() - time > 1000){
-      tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
-      counter++;
-    }
+    // if(num == 0 && counter == 0 && millis() - time > waittime){
+    // if(counter == 0 && millis() - time > waittime){
+    //   tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
+    //   counter++;
+    // }
     printf("%d\n",time);
     printf("%d\n",num);
-    if(num == 0 && millis() - time > 1000){
-      tft.drawString("Remain ",120,120,4);
-      if((15000-(millis() - previous))/1000 == 9 && counter2 == 0){
+    if(millis() - time > waittime){
+      tft.drawString("Remain ",110,120,4);
+      if((caltime-(millis() - previous))/waittime < 10 && istenth ==true){
         tft.fillRect(165,100,40,40,TFT_NEIGHBOUR_GREEN);
-        counter2 ++;
+        istenth = false;
       }
-      tft.drawFloat(float((15000-(millis() - previous))/1000),0,180,120,4);
+      tft.drawFloat(float((caltime-(millis() - previous))/waittime),0,180,120,4);
+      time= millis();
     }
+
 
     tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[i]);
     delay(10);
@@ -349,7 +358,7 @@ void  calibration() { //put your main code here, to run repeatedly:
     printf("%d\n", millis());
 
     if (millis()-previous_2>10){
-      Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
+      Sensor_arr_numb[entry_counter] = ads.readADC_SingleEnded(1);
       //printf(" %d\n", Sensor_arr[entry_counter]);
       entry_counter += 1;
       //printf("Counter 1: %d\n", entry_counter);
@@ -374,7 +383,7 @@ void  calibration() { //put your main code here, to run repeatedly:
   check_sample();
 
   process_data();
-  find_peak();
+  find_peak();//part to be corrected
   update_parameters();
   
 }
