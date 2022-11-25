@@ -3,6 +3,7 @@
 // BlynkWifi Blynk(_blynkTransport);
 #include <Simple_ACE.h>
 #include <Screen.h>
+// #include "ALE.h"
 
 // ////////////////////////SPIFFS File//////////////////////////////////////
 // String format_1 = "/";
@@ -11,24 +12,24 @@
 //////////////////////////Request time//////////////////////////////////////
 unsigned long previous_time;
 //////////////////////////functions/////////////////////////////////////////
-int data_logging(double value, double value_1, double value_2, double value_3, int storage);
+int data_logging(double value, double value_1, double value_2, double value_3,  int storage);
 double mapping(double CO2, double O2);
 ///////////////////////////////////Global Data.//////////////////////////////////////
 double avg_ratio_Ace;
-double avg_ratio_O2;
+double avg_ratio_O2 ;
 double rq;
 double map_rq;
 int file_label;
 
-void setup()
-{
+
+void setup() {
   Serial.begin(115200);
   tft_setup();
   pinSetup();
   analogSetup();
-  checkSetup();
-
+  // checkSetup();
   draw_framework();
+  ALE_setup();
   Serial.println( "Setup done" );
   // use only when data has to write into spiffs //
   // only flush the file when EEPROM is rebooted
@@ -48,11 +49,13 @@ void setup()
   //     }
   //   }
   // }
+  // ALE_advertise();
 }
 
-void loop()
-{
+void loop() {
+  
 
+  // delay(1);
   TouchScreen();
 
   // Use only when SPIFFS is enabel here//
