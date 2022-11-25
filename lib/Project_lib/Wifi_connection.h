@@ -4,4 +4,5 @@
 #define WIFI_SSID "KPTESP32"
 #define WIFI_PASSWORD "10200718"
 
+void checkstatus();
 #endif

@@ -7,6 +7,7 @@
 #include <EEPROM.h>
 #include "uFire_SHT20.h"
 #include <Adafruit_ADS1X15.h>
+#include "Wifi_connection.h"
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -337,14 +338,19 @@ void TouchScreen()
       }
       if (t_x > 160 && t_x < 190 && t_y > 10 && t_y < 295)
       { // wi-fi
+
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-        ResetXY;
         tft.pushImage(180, 260, settingWidth, settingHeight, setting);
-        tft.fillRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BLUE);
-        tft.drawRoundRect(10, 10, 220, 24, 12, TFT_WHITE);
-        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Wi-fi", 120, 22, 2);
+
+        tft.fillRoundRect(10, 40, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 40, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Connect", 120, 62, 4);
+
+        tft.fillRoundRect(10, 110, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 110, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Disconnect", 120, 132, 4);
         stage = 9;
+        ResetXY;
       }
     }
 
@@ -618,6 +624,30 @@ void TouchScreen()
         tft.drawFloat(float(value_1), 0, 160, 120, 2);
         EEPROM.end();
         delay(500);
+      }
+    }
+
+     if (stage == 9){ 
+      if (t_x > 180 && t_x < 210 && t_y > 10 && t_y < 295)
+      { // bluetooth
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        ResetXY;
+        extern bool isWifi;
+        tft.pushImage(180, 260, settingWidth, settingHeight, setting);
+        tft.fillRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BLUE);
+        tft.drawRoundRect(10, 10, 220, 24, 12, TFT_WHITE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Wi-fi", 120, 22, 2);
+        checkstatus();
+        if(isWifi == true){
+          tft.drawString("Connected", 180, 22, 2);
+        }
+        else{
+          tft.drawString("Failed", 180, 22, 2);
+        }
+      }
+      if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295)
+      { // blu
       }
     }
   }
