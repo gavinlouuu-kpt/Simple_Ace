@@ -110,7 +110,7 @@ void checkSetup(){
   EEPROM_setup();
   sht20.begin();
 
-  if (!ads.begin()) {
+  if (!ads.begin(0x49)) {
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
