@@ -49,16 +49,15 @@ unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    //Serial.println("Failed to obtain time");
+    Serial.println("Failed to obtain time");
     return(0);
   }
   time(&now);
   return now;
 }
 
-void firebasesetup(){
+void firebase_setup(){
     Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
-
   /* Assign the api key (required) */
   config.api_key = API_KEY;
 
@@ -91,7 +90,7 @@ void storeinfo(String namee, String sx, int height, int weight){
   jj.set("/Sex", sx);
   jj.set("/Height", String(height));
   jj.set("/Weight", String(weight));
-  String strr = "/Simple_Ace/Sample/"+ namee+"/info";
+  String strr = "/Simple_Ace/Sample/" + namee+"/info";
   const char *filename = strr.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &jj);
   delay(10);
@@ -114,6 +113,7 @@ void cloud_upload(){
     if(Firebase.ready() && (millis() - sendDataPrevMillis > 100 || sendDataPrevMillis == 0)){
       sendDataPrevMillis = millis();
       unsigned long time= getTime(); 
+      printf("%d\n",time);
       storeinfo(name,sex,h,w);
       //Check first file
       if(SPIFFS.exists("/Dataset_1")){

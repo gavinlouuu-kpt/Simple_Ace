@@ -234,7 +234,7 @@ void TouchScreen(){
         stage = 2;
         printf("stage2 \n");
       } 
-      else if(t_x > 160 && t_x < 190  && t_y >10  && t_y < 295){ //Collaboration
+      else if(t_x > 160 && t_x < 190  && t_y >10  && t_y < 295){ //Calibration
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
         tft.fillRoundRect(10, 10, 220, 30,15 ,TFT_NEIGHBOUR_BLUE);
@@ -286,12 +286,12 @@ void TouchScreen(){
         }  
       }
     }
-    if(stage == 5){                                                                 //developer mode
 
+    if(stage == 5){                                                                 //developer mode
       float max = 60;
       float diff;
       int i =0;
-      float H[65556]; 
+      float H[400]; 
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
 
       if(t_x > 22 && t_x < 47  && t_y >13  && t_y < 108){
@@ -382,7 +382,7 @@ void TouchScreen(){
         tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
         // tft.drawString("Calibrating",120,120,4);
 
-        calibration();
+        // calibration();
         tft.fillRect(10,80,200,150,TFT_NEIGHBOUR_GREEN);
         printf("Screen Display.");
 

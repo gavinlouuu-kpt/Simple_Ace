@@ -20,7 +20,7 @@
 // #define NTCC                39
 
 //Wrover 2.8" display///////////////////////////////////////////////      
-#define pumpPin             25  
+#define pumpPin             26 
 #define solPin              33
 #define buz                 13
 #define colPin              27  
@@ -28,6 +28,7 @@
 #define btn_1               36
 #define NTCC                34
 #define BOOT                0
+#define sensor_h            25
 
 // //Wrover IB///////////////////////////////////////////////////
 // #define pumpPin             32  
@@ -53,7 +54,7 @@
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          60000//60000
+#define sampletime          30000//60000
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
