@@ -77,6 +77,7 @@ void analogSetup(){
   dacWrite(pumpPin, 128);
   delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
+  dacWrite(sensor_h, 220); // turn on sensor heater with DAC 220 is HS ~1.9V
   // dacWrite(senH,220);
 }
 
@@ -109,6 +110,8 @@ void checkSetup(){
    //To rewrite each file from the first file
   EEPROM_setup();
   sht20.begin();
+
+  ads.setGain(GAIN_ONE); 
 
   if (!ads.begin(0x49)) {
   Serial.println("Failed to initialize ADS.");
@@ -153,10 +156,10 @@ void breath_check(){
       // printf("%d\n",previous);
     }
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    printf("%d\n",adc_CO2);
+    // printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2);
     // draw_humid(arr[2]);
-    // PID_control();
+    PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
     // printf("Grad: %.3f\n",gradient);
     if (gradient > 0.6) {
@@ -230,7 +233,7 @@ void sample_collection(){
   baseline = restore_baseline();
   set_range(baseline);
   delay(1);
-  printf("Blow Now\n");
+  // printf("Blow Now\n");
   breath_check();
   store = false;
   previous = millis();
@@ -246,24 +249,24 @@ void sample_collection(){
     }
     if (millis()-previosu_counter_2>10){
         adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-        printf("%d\n",adc_CO2);
+        // printf("%d\n",adc_CO2);
         previosu_counter_2 = millis();
         draw_sensor((double)adc_CO2); 
     }
-    // PID_control();
+    PID_control();
     if (store == false) {
       fail_count += 1 ;
       if (fail_count== 50){
-        printf("This is a failed breath");
+        // printf("This is a failed breath");
         break;
       }
       if (read_humidity() > 60) {
         store = true;
-        Serial.println("Certain a breathe. Recording...");
+        // Serial.println("Certain a breathe. Recording...");
       }
     }
     Sensor_arr[q] = adc_CO2;
-    Serial.println(q);delay(1);
+    // Serial.println(q);delay(1);
     q = q + 1;
   }
   if(fail_count==50){

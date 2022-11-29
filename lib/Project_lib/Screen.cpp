@@ -530,7 +530,7 @@ void TouchScreen()
           // }
 
           float ADS0 = ads.readADC_SingleEnded(0);
-          float ADS1 = ads.readADC_SingleEnded(1);
+          float ADS1 = analogRead(NTCC);
           int num = i;
 
           H[i] = sht20.humidity();
