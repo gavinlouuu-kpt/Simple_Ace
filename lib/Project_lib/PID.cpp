@@ -1,10 +1,13 @@
 #include "PID.h"
 #include "Simple_ACE.h"
 #include <PID_v1.h>
+#include <SimpleKalmanFilter.h>
+
+SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
 
 //Define the aggressive and conservative Tuning Parameters
-double aggKp=4, aggKi=0.2, aggKd=1;
-double consKp=1, consKi=0.05, consKd=0.25;
+// double aggKp=4, aggKi=0.2, aggKd=1;
+double consKp=4, consKi=0.125, consKd=0.26;
 
 double Setpoint = 1300;
 double Input, Output;
@@ -15,18 +18,18 @@ void PID_setup(){
 }
 
 void PID_control(){
-    Input = analogRead(NTCC);
+    Input = simpleKalmanFilter.updateEstimate(analogRead(NTCC));
 
-      double gap = abs(Setpoint-Input); //distance away from setpoint
-  if (gap < 100)
-  {  //we're close to setpoint, use conservative tuning parameters
+    //   double gap = abs(Setpoint-Input); //distance away from setpoint
+//   if (gap < 100)
+//   {  //we're close to setpoint, use conservative tuning parameters
     myPID.SetTunings(consKp, consKi, consKd);
-  }
-  else
-  {
-     //we're far from setpoint, use aggressive tuning parameters
-     myPID.SetTunings(aggKp, aggKi, aggKd);
-  }
+//   }
+//   else
+//   {
+//      //we're far from setpoint, use aggressive tuning parameters
+//      myPID.SetTunings(aggKp, aggKi, aggKd);
+//   }
 
     myPID.Compute();
     ledcWrite(colChannel,Output); //220

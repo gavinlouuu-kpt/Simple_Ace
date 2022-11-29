@@ -74,8 +74,9 @@ void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
   ledcWrite(colChannel, dutyCycle_col);
-  dacWrite(pumpPin, 128);
+  dacWrite(pumpPin, 225);
   delay(100);
+  dacWrite(pumpPin,150);
   dacWrite(pumpPin, dutyCycle_pump);
   dacWrite(sensor_h, 220); // turn on sensor heater with DAC 220 is HS ~1.9V
   // dacWrite(senH,220);
