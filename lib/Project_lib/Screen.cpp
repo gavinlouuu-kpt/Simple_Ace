@@ -68,11 +68,6 @@ void draw_framework(){
   tft.pushImage(167,200,A13_w,A13_h,Asset_13,0x0000);
   tft.pushImage(206,200,A14_w,A14_h,Asset_14,0x0000);
   tft.setTextDatum(TC_DATUM); 
-  tft.drawString("Acetone Level",120, 10,4);
-  tft.setTextDatum(TL_DATUM); 
-  // tft.drawString("King's ",8, 250,2);
-  // tft.drawString("Phase",8,270,2);
-  // tft.drawString("Technologies",8,290,2);
   tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
 }
 
@@ -114,7 +109,7 @@ void draw_sensor(double value){
 extern int fail_count;
 void draw_result(double ace, double co2){
   tft.fillRect(70,200,100,50,TFT_NEIGHBOUR_GREEN); 
-  tft.fillRect(50,250,140,30,TFT_NEIGHBOUR_GREEN); 
+  tft.fillRect(50,250,135,30,TFT_NEIGHBOUR_GREEN); 
   tft.pushImage(45,200,A7_w,A7_h,Asset_7,0x0000);
   tft.pushImage(85,200,A8_w,A8_h,Asset_8,0x0000);
   tft.pushImage(127,200,A10_w,A10_h,Asset_10,0x0000);
@@ -220,11 +215,13 @@ void TouchScreen(){
         ResetXY();
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         draw_framework();
+        tft.setTextDatum(MC_DATUM); 
+        tft.drawString("Acetone Level",120, 25, 4);
         tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
         tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_WHITE);
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
 
-        tft.drawString("Start", 20,285,2);
+        tft.drawString("Start", 38,293,2);
 
         // tft.fillRoundRect(90, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
         // tft.drawRoundRect(90, 270, 60, 46,23 ,TFT_WHITE);
@@ -273,18 +270,18 @@ void TouchScreen(){
     }
 
     if(stage == 2){
-      int Open = 1;
+      // int Open = 1;
       if(t_x > 11 && t_x < 32  && t_y > 15 && t_y < 75){
-        Open = 1;
-        if(Open = 1){
+        // Open = 1;
+        // if(Open = 1){
+          tft.fillRect(20,40,200,150,TFT_NEIGHBOUR_GREEN);
           sample_collection();
-          storing_data();
           output_result();
         }
-        else if(t_x > 5 && t_x < 27  && t_y > 110 && t_y < 196){
-          Open = 0;
-        }  
-      }
+        // else if(t_x > 5 && t_x < 27  && t_y > 110 && t_y < 196){
+        //   Open = 0;
+        // }  
+      // }
     }
 
     if(stage == 5){                                                                 //developer mode

@@ -16,8 +16,8 @@
 /* 3. Define the RTDB URL */
 #define DATABASE_URL "https://beagle-66fe3-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
 /* 4. Define the user Email and password that alreadey registerd or added in your project */
-#define USER_EMAIL "francischan@kingsphase.page"
-#define USER_PASSWORD "francischan0009"
+#define USER_EMAIL "chichungchan91@gmail.com"
+#define USER_PASSWORD "121688"
 
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -45,6 +45,9 @@ String sex = "M";
 int h =178;
 int w = 75;
 
+String dir1 ="/Simple_Ace/Sample";
+String dir2 ="/Dataset_";
+
 unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
@@ -57,7 +60,7 @@ unsigned long getTime() {
 }
 
 void firebase_setup(){
-    Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
+  Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
   /* Assign the api key (required) */
   config.api_key = API_KEY;
 
@@ -90,98 +93,105 @@ void storeinfo(String namee, String sx, int height, int weight){
   jj.set("/Sex", sx);
   jj.set("/Height", String(height));
   jj.set("/Weight", String(weight));
-  String strr = "/Simple_Ace/Sample/" + namee+"/info";
-  const char *filename = strr.c_str();
+  String info_dir = "/Simple_Ace/Sample/";
+  info_dir.concat(name);
+  info_dir.concat("/info");
+  // String strr = "/Simple_Ace/Sample/" + name +"/info" ;
+  Serial.print("Directory:");Serial.println(info_dir);
+  const char *filename = info_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &jj);
-  delay(10);
+  delay(1000);
 }
 
+
 void storedata(String namee,unsigned long tim ,int number){
-  String str = "/Simple_Ace/Sample/" +namee+ "/" + (String)tim +"/File" + (String)number ;
-  const char *filename = str.c_str();
+  String data_dir = "/Simple_Ace/Sample/";
+  data_dir.concat(name);
+  data_dir.concat("/");
+  data_dir.concat((String)tim);
+  data_dir.concat("/File");
+  data_dir.concat((String)number);
+  // String str = "/Simple_Ace/Sample/" + name+ "/" + (String)tim +"/File" + (String)number ;
+  Serial.print("Directory:");Serial.println(data_dir);
+  const char *filename = data_dir.c_str();
+  delay(1);
   Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-  delay(10);
+  delay(100);
   // array.toString(Serial, true);
   array.clear();
-  delay(1);
+  delay(100);
 }
 
 
 void cloud_upload(){
   checkstatus();
   if(isWifi){
-    if(Firebase.ready() && (millis() - sendDataPrevMillis > 100 || sendDataPrevMillis == 0)){
+    if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
       sendDataPrevMillis = millis();
       unsigned long time= getTime(); 
       printf("%d\n",time);
       storeinfo(name,sex,h,w);
       //Check first file
-      if(SPIFFS.exists("/Dataset_1")){
-        Serial.println("Stored from previos stored value");
+      if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
         File file = SPIFFS.open("/Dataset_1");
         String data = "0";
-
         while(file.available()){
-          for (int j = 0; j < 4; j++){
-            for (int i = 0; i < 1024; i++){ 
+          for (int j = 0; j < 8; j++){
+            for (int i = 0; i < 512; i++){ 
               if(file.read() != 0){
                 data = file.readStringUntil(',');
                 array.add(data);
               }
             }
             storedata(name,time,j);
-          }
+            delay(10);
+          }        
         }
-      file.close();
-      SPIFFS.remove("/Dataset_1");
-      delay(1000); //deleted Spiffs file
+        Serial.println("Stored from previous /Dataset_1");
+        file.close();
+        SPIFFS.remove("/Dataset_1");
+        delay(1000); //deleted Spiffs file
       }
       // Check Second file
-      else if (SPIFFS.exists("/Dataset_2")){
-        Serial.println("Stored from previos stored value");
-        File file = SPIFFS.open("/Dataset_2");
-        String data = "0";
-        while(file.available()){
-          for (int j = 0; j < 4; j++){
-            for (int i = 0; i < 1024; i++){ 
-              if(file.read() != 0){
-                data = file.readStringUntil(',');
-                array.add(data);
-              }
-            }
-            storedata(name,time,j);
-            // String str = "/Simple_Ace/Sample/" +name+  (String)time +"/File" + (String)j ;
-            // const char *filename = str.c_str();
-            // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-            // delay(10);
-            // array.toString(Serial, true);
-            // array.clear();
-            // delay(1);
-          }
-        }
-        file.close();
-        SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
-      }
+      // else if (SPIFFS.exists("/Dataset_2")){
+      //   Serial.println("Stored from previos stored value");
+      //   File file = SPIFFS.open("/Dataset_2");
+      //   String data = "0";
+      //   while(file.available()){
+      //     for (int j = 0; j < 4; j++){
+      //       for (int i = 0; i < 1024; i++){ 
+      //         if(file.read() != 0){
+      //           data = file.readStringUntil(',');
+      //           array.add(data);
+      //         }
+      //       }
+      //       storedata(name,time,j);
+      //       // String str = "/Simple_Ace/Sample/" +name+  (String)time +"/File" + (String)j ;
+      //       // const char *filename = str.c_str();
+      //       // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
+      //       // delay(10);
+      //       // array.toString(Serial, true);
+      //       // array.clear();
+      //       // delay(1);
+      //     }
+      //   }
+      //   file.close();
+      //   SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
+      // }
       //Sample realtime
-      else{
-        Serial.println("Storing Directly");
+      else if(Firebase.ready()){
         float value = 0.00;
-        for (int j = 0; j < 4; j++){
-          for (int i = 0; i < 1024; i++){ 
-            if(Sensor_arr[j*1000+i] != 0){
-              value = Sensor_arr[j*1000+i];
+        for (int j = 0; j < 8; j++){
+          for (int i = 0; i < 512; i++){ 
+            if(Sensor_arr[j*512+i] != 0){
+              value = Sensor_arr[j*512+i];
               array.add(value);
             } 
           }
           storedata(name,time,j);
-          // String str = "/Simple_Ace/Sample"+name + (String)time +"/File" + (String)j ;
-          // const char *filename = str.c_str();
-          // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-          // delay(10);
-          // array.toString(Serial, true);
-          // array.clear();
-          // delay(1);
+          delay(10);
         }
+        Serial.println("Storing Directly");
       }
     }
     else{
@@ -190,28 +200,30 @@ void cloud_upload(){
     }
   }
   else{
-    String filename = "/Dataset_" + String(counter%2 + 1); //either 1 or 2
+    String file_dir = "/Dataset_";
+    file_dir.concat((String)(counter%2 + 1));
+      // String filename = "/Dataset_" + (String)(counter%2 + 1); //either 1 or 2
     counter ++;
-    if(SPIFFS.exists(filename.c_str())){
-      SPIFFS.remove(filename.c_str());
-      printf("removed file: %s\n",filename);
+    if(SPIFFS.exists(file_dir.c_str())){
+      SPIFFS.remove(file_dir.c_str());
+      printf("removed file: %s\n",file_dir.c_str());
     }
-    printf("Storing into %s\n",filename);
+    printf("Storing into %s\n",file_dir.c_str());
 
-    File file = SPIFFS.open(filename.c_str(),FILE_WRITE);
+    File file = SPIFFS.open(file_dir.c_str(),FILE_WRITE);
     file.print(',');file.write('\n'); 
-    for(int i =0; i <4500; i++){
+    for(int i =0; i <4096; i++){
       if(Sensor_arr[i] !=0){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
       }
     }
     file.close();
-    //Read
-    // file = SPIFFS.open(filename.c_str(),FILE_READ);
-    // while(file.available()){
-    //   Serial.write(file.read());
-    // }
-    // file.close();
+    // Read
+    file = SPIFFS.open(file_dir.c_str(),FILE_READ);
+    while(file.available()){
+      Serial.write(file.read());
+    }
+    file.close();
   }  
   // while (1);replaced with ROM
 }

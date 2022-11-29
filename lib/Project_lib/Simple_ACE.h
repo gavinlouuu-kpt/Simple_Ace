@@ -42,12 +42,12 @@
 // #define Off_s               26
 // #define senH                25
 
-#define CO2_channel  		1
+#define CO2_channel  		0
 #define EEP_add 			0
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			9000 //Number of data collect within sample time //
+#define store_size 			4096 //Number of data collect within sample time //
 
 #define pumpChannel 		0
 #define solChannel 			1
