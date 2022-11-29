@@ -137,7 +137,7 @@ void restore_humidity(){
   }
 }
 
-double read_humidity(){
+double read_humidity(){ 
   float value;
   value = sht20.humidity();
   return value;
