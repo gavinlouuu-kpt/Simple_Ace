@@ -136,8 +136,8 @@ void cloud_upload(){
         File file = SPIFFS.open("/Dataset_1");
         String data = "0";
         while(file.available()){
-          for (int j = 0; j < 8; j++){
-            for (int i = 0; i < 512; i++){ 
+          for (int j = 0; j < 4; j++){
+            for (int i = 0; i < 1024; i++){ 
               if(file.read() != 0){
                 data = file.readStringUntil(',');
                 array.add(data);
@@ -181,10 +181,10 @@ void cloud_upload(){
       //Sample realtime
       else if(Firebase.ready()){
         float value = 0.00;
-        for (int j = 0; j < 8; j++){
-          for (int i = 0; i < 512; i++){ 
-            if(Sensor_arr[j*512+i] != 0){
-              value = Sensor_arr[j*512+i];
+        for (int j = 0; j < 4; j++){
+          for (int i = 0; i < 1024; i++){ 
+            if(Sensor_arr[j*1024+i] != 0){
+              value = Sensor_arr[j*1024+i];
               array.add(value);
             } 
           }
@@ -202,7 +202,6 @@ void cloud_upload(){
   else{
     String file_dir = "/Dataset_";
     file_dir.concat((String)(counter%2 + 1));
-      // String filename = "/Dataset_" + (String)(counter%2 + 1); //either 1 or 2
     counter ++;
     if(SPIFFS.exists(file_dir.c_str())){
       SPIFFS.remove(file_dir.c_str());
@@ -225,6 +224,5 @@ void cloud_upload(){
     }
     file.close();
   }  
-  // while (1);replaced with ROM
 }
 
