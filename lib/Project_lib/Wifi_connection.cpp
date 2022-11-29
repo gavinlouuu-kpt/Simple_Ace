@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include "Wifi_connection.h"
+#include "Cloud_storage.h"
 
-bool isWifi = false;
-
+bool isWifi=false;
 void checkstatus(){
 Serial.print("Connecting to Wi-Fi");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -16,6 +16,7 @@ Serial.print("Connecting to Wi-Fi");
       isWifi = true;
       Serial.print("Connected with IP: ");
       Serial.println(WiFi.localIP());
+      firebase_setup();
       break;
     }
   } 
