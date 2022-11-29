@@ -17,6 +17,7 @@
 #include "Asset_14.h"
 #include "setting.h"
 #include "Beagle.h"
+#include "PID.h"
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
@@ -135,7 +136,7 @@ void draw_result(double ace, double co2)
     tft.drawString("Acetone", 180, 125, 2);
     tft.drawFloat((float)ace, 2, 180, 140, 2);
     tft.drawString("Metabolic rate", 60, 125, 2);
-    tft.drawFloat((float)co2 * 100, 2, 60, 140, 2);
+    tft.drawFloat((float)co2 , 2, 60, 140, 2);
   }
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   if (ace > 1 || ace <= 0 || store == false)
@@ -183,12 +184,14 @@ void TouchScreen()
   {
     // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
     HomeScreen();
+    PID_control();
+    
     // tft.drawString("Beagle",100, 60 , 4);
   }
   if (tft.getTouch(&t_x, &t_y))
   {
-    printf("%d\n", t_x);
-    printf("%d\n", t_y);
+    // printf("%d\n", t_x);
+    // printf("%d\n", t_y);
     if (stage == 0 || stage == 2 || stage == 3 || stage == 4 || stage == 5 || stage == 6 || stage == 7 || stage == 8 || stage == 9)
     {
       if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290)
@@ -512,6 +515,7 @@ void TouchScreen()
 
     if (stage == 6)
     { // developer mode stage6 = ADS0  Stage7 = Humidity
+      PID_control();
 
       float max = 60;
       float diff;
@@ -579,6 +583,7 @@ void TouchScreen()
 
     if (stage == 3)
     { // Calibration Start Button
+    
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
         tft.setTextDatum(4);

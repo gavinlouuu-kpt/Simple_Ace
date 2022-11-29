@@ -118,7 +118,7 @@ void checkSetup(){
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
-  // PID_setup();
+  PID_setup();
   Serial.println("Setup Complete."); 
 }
 
@@ -145,6 +145,7 @@ double read_humidity(){
 
 void breath_check(){
   while (true) {
+    PID_control();
     float arr[3];
     float humd;
     double gradient;
@@ -157,13 +158,13 @@ void breath_check(){
       // printf("%d\n",previous);
     }
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    // printf("%d\n",adc_CO2);
+    printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2);
     // draw_humid(arr[2]);
-    PID_control();
+    // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
     // printf("Grad: %.3f\n",gradient);
-    if (gradient > 0.6) {
+    if (gradient > 0.2) {
       break;
     }
   }
@@ -226,6 +227,7 @@ bool store;
 int baseline;
 int fail_count = 0 ;
 void sample_collection(){
+  PID_control();
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
@@ -244,7 +246,7 @@ void sample_collection(){
   while (millis() - previous < sampletime + 1) {
     if (millis() -previous_counter >1000){
       int time;
-      time = (60-((millis()-previous))/1000)-1;
+      time = (45-((millis()-previous))/1000)-1;
       previous_counter= millis();
       draw_time(time);
     }
@@ -303,31 +305,34 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
   double concentration;
   double buffer;
   buffer =  peak_resist / base_resist;
+  // buffer =   base_resist/peak_resist ;
   switch (formula) { 
     case (1):
       { // CO2 concentration
-        const float ref_baseline_resist= 86762.3;// assignn value
-        float ratio_baseline = base_resist/ref_baseline_resist;
-        // float correct_factor = 1.8764 * ratio_baseline * ratio_baseline * ratio_baseline - 3.9471 * ratio_baseline * ratio_baseline + 2.3844 * ratio_baseline + 0.6869;
-        float correct_factor = -0.208 * log(ratio_baseline) + 0.9922;
-        printf(" baseline ratio: %.6f\n", ratio_baseline);
-        printf("buffer: %.6f\n",buffer);
+        // const float ref_baseline_resist= 4700.3;// assignn value
+        // float ratio_baseline = base_resist/ref_baseline_resist;
+        // // float correct_factor = 1.8764 * ratio_baseline * ratio_baseline * ratio_baseline - 3.9471 * ratio_baseline * ratio_baseline + 2.3844 * ratio_baseline + 0.6869;
+        // float correct_factor = -0.208 * log(ratio_baseline) + 0.9922;
+        // printf(" baseline ratio: %.6f\n", ratio_baseline);
+        // printf("buffer: %.6f\n",buffer);
         
-        buffer = buffer*correct_factor;
+        // buffer = buffer*correct_factor;
         
-        // float coeff_1 = 0.596;
-        // float coeff_2 = -1.0194;
-        // float coeff_3 = 0.4467;
-        concentration = 1.9433 * exp(-6.143* buffer) ;
-        return concentration;
+        // // float coeff_1 = 0.596;
+        // // float coeff_2 = -1.0194;
+        // // float coeff_3 = 0.4467;
+        // concentration = 1.9433 * exp(-6.143* buffer) ;
+        // // return concentration;
+        return buffer;
         break;
       }
     case (2): // acetone _concentration
       {
-        float slope = 1;
-        float constant = 0;
-        concentration = (buffer - constant) / slope;
-        return concentration;
+        // float slope = 1;
+        // float constant = 0;
+        // concentration = (buffer - constant) / slope;
+        // // return concentration;
+        return buffer;
         break;
       }
   }
@@ -335,7 +340,7 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
 
 double ads_convert(int value, bool resist) {
   double volt;
-  const double load_r = 300*1000;
+  const double load_r = 47*1000;
   const double V_in = 3.3;
   const double off_volt= 2.27272727273;
   double sen_r;
@@ -359,19 +364,24 @@ double ads_convert(int value, bool resist) {
 void output_result(){
   int CO2_peak = peak_value(0);
   int ace_peak = peak_value(4);
-  double baseline_resist = ads_convert(baseline, true); 
-  double peak_resist_CO2 = ads_convert(CO2_peak, true);
-  double peak_resist_Ace = ads_convert(ace_peak, true);
-    conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
-    conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
+  // double baseline_resist = ads_convert(baseline, true); 
+  // double peak_resist_CO2 = ads_convert(CO2_peak, true);
+  // double peak_resist_Ace = ads_convert(ace_peak, true);
+    // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
+    // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
+    conc_CO2 = (double)CO2_peak/(double)baseline;
+    conc_Ace = (double)ace_peak/(double)baseline;
+    Serial.println(conc_Ace);
+    Serial.println(conc_CO2);
+
 
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
 //   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
-  printf("Breath Analysis Result:\n");
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
+  // printf("Breath Analysis Result:\n");
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
   draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
-}
+}// not in percentage
 
 
 unsigned long getTime() {
