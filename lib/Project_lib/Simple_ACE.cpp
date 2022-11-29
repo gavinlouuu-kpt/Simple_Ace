@@ -64,7 +64,7 @@ void checkSetup(){
   EEPROM_setup();
   sht20.begin();
 
-  // PID_setup();
+  PID_setup();
   Serial.println("Setup Complete."); 
 }
 
@@ -89,6 +89,7 @@ double read_humidity(){
 
 void breath_check(){
   while (true) {
+    PID_control();
     float arr[3];
     float humd;
     double gradient;
@@ -164,7 +165,7 @@ void sample_collection(){
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
-
+  PID_control();
   restore_humidity();
   baseline = restore_baseline();
   set_range(baseline);
@@ -192,7 +193,7 @@ void sample_collection(){
         previosu_counter_2 = millis();
         draw_sensor((double)adc_CO2); 
     }
-    // PID_control();
+    PID_control();
     if (store == false) {
       fail_count += 1 ;
       if (fail_count== 50){
@@ -303,12 +304,16 @@ void output_result(){
   double baseline_resist = ads_convert(baseline, true); 
   double peak_resist_CO2 = ads_convert(CO2_peak, true);
   double peak_resist_Ace = ads_convert(ace_peak, true);
-  conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
-  conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
+  conc_CO2 = CO2_peak/baseline;
+  conc_Ace = ace_peak/baseline;
+  // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
+  // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
 
-  printf("Breath Analysis Result:\n");
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
+  // printf("Breath Analysis Result:\n");
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
+  
+  // not percentage
   draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   storing_data();
   }

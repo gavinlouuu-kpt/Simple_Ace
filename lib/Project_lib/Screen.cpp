@@ -126,7 +126,7 @@ void draw_result(double ace, double co2){
     tft.drawString("Acetone",180, 125,2);
     tft.drawFloat((float)ace,2,180,140,2);
     tft.drawString("Metabolic rate", 60, 125,2);
-    tft.drawFloat((float)co2*100,2,60,140,2);
+    tft.drawFloat((float)co2,2,60,140,2);
   }
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   if(ace > 1 || ace <= 0||store == false){
