@@ -79,5 +79,6 @@ void sample_collection();
 void power_saving(unsigned long last_time);
 unsigned long getTime();
 
+int restore_baseline();
 
 #endif 

@@ -8,6 +8,7 @@
 #include "uFire_SHT20.h"
 #include <Adafruit_ADS1X15.h>
 #include "Wifi_connection.h"
+#include "Simple_ACE.h"
 
 
 #include "Asset_2.h"
@@ -575,6 +576,8 @@ void TouchScreen()
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+        int baseline = restore_baseline();
+        set_range(baseline);
         while (1)
         {
           // if(tft.getTouch(&t_x, &t_y)){
@@ -593,8 +596,9 @@ void TouchScreen()
           tft.drawFloat(float(ADS0), 0, 65, 200, 2);
           tft.drawFloat(float(ADS1), 0, 150, 200, 2);
           tft.drawFloat(float(H[i]), 0, 220, 200, 2);
-          printf("%d\n", H[i]);
-
+          // printf("%d\n", H[i]);
+          
+          
           draw_sensor(ADS0);
 
           // graph1.scroll(-1);                                                                      //AUTO-SCALE
@@ -616,7 +620,7 @@ void TouchScreen()
           // }
 
           tft.drawFloat(float(rangeH), 0, 15, 32, 1);
-          tft.drawFloat(float(rangeL), 0, 10, 132, 1);
+          tft.drawFloat(float(rangeL), 0, 10, 190, 1);
 
           i++;
           if (tft.getTouch(&t_x, &t_y))

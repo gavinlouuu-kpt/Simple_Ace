@@ -188,18 +188,13 @@ int baselineRead(int channel) {
 
 int restore_baseline(){
   while (1) {
-
-
       int temp = baselineRead(CO2_channel );
-      
       for(int i= 0;i<10;i++){
         tft.pushImage(80, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
         delay(100);
       }
       tft.fillRect(80,250,70,70,TFT_NEIGHBOUR_GREEN);
       int ref = baselineRead(CO2_channel );
-
-
 
       if (temp + 3 >= ref && temp - 3 <= ref) {
         printf("Found Baseline %d\n", temp);
