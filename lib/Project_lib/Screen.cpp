@@ -1,13 +1,15 @@
 #include "Screen.h"
+#include "SPIFFS.h"
 #include <TFT_eSPI.h>
 #include <Simple_ACE.h>
 #include "Calibration.h"
 #include <SPI.h>
-#include <TFT_eSPI.h>
 #include <EEPROM.h>
 #include "uFire_SHT20.h"
 #include <Adafruit_ADS1X15.h>
 #include "Wifi_connection.h"
+#include "Simple_ACE.h"
+
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -17,6 +19,7 @@
 #include "Asset_14.h"
 #include "setting.h"
 #include "Beagle.h"
+#include "PID.h"
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
@@ -123,10 +126,10 @@ void draw_result(double ace, double co2){
   tft.drawString("Start", 38 ,293,2);        
   if(fail_count != 50){
     tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-    tft.drawString("Acetone",180, 125,2);
-    tft.drawFloat((float)ace,2,180,140,2);
-    tft.drawString("Metabolic rate", 60, 125,2);
-    tft.drawFloat((float)co2,2,60,140,2);
+    tft.drawString("Acetone", 180, 125, 2);
+    tft.drawFloat((float)ace, 2, 180, 140, 2);
+    tft.drawString("Metabolic rate", 60, 125, 2);
+    tft.drawFloat((float)co2 , 2, 60, 140, 2);
   }
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   if(ace > 1 || ace <= 0||store == false){
@@ -296,6 +299,9 @@ void wifi_display(){
 void TouchScreen(){
   if(stage == 0){
     HomeScreen();
+    PID_control();
+    
+    // tft.drawString("Beagle",100, 60 , 4);
   }
   if(tft.getTouch(&t_x, &t_y)){
     // printf("%d\n", t_x);
@@ -365,11 +371,59 @@ void TouchScreen(){
         tft.drawString("START", 50, 270, 2);
         stage = 7;
       }
+      if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.pushImage(180, 260, settingWidth, settingHeight, setting);
+        ResetXY;
+        tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("SPIFFS 1", 120, 35, 4);
+
+        tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("SPIFSS 2", 120, 100, 4);
+
+        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Calibration", 120, 160, 4);
+
+        stage =10;
+      }
+    }
+
+    if(stage==10){
+      if(t_x > 210 && t_x < 235  && t_y >10  && t_y < 295){
+        if(SPIFFS.exists("/Dataset_1")){
+            File file = SPIFFS.open("/Dataset_1",FILE_READ);
+            while(file.available()){
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+      }
+      if (t_x > 160 && t_x < 190 && t_y > 10 && t_y < 295){     
+        if(SPIFFS.exists("/Dataset_2")){
+          File file = SPIFFS.open("/Dataset_2",FILE_READ);
+          while(file.available()){
+            Serial.write(file.read());
+          }
+          file.close();
+        }  
+      }
+
+      if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
+        if(SPIFFS.exists("/Calibration")){
+          File file = SPIFFS.open("/Calibration",FILE_READ);
+          while(file.available()){
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+      }
     }
 
     if (stage == 7)
     {
-      
       // int MaxNum, MinNum;
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
@@ -500,7 +554,10 @@ void TouchScreen(){
       }
     }
 
-    if (stage == 6){ // developer mode stage6 = ADS0  Stage7 = Humidity
+    if (stage == 6)
+    { // developer mode stage6 = ADS0  Stage7 = Humidity
+      PID_control();
+
       float max = 60;
       float diff;
       int i = 0;
@@ -510,6 +567,8 @@ void TouchScreen(){
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+        int baseline = restore_baseline();
+        set_range(baseline);
         while (1)
         {
           // if(tft.getTouch(&t_x, &t_y)){
@@ -518,7 +577,7 @@ void TouchScreen(){
           // }
 
           float ADS0 = ads.readADC_SingleEnded(0);
-          float ADS1 = ads.readADC_SingleEnded(1);
+          float ADS1 = analogRead(NTCC);
           int num = i;
 
           H[i] = sht20.humidity();
@@ -552,7 +611,7 @@ void TouchScreen(){
           // }
 
           tft.drawFloat(float(rangeH), 0, 15, 32, 1);
-          tft.drawFloat(float(rangeL), 0, 10, 132, 1);
+          tft.drawFloat(float(rangeL), 0, 10, 190, 1);
 
           i++;
           if (tft.getTouch(&t_x, &t_y))
