@@ -77,7 +77,7 @@ double ads_convert(int value, bool resist);
 
 void sample_collection();
 void power_saving(unsigned long last_time);
-// unsigned long getTime();
+int restore_baseline();
 void storing_data();
 
 

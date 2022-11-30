@@ -298,8 +298,8 @@ void TouchScreen(){
     HomeScreen();
   }
   if(tft.getTouch(&t_x, &t_y)){
-    printf("%d\n", t_x);
-    printf("%d\n", t_y);
+    // printf("%d\n", t_x);
+    // printf("%d\n", t_y);
     if(stage == 0 || stage ==2 || stage ==3 || stage ==4 || stage ==5 || stage==8|| stage ==9){
       if(t_x > 0 && t_x < 35  && t_y > 245 && t_y < 290){
         show_menu();
@@ -529,7 +529,8 @@ void TouchScreen(){
           tft.drawFloat(float(ADS1), 0, 150, 200, 2);
           tft.drawFloat(float(H[i]), 0, 220, 200, 2);
           printf("%d\n", H[i]);
-
+          int baseline = restore_baseline();
+          set_range(baseline);
           draw_sensor(ADS0);
 
           // graph1.scroll(-1);                                                                      //AUTO-SCALE
