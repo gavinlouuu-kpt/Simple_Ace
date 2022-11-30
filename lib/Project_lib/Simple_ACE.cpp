@@ -8,6 +8,7 @@
 #include <EEPROM.h>
 #include <math.h>
 #include <TFT_eSPI.h>
+#include "SPIFFS.h"
 
 #include <time.h>
 #include <WiFiClient.h>
@@ -103,10 +104,10 @@ void checkSetup(){
   while (1);
   }
 
-  // if (!SPIFFS.begin(true)) {
-  //   Serial.println("An Error has occurred while mounting SPIFFS");
-  //   return;
-  // }
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
 
    //To rewrite each file from the first file
   EEPROM_setup();

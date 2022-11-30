@@ -1,13 +1,14 @@
 #include "Screen.h"
+#include "SPIFFS.h"
 #include <TFT_eSPI.h>
 #include <Simple_ACE.h>
 #include "Calibration.h"
 #include <SPI.h>
-#include <TFT_eSPI.h>
 #include <EEPROM.h>
 #include "uFire_SHT20.h"
 #include <Adafruit_ADS1X15.h>
 #include "Wifi_connection.h"
+
 
 #include "Asset_2.h"
 #include "Asset_7.h"
@@ -299,6 +300,10 @@ void TouchScreen()
         tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
         tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Humidity", 120, 100, 4);
+
+        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Print Spiffs", 120, 160, 4);
         // printf("stage5 \n");
         // tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);
         // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);     //Start Button
@@ -377,6 +382,22 @@ void TouchScreen()
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE); // Start Button
         tft.drawString("START", 50, 270, 2);
         stage = 7;
+      }
+      if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
+        if(SPIFFS.exists("/Dataset_1")){
+          File file = SPIFFS.open("/Dataset_1",FILE_READ);
+          while(file.available()){
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+        if(SPIFFS.exists("/Dataset_2")){
+          File file = SPIFFS.open("/Dataset_2",FILE_READ);
+          while(file.available()){
+            Serial.write(file.read());
+          }
+          file.close();
+        }
       }
     }
 
