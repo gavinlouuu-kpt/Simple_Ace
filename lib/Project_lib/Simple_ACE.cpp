@@ -9,6 +9,7 @@
 #include <math.h>
 #include <TFT_eSPI.h>
 #include "SPIFFS.h"
+#include "Cloud_storage.h"
 
 #include <time.h>
 #include <WiFiClient.h>
@@ -17,18 +18,18 @@
 
 #include "Loading.h"
 
-#define PASSWORD            "10200718"
-#define SSID                "KPTESP32"
+// #define PASSWORD            "10200718"
+// #define SSID                "KPTESP32"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
 // BlynkTimer timer;
 
-const char* ntpServer = "pool.ntp.org";
+// const char* ntpServer = "pool.ntp.org";
 // char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = SSID;
-char password[] = PASSWORD;
+// char ssid[] = SSID;
+// char password[] = PASSWORD;
 
 
 double upload_buffer;
@@ -84,9 +85,9 @@ void analogSetup(){
 }
 
 void checkSetup(){
-  WiFi.begin(ssid,password);
-  configTime(0, 0, ntpServer);
-  unsigned long clk = getTime();
+  // WiFi.begin(ssid,password);
+  // configTime(0, 0, ntpServer);
+  // unsigned long clk = getTime();
   // while (1) {
   //   if (clk - getTime() < 10) {
   //     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
@@ -244,6 +245,9 @@ void sample_collection(){
   int previous_counter;
   int previosu_counter_2;
   draw_wait();
+  for(int i =0; i<store_size; i++){
+    Sensor_arr[i]=0;
+  }
   while (millis() - previous < sampletime + 1) {
     if (millis() -previous_counter >1000){
       int time;
@@ -363,6 +367,9 @@ double ads_convert(int value, bool resist) {
 
 
 void output_result(){
+  if(fail_count==50){
+    return;
+  }
   int CO2_peak = peak_value(0);
   int ace_peak = peak_value(4);
   // double baseline_resist = ads_convert(baseline, true); 
@@ -382,19 +389,10 @@ void output_result(){
   // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
   // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
   draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  cloud_upload();
 }// not in percentage
 
 
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    // Serial.println("Failed to obtain time");
-    return (0);
-  }
-  time(&now);
-  return now;
-}
 
 
 

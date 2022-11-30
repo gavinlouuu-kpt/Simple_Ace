@@ -205,6 +205,7 @@ void cloud_upload(){
     counter ++;
     if(SPIFFS.exists(file_dir.c_str())){
       SPIFFS.remove(file_dir.c_str());
+      delay(500);
       printf("removed file: %s\n",file_dir.c_str());
     }
     printf("Storing into %s\n",file_dir.c_str());
@@ -218,10 +219,10 @@ void cloud_upload(){
     }
     file.close();
     // Read
-    file = SPIFFS.open(file_dir.c_str(),FILE_READ);
-    while(file.available()){
-      Serial.write(file.read());
-    }
-    file.close();
+    // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
+    // while(file.available()){
+    //   Serial.write(file.read());
+    // }
+    // file.close();
   }  
 }

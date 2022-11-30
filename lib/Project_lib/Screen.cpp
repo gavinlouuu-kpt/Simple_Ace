@@ -181,23 +181,18 @@ void HomeScreen()
 void TouchScreen()
 {
 
-  if (stage == 0)
-  {
+  if (stage == 0){
     // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
     HomeScreen();
     PID_control();
     
     // tft.drawString("Beagle",100, 60 , 4);
   }
-  if (tft.getTouch(&t_x, &t_y))
-  {
+  if (tft.getTouch(&t_x, &t_y)){
     // printf("%d\n", t_x);
     // printf("%d\n", t_y);
-    if (stage == 0 || stage == 2 || stage == 3 || stage == 4 || stage == 5 || stage == 6 || stage == 7 || stage == 8 || stage == 9)
-    {
-      if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290)
-      {
-
+    if (stage == 0 || stage == 2 || stage == 3 || stage == 4 || stage == 5 || stage == 6 || stage == 7 || stage == 8 || stage == 9||stage ==10){
+      if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290){
         ResetXY();
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
@@ -304,6 +299,7 @@ void TouchScreen()
         tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
         tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Print Spiffs", 120, 160, 4);
+
         // printf("stage5 \n");
         // tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);
         // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);     //Start Button
@@ -384,15 +380,48 @@ void TouchScreen()
         stage = 7;
       }
       if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.pushImage(180, 260, settingWidth, settingHeight, setting);
+        ResetXY;
+        tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("SPIFFS 1", 120, 35, 4);
+
+        tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("SPIFSS 2", 120, 100, 4);
+
+        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Calibration", 120, 160, 4);
+
+        stage =10;
+      }
+    }
+
+    if(stage==10){
+      if(t_x > 210 && t_x < 235  && t_y >10  && t_y < 295){
         if(SPIFFS.exists("/Dataset_1")){
-          File file = SPIFFS.open("/Dataset_1",FILE_READ);
+            File file = SPIFFS.open("/Dataset_1",FILE_READ);
+            while(file.available()){
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+      }
+      if (t_x > 160 && t_x < 190 && t_y > 10 && t_y < 295){     
+        if(SPIFFS.exists("/Dataset_2")){
+          File file = SPIFFS.open("/Dataset_2",FILE_READ);
           while(file.available()){
             Serial.write(file.read());
           }
           file.close();
-        }
-        if(SPIFFS.exists("/Dataset_2")){
-          File file = SPIFFS.open("/Dataset_2",FILE_READ);
+        }  
+      }
+
+      if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
+        if(SPIFFS.exists("/Calibration")){
+          File file = SPIFFS.open("/Calibration",FILE_READ);
           while(file.available()){
             Serial.write(file.read());
           }
@@ -403,7 +432,6 @@ void TouchScreen()
 
     if (stage == 7)
     {
-      
       // int MaxNum, MinNum;
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
@@ -653,7 +681,7 @@ void TouchScreen()
       }
     }
 
-     if (stage == 9){ 
+    if (stage == 9){ 
       if (t_x > 180 && t_x < 210 && t_y > 10 && t_y < 295)
       { // bluetooth
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);

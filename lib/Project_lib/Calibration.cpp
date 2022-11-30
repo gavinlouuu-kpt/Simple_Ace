@@ -1,10 +1,12 @@
 #include "Calibration.h"
+#include "SPIFFS.h"
 #include "Simple_ACE.h"
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
 #include "Loading.h"
 #include "PID.h"
+
 
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
@@ -29,6 +31,7 @@ float ref_position[2];
 int finding_baseline();
 void process_data();
 void find_peak();
+void store_history();
 
 void EEPROM_setup(){
   EEPROM.begin(20);
@@ -269,6 +272,9 @@ void  calibration() { //put your main code here, to run repeatedly:
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   bool fillscreen = true;
   bool istenth=true;
+  for(int i =0; i<store_size; i++){
+    Sensor_arr[i]=0;
+  }
   while(millis() - previous < caltime){
       if(millis() - time > waittime && num >0){
         tft.drawString("Sample in ",110,120,4);
@@ -337,7 +343,7 @@ void  calibration() { //put your main code here, to run repeatedly:
   process_data();
   find_peak();//part to be corrected
   update_parameters();
-  
+  store_history();
 }
 
 void find_peak(){
@@ -362,4 +368,22 @@ void find_peak(){
       Serial.println(position[1]);
     }
   }
+
+}
+void store_history(){
+  if(SPIFFS.exists("/Calibration")){
+      SPIFFS.remove("/Calibration");
+      delay(500);
+      printf("removed file: %s\n","/Calibration");
+    }
+    printf("Storing into %s\n","/Calibration");
+
+    File file = SPIFFS.open("/Calibration",FILE_WRITE);
+    file.print(',');file.write('\n'); 
+    for(int i =0; i <4096; i++){
+      if(Sensor_arr[i] !=0){
+        file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
+      }
+    }
+    file.close();
 }
