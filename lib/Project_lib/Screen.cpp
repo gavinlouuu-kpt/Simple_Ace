@@ -255,20 +255,20 @@ void OTA_display(){
   ResetXY();
 }
 
-void developer_display(){
-  ResetXY();
+void  developer_display(){
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-  tft.pushImage(180, 260, settingWidth  ,settingHeight, setting);
-  printf("stage5 \n");
-  // tft.fillRect(10,250,80,40,TFT_NEIGHBOUR_BLUE);
-  // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);     //Start Button
-  // tft.drawString("START", 50,270,2);
-  tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-
-  tft.drawString("Start", 38,293,2);
-  stage = 5;
+  tft.pushImage(180, 260, settingWidth, settingHeight, setting);
+  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("ADS0", 120, 35, 4);
+  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("Humidity", 120, 100, 4);
+  tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("Print Spiffs", 120, 160, 4);
+  stage=5;
+  ResetXY;
 }
 
 void bluetooth_display(){
@@ -306,7 +306,7 @@ void TouchScreen(){
   if(tft.getTouch(&t_x, &t_y)){
     // printf("%d\n", t_x);
     // printf("%d\n", t_y);
-    if(stage == 0 || stage ==2 || stage ==3 || stage ==4 || stage ==5 || stage==8|| stage ==9){
+    if(stage == 0 || stage ==2 || stage ==3 || stage ==4 || stage ==5 ||stage==6|| stage==8|| stage ==9 ||stage ==10){
       if(t_x > 0 && t_x < 35  && t_y > 245 && t_y < 290){
         show_menu();
       }
@@ -351,24 +351,23 @@ void TouchScreen(){
     }
 
     if (stage == 5){                                                                           // developer mode choices
-      if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295)
-      {
+      if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295){
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         ResetXY;
         tft.pushImage(180, 260, settingWidth, settingHeight, setting);
-        tft.fillRect(10, 250, 80, 40, TFT_NEIGHBOUR_BLUE);
-        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE); // Start Button
-        tft.drawString("START", 50, 270, 2);
+        tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+        tft.drawString("Start", 38,293,2);
         stage = 6;
       }
-      if (t_x > 160 && t_x < 190 && t_y > 10 && t_y < 295)
-      {
+      if (t_x > 160 && t_x < 190 && t_y > 10 && t_y < 295){
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         ResetXY;
         tft.pushImage(180, 260, settingWidth, settingHeight, setting);
         tft.fillRect(10, 250, 80, 40, TFT_NEIGHBOUR_BLUE);
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE); // Start Button
-        tft.drawString("START", 50, 270, 2);
+        tft.drawString("Start", 38,293,2);
         stage = 7;
       }
       if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
@@ -378,15 +377,12 @@ void TouchScreen(){
         tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
         tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("SPIFFS 1", 120, 35, 4);
-
         tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
         tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("SPIFSS 2", 120, 100, 4);
-
+        tft.drawString("SPIFFS 2", 120, 100, 4);
         tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
         tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Calibration", 120, 160, 4);
-
         stage =10;
       }
     }
@@ -564,7 +560,7 @@ void TouchScreen(){
       float H[65556];
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
 
-      if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
+      if(t_x > 11 && t_x < 32  && t_y > 15 && t_y < 75)
       {
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         int baseline = restore_baseline();
@@ -588,8 +584,6 @@ void TouchScreen(){
           tft.drawFloat(float(ADS1), 0, 150, 200, 2);
           tft.drawFloat(float(H[i]), 0, 220, 200, 2);
           printf("%d\n", H[i]);
-          int baseline = restore_baseline();
-          set_range(baseline);
           draw_sensor(ADS0);
 
           // graph1.scroll(-1);                                                                      //AUTO-SCALE
