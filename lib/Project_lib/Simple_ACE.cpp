@@ -131,7 +131,7 @@ void breath_check(){
     draw_sensor((double)adc_CO2);
     // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
-    if (gradient > 0.1) {
+    if (gradient > 0.4) {
       printf("breath real...");
       break;
     }
@@ -153,6 +153,8 @@ int baselineRead(int channel) {
 }
 
 int restore_baseline(){
+  dacWrite(pumpPin,200);
+  ledcWrite(colChannel, 150);
   while (1) {
       int temp = baselineRead(CO2_channel );
       for(int i= 0;i<10;i++){
@@ -162,13 +164,16 @@ int restore_baseline(){
       tft.fillRect(80,250,70,70,TFT_NEIGHBOUR_GREEN);
       int ref = baselineRead(CO2_channel );
 
-      if (temp + 3 >= ref && temp - 3 <= ref) {
+      if (temp + 4 >= ref && temp - 4 <= ref) {
         printf("Found Baseline %d\n", temp);
-        delay(10);
+        delay(10);  
+        dacWrite(pumpPin, dutyCycle_pump);
+        ledcWrite(colChannel, dutyCycle_col);  
         return temp;
         break;
       }
     }
+
 }
 // void power_saving(unsigned long last_time){
 //   while(1){
@@ -189,8 +194,8 @@ double conc_CO2;
 bool store;
 int baseline;
 int fail_count = 0 ;
+int unit;
 void sample_collection(){
-  PID_control();
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
@@ -204,11 +209,13 @@ void sample_collection(){
   store = false;
   previous = millis();
   int previous_counter;
-  int previosu_counter_2;
+  int previous_counter2;
   draw_wait();
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
+  
+  long start_time = millis();
   while (millis() - previous < sampletime + 1) {
     if (millis() -previous_counter >1000){
       int time;
@@ -216,11 +223,11 @@ void sample_collection(){
       previous_counter= millis();
       draw_time(time);
     }
-    if (millis()-previosu_counter_2>10){
-        adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-        // printf("%d\n",adc_CO2);
-        previosu_counter_2 = millis();
-        draw_sensor((double)adc_CO2); 
+    if (millis()-previous_counter2 >10){ 
+      Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
+      draw_sensor((double)Sensor_arr[q]); 
+      q = q + 1;
+      previous_counter2 = millis();      
     }
     PID_control();
     if (store == false) {
@@ -229,20 +236,19 @@ void sample_collection(){
         // printf("This is a failed breath");
         break;
       }
-      if (read_humidity() > 60) {
+      if (read_humidity() > 40) {
         store = true;
         // Serial.println("Certain a breathe. Recording...");
       }
     }
-    Sensor_arr[q] = adc_CO2;
-    // Serial.println(q);delay(1);
-    q = q + 1;
   }
   if(fail_count==50){
     return;
   }
   Serial.print("Number of sample:");Serial.println(q);
-  output_result();
+  int expose = millis() - start_time;
+  Serial.print("Exposed time");Serial.println(expose);
+  unit= expose/q;
 }
 
 void storing_data(){
@@ -250,19 +256,23 @@ void storing_data(){
 }
 
 
-int peak_value(int address) {
+int peak_value(int address, int unittime) {
   int peak = 0;
   int position;
+  int peak_time;
   EEPROM.begin(20);
-  int start = EEPROM.get(address,position)-200;
+  // int start = EEPROM.get(address,position)-200;
+  position =  EEPROM.get(address, peak_time)/unittime;
+  int start = position-200;
   delay(100); 
   if(start<0){start=0;}
-  int end =  EEPROM.get(address,position) + 200;
+  // int end =  EEPROM.get(address,position) + 200;
+  int end = position + 200;
   delay(100);
   EEPROM.end();
   printf("start: %d , end: %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
-    printf("value: %d\n", Sensor_arr[i]);
+    // printf("value: %d\n", Sensor_arr[i]);
     if ( Sensor_arr[i] > peak) {
       peak = Sensor_arr[i];
       printf("Replaced %d\n", i);
@@ -334,10 +344,11 @@ double ads_convert(int value, bool resist) {
 
 void output_result(){
   if(fail_count==50){
+    draw_result(0,0);
     return;
   }
-  int CO2_peak = peak_value(0);
-  int ace_peak = peak_value(4);
+  int CO2_peak = peak_value(0,unit);
+  int ace_peak = peak_value(4,unit);
   // double baseline_resist = ads_convert(baseline, true); 
   // double peak_resist_CO2 = ads_convert(CO2_peak, true);
   // double peak_resist_Ace = ads_convert(ace_peak, true);
@@ -354,7 +365,9 @@ void output_result(){
   // printf("Breath Analysis Result:\n");
   // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
   // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
-  draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  
+  // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
+  draw_result(conc_Ace,conc_CO2);
   cloud_upload();
 }// not in percentage
 

@@ -120,9 +120,9 @@ void draw_result(double ace, double co2){
   tft.pushImage(167,200,A13_w,A13_h,Asset_13,0x0000);  
 
   tft.setTextDatum(4); 
-  tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
-  tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_WHITE);
-  tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_BLUE);
+  tft.fillRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(8, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE);
   tft.drawString("Start", 38 ,293,2);        
   if(fail_count != 50){
     tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
@@ -168,7 +168,7 @@ void HomeScreen(){
 void show_menu(){
   ResetXY();
   tft.fillScreen(TFT_NEIGHBOUR_GREEN); 
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
   tft.setTextDatum(4);
   
   tft.fillRoundRect(10, 10, 220, 44,22 ,TFT_NEIGHBOUR_BEIGE);
@@ -335,8 +335,9 @@ void TouchScreen(){
 
     if(stage == 2){//sample
       if(t_x > 11 && t_x < 32  && t_y > 15 && t_y < 75){
-        tft.fillRect(20,40,200,150,TFT_NEIGHBOUR_GREEN);
+        tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
         sample_collection();
+        output_result();
       }
     }
 
@@ -583,8 +584,9 @@ void TouchScreen(){
           tft.drawFloat(float(ADS0), 0, 65, 200, 2);
           tft.drawFloat(float(ADS1), 0, 150, 200, 2);
           tft.drawFloat(float(H[i]), 0, 220, 200, 2);
-          printf("%d\n", H[i]);
+          // printf("%d\n", H[i]);
           draw_sensor(ADS0);
+          Serial.println(ADS0);
 
           // graph1.scroll(-1);                                                                      //AUTO-SCALE
           // graph1.pushSprite(20, 40);
@@ -622,6 +624,7 @@ void TouchScreen(){
     if (stage == 3){ // Calibration Start Button
       if (t_x > 22 && t_x < 47 && t_y > 13 && t_y < 108)
       {
+        int baseline = restore_baseline();
         tft.setTextDatum(4);
         tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
         tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);

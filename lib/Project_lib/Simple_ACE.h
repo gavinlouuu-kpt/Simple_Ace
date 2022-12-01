@@ -54,7 +54,6 @@
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime         45000//60000
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
@@ -64,6 +63,7 @@ const int dutyCycle_pump = 100; //to be changed
 const int dutyCycle_col = 80;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
+const int sampletime = 45000;//60000
 
 extern bool clean;
 extern bool store;
@@ -79,7 +79,6 @@ void sample_collection();
 void power_saving(unsigned long last_time);
 int restore_baseline();
 void storing_data();
-
 int restore_baseline();
 
 #endif 
