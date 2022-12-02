@@ -11,10 +11,6 @@
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
 const int waittime =1000;
-<<<<<<< HEAD
-=======
-const int caltime =45000;
->>>>>>> origin/master
 
 extern short Sensor_arr[store_size];
 // // extern short Sensor_arr[store_size];
@@ -295,15 +291,11 @@ void  calibration() { //put your main code here, to run repeatedly:
     tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
     fillscreen = false;
     }
-<<<<<<< HEAD
     // if(num == 0 && counter == 0 && millis() - time > waittime){
     // if(counter == 0 && millis() - time > waittime){
     //   tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
     //   counter++;
     // }
-=======
-
->>>>>>> origin/master
     // printf("%d\n",time);
     // printf("%d\n",num);
     if(millis() - time > waittime){
@@ -360,11 +352,7 @@ void find_peak(){
     }
   }
   Serial.println();
-<<<<<<< HEAD
   for(int j = 800; j <1500; j++){
-=======
-  for(int j = 1000; j <2000; j++){
->>>>>>> origin/master
     // Serial.println(Sensor_arr[j]);
     if(Sensor_arr[j]> max_2){
       max_2=Sensor_arr[j];

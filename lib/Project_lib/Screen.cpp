@@ -351,15 +351,8 @@ void TouchScreen(){
       }
     }
 
-<<<<<<< HEAD
     if (stage == 5){                                                                           // developer mode choices
       if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295){
-=======
-    if (stage == 5)
-    { // developer mode choices
-      if (t_x > 210 && t_x < 235 && t_y > 10 && t_y < 295)
-      {
->>>>>>> origin/master
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         ResetXY;
         tft.pushImage(180-offset, 260, settingWidth  ,settingHeight, setting);
@@ -427,10 +420,6 @@ void TouchScreen(){
 
     if (stage == 7)
     {
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
       // int MaxNum, MinNum;
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       if (t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70)
@@ -588,24 +577,17 @@ void TouchScreen(){
       }
     }
 
-<<<<<<< HEAD
+
     if (stage == 6)
+    
     { // developer mode stage6 = ADS0  Stage7 = Humidity
       PID_control();
 
-      float max = 60;
-      float diff;
-=======
-
-    if (stage == 6)
-    { // developer mode stage6 = ADS0  Stage7 = Humidity
 
       int Change = 0;
       float max1;
       float min1;
-
->>>>>>> origin/master
-      int i = 0;
+       int i = 0;
       float H[210];
       float LowY;
       float HighY;
@@ -618,12 +600,9 @@ void TouchScreen(){
       if(t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70)
       {
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-<<<<<<< HEAD
         int baseline = restore_baseline();
         set_range(baseline);
-=======
         // int Time = millis();
->>>>>>> origin/master
         while (1)
         {
           // if(tft.getTouch(&t_x, &t_y)){
@@ -632,21 +611,6 @@ void TouchScreen(){
           // }
 
           float ADS0 = ads.readADC_SingleEnded(0);
-<<<<<<< HEAD
-          float ADS1 = analogRead(NTCC);
-          int num = i;
-
-          H[i] = sht20.humidity();
-          tft.drawString("ADS0:", 25, 200, 2);
-          tft.drawString("ADS1:", 110, 200, 2);
-          tft.drawString("H:", 200, 200, 2);
-          tft.drawFloat(float(ADS0), 0, 65, 200, 2);
-          tft.drawFloat(float(ADS1), 0, 150, 200, 2);
-          tft.drawFloat(float(H[i]), 0, 220, 200, 2);
-          // printf("%d\n", H[i]);
-          draw_sensor(ADS0);
-          Serial.println(ADS0);
-=======
           float ADS1 = ads.readADC_SingleEnded(1);
           tft.drawString("ADS0:", 25, 220, 2);
           tft.drawString("ADS1:", 110, 220, 2);
@@ -764,7 +728,6 @@ void TouchScreen(){
               i = 199;
             }
           }
->>>>>>> origin/master
 
           // graph1.scroll(-1);                                                                      //AUTO-SCALE
           // graph1.pushSprite(20, 40);
@@ -783,14 +746,11 @@ void TouchScreen(){
 
           //   }
           // }
-<<<<<<< HEAD
 
           tft.drawFloat(float(rangeH), 0, 15, 32, 1);
           tft.drawFloat(float(rangeL), 0, 10, 190, 1);
 
           i++;
-=======
->>>>>>> origin/master
           if (tft.getTouch(&t_x, &t_y))
           {
             if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290)
@@ -807,12 +767,7 @@ void TouchScreen(){
       {
         int baseline = restore_baseline();
         tft.setTextDatum(4);
-<<<<<<< HEAD
         tft.fillRect(10,50,200,150,TFT_NEIGHBOUR_GREEN);
-=======
-
-        tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
->>>>>>> origin/master
         tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
         tft.fillRect(0, 100, 240, 40, TFT_NEIGHBOUR_GREEN);
         tft.drawString("Starting in 3", 120, 120, 4);
