@@ -158,13 +158,13 @@ int restore_baseline(){
   while (1) {
       int temp = baselineRead(CO2_channel );
       for(int i= 0;i<10;i++){
-        tft.pushImage(80, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
+        tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
         delay(100);
       }
-      tft.fillRect(80,250,70,70,TFT_NEIGHBOUR_GREEN);
-      int ref = baselineRead(CO2_channel );
+      tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
+      int ref = baselineRead(CO2_channel);
 
-      if (temp + 4 >= ref && temp - 4 <= ref) {
+      if (temp + 4 >= ref && temp - 4 <= ref) { //wait baseline drop flat
         printf("Found Baseline %d\n", temp);
         delay(10);  
         dacWrite(pumpPin, dutyCycle_pump);
