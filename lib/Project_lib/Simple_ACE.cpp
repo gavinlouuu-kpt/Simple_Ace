@@ -103,7 +103,7 @@ void breath_check(){
     draw_sensor((double)adc_CO2);
     // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
-    if (gradient > 0.6) {
+    if (gradient > 1) {
       printf("breath real...");
       break;
     }

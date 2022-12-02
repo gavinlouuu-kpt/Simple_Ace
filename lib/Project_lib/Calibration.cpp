@@ -309,7 +309,7 @@ void  calibration() { //put your main code here, to run repeatedly:
     // printf("%d\n", millis());
 
     if (millis()-previous_2>10){
-      Sensor_arr_numb[entry_counter] = ads.readADC_SingleEnded(1);
+      Sensor_arr[entry_counter] = ads.readADC_SingleEnded(1);
       //printf(" %d\n", Sensor_arr[entry_counter]);
       entry_counter += 1;
       //printf("Counter 1: %d\n", entry_counter);
