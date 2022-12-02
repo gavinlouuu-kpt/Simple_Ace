@@ -587,7 +587,7 @@ void TouchScreen(){
       int Change = 0;
       float max1;
       float min1;
-       int i = 0;
+      int i = 0;
       float H[210];
       float LowY;
       float HighY;
@@ -603,13 +603,7 @@ void TouchScreen(){
         int baseline = restore_baseline();
         set_range(baseline);
         // int Time = millis();
-        while (1)
-        {
-          // if(tft.getTouch(&t_x, &t_y)){
-          //   printf("%d\n",t_x);
-          //   printf("%d\n",t_y);
-          // }
-
+        while (1){
           float ADS0 = ads.readADC_SingleEnded(0);
           float ADS1 = ads.readADC_SingleEnded(1);
           tft.drawString("ADS0:", 25, 220, 2);
@@ -619,55 +613,40 @@ void TouchScreen(){
           tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
 
           graph1.pushSprite(20, 40);
-
-          if (i < 201)
-          {
-
+          if (i < 201){
             H[i] = ads.readADC_SingleEnded(0);
-
-            if (i == 199)
-            { // When i >200, H[i-1] = H[i]
-              for (int j = 1; j <= 199; j++)
-              {
+            if (i == 199){ // When i >200, H[i-1] = H[i], move array sample one entry forward
+              for (int j = 1; j <= 199; j++){
                 H[j - 1] = H[j];
-                // printf("%d\n",H[j]);
-                // printf("%d\n",j);
               }
               counter = 1;
             }
 
-            if (numMax < 0)
-            {
-              for (int a = 0; a < i; a++)
-              {
+            if (numMax < 0){ // find the entry of maximum value in the array
+              for (int a = 0; a < i; a++){
                 max1 = H[0];
-                if (H[a] > max1)
-                {
+                if (H[a] > max1){
                   max1 = H[a];
                   numMax = a;
                 }
               }
-              HighY = max1 + 200;
+              HighY = max1 + 200;//update the ceiling of graph axis
               Change = 1;
             }
 
-            if (numMin < 0)
-            {
-              for (int a = 0; a < i; a++)
-              {
+            if (numMin < 0){
+              for (int a = 0; a < i; a++){  // find the entry of minimum value in the array
                 min1 = H[0];
-                if (H[a] < min1)
-                {
+                if (H[a] < min1){
                   min1 = H[a];
                   numMin = a;
                 }
               }
-              LowY = min1 - 200;
+              LowY = min1 - 200; //update ground of the graph axis
               Change = 1;
             }
 
-            if (H[i] > HighY)
-            {
+            if (H[i] > HighY){
               HighY = H[i] + 200;
               numMax = i;
               Change = 1;
@@ -681,13 +660,11 @@ void TouchScreen(){
             }
             // printf("%d\n",i);
             // printf("%d\n",H[i]);
-
             // printf("%d\n", counter);
             // printf("%d\n", Change);
-
             // printf("%f\n", ((H[i] - LowY) / (HighY - LowY)));
             // printf("%d\n", max1);
-            printf("%f\n", HighY);
+            // printf("%f\n", HighY);
             tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_GREEN);
             tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_GREEN);
             tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
@@ -721,10 +698,9 @@ void TouchScreen(){
             //   counter = 1;
             // }
             i++;
-            numMax--;
-            numMin--;
-            if (counter == 1)
-            {
+            numMax--;// ?
+            numMin--;//?
+            if (counter == 1){
               i = 199;
             }
           }
@@ -747,10 +723,9 @@ void TouchScreen(){
           //   }
           // }
 
-          tft.drawFloat(float(rangeH), 0, 15, 32, 1);
-          tft.drawFloat(float(rangeL), 0, 10, 190, 1);
+          // tft.drawFloat(float(rangeH), 0, 15, 32, 1);
+          // tft.drawFloat(float(rangeL), 0, 10, 190, 1);
 
-          i++;
           if (tft.getTouch(&t_x, &t_y))
           {
             if (t_x > 0 && t_x < 35 && t_y > 245 && t_y < 290)
