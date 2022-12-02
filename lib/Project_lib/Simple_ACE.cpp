@@ -128,7 +128,7 @@ void breath_check(){
     }
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
     // printf("%d\n",adc_CO2);
-    draw_sensor((double)adc_CO2);
+    draw_sensor(adc_CO2);
     // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
@@ -225,7 +225,7 @@ void sample_collection(){
     }
     if (millis()-previous_counter2 >10){ 
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
-      draw_sensor((double)Sensor_arr[q]); 
+      draw_sensor(Sensor_arr[q]); 
       q = q + 1;
       previous_counter2 = millis();      
     }
