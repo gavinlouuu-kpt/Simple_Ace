@@ -582,7 +582,6 @@ void TouchScreen(){
     
     { // developer mode stage6 = ADS0  Stage7 = Humidity
       PID_control();
-
       int Change = 0;
       float max1;
       float min1;
@@ -695,10 +694,10 @@ void TouchScreen(){
             if (Change == 1 && i > 0) // redraw
             {
               graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-              for (int c = 0; c <= i; c++)
+              for (int c = 0; c < i; c++)
               {
                 // graph1.drawFastVLine(199 - (i  - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)),1, TFT_YELLOW);
-                graph1.drawLine(199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 199 - (i - 1 - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), TFT_YELLOW);
+                graph1.drawLine(199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 199 - (i - 1 - c), 150 - 150 * ((H[c+1] - LowY) / (HighY - LowY)), TFT_YELLOW);
               }
               Change = 0;
             }
@@ -756,8 +755,6 @@ void TouchScreen(){
           }
         }
       }
-
-     
     }
 
     if (stage == 3){ // Calibration Start Button
