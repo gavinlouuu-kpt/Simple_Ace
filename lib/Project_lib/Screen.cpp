@@ -545,11 +545,8 @@ void TouchScreen()
           tft.drawString("ADS0:", 25, 220, 2);
           tft.drawString("ADS1:", 110, 220, 2);
           tft.drawString("H:", 200, 220, 2);
-          tft.drawFloat(float(ADS0), 0, 65, 220, 2);
           tft.drawFloat(float(ADS1), 0, 150, 220, 2);
           tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
-
-
 
           graph1.pushSprite(20, 40);
 
@@ -623,24 +620,24 @@ void TouchScreen()
             printf("%f\n", HighY);
             tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_GREEN);
             tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_GREEN);
-            tft.fillRect(45, 215,40,15,TFT_NEIGHBOUR_GREEN);
+            tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
             tft.drawFloat(float(HighY), 0, 15, 30, 1);
             tft.drawFloat(float(LowY), 0, 15, 200, 1);
+            tft.drawFloat(float(ADS0), 0, 65, 220, 2);
 
-
-            if (Change == 0 && i>0)                                                   //draw
+            if (Change == 0 && i > 0) // draw
             {
               graph1.scroll(-1);
               // printf("%f\n",value);
-              graph1.drawLine(198, 150 - 150 * ((H[i-1] - LowY) / (HighY - LowY)),199, 150 - 150 * ((H[i] - LowY) / (HighY - LowY)), TFT_YELLOW);
+              graph1.drawLine(198, 150 - 150 * ((H[i - 1] - LowY) / (HighY - LowY)), 199, 150 - 150 * ((H[i] - LowY) / (HighY - LowY)), TFT_YELLOW);
               // printf("%d\n",150 - 150 * ((H[i] - LowY) / (HighY - LowY)));
             }
-            if (Change == 1 && i>0)                                                   //redraw
+            if (Change == 1 && i > 0) // redraw
             {
               graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
               for (int c = 0; c <= i; c++)
               {
-                graph1.drawLine(198 - (i-1 - c), 150 - 150 * ((H[c-1] - LowY) / (HighY - LowY)),199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), TFT_YELLOW);
+                graph1.drawLine(198 - (i - 1 - c), 150 - 150 * ((H[c - 1] - LowY) / (HighY - LowY)), 199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), TFT_YELLOW);
               }
               Change = 0;
             }
