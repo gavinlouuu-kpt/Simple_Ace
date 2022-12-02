@@ -574,22 +574,13 @@ void TouchScreen(){
 
             H[i] = ads.readADC_SingleEnded(0);
 
-            if (i == 199)
-            { // When i >200, H[i-1] = H[i]
-              for (int j = 1; j <= 199; j++)
-              {
-                H[j - 1] = H[j];
-                // printf("%d\n",H[j]);
-                // printf("%d\n",j);
-              }
-              counter = 1;
-            }
-
             if (numMax < 0)
             {
+              max1 = H[0];
+              numMax = 0;
               for (int a = 0; a < i; a++)
               {
-                max1 = H[0];
+
                 if (H[a] > max1)
                 {
                   max1 = H[a];
@@ -602,9 +593,10 @@ void TouchScreen(){
 
             if (numMin < 0)
             {
+              numMin = 0;
+              min1 = H[0];
               for (int a = 0; a < i; a++)
               {
-                min1 = H[0];
                 if (H[a] < min1)
                 {
                   min1 = H[a];
@@ -656,9 +648,20 @@ void TouchScreen(){
               graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
               for (int c = 0; c <= i; c++)
               {
-                graph1.drawLine(198 - (i - 1 - c), 150 - 150 * ((H[c - 1] - LowY) / (HighY - LowY)), 199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), TFT_YELLOW);
+                // graph1.drawFastVLine(199 - (i  - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)),1, TFT_YELLOW);
+                graph1.drawLine(199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 199 - (i - 1 - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), TFT_YELLOW);
               }
               Change = 0;
+            }
+            if (i == 199)
+            { // When i >200, H[i-1] = H[i]
+              for (int j = 1; j <= 199; j++)
+              {
+                H[j - 1] = H[j];
+                // printf("%d\n",H[j]);
+                // printf("%d\n",j);
+              }
+              counter = 1;
             }
 
             // if(i == 199){                                  // When i >200, H[i-1] = H[i]
