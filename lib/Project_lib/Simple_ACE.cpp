@@ -7,28 +7,15 @@
 #include <Adafruit_ADS1X15.h>
 #include <EEPROM.h>
 #include <math.h>
+#include <time.h>
 #include <TFT_eSPI.h>
 
-#include <time.h>
-#include <WiFiClient.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
-
+#include "Cloud_storage.h"
 #include "Loading.h"
-
-#define PASSWORD            "10200718"
-#define SSID                "KPTESP32"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
-// BlynkTimer timer;
-
-const char* ntpServer = "pool.ntp.org";
-// char auth[] = BLYNK_AUTH_TOKEN;
-char ssid[] = SSID;
-char password[] = PASSWORD;
-
 
 double upload_buffer;
 double upload_buffer_1;
@@ -36,93 +23,54 @@ double upload_buffer_2;
 double upload_buffer_3; 
 
 short Sensor_arr[store_size]={0};
-// BLYNK_CONNECTED()
-// {
-//   // Change Web Link Button message to "Congratulations!"
-//   Blynk.setProperty(V3, "offImageUrl", "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations.png");
-//   Blynk.setProperty(V3, "onImageUrl",  "https://static-image.nyc3.cdn.digitaloceanspaces.com/general/fte/congratulations_pressed.png");
-//   Blynk.setProperty(V3, "url", "https://docs.blynk.io/en/getting-started/what-do-i-need-to-blynk/how-quickstart-device-was-made");
-// }
-// void myTimerEvent()
-// {
-//  //not mroe than than 10 samples per seconds
-//  Blynk.virtualWrite(V1, upload_buffer);
-//  Blynk.virtualWrite(V2, upload_buffer_1);
-//  Blynk.virtualWrite(V0, upload_buffer_2);
-//  Blynk.virtualWrite(V4, upload_buffer_3);
-// }
-
-// void blynk_upload(double v1, double v2, double v3, double v4) {
-//   upload_buffer = v1;
-//   upload_buffer_1 = v2;
-//   upload_buffer_2 = v3;
-//   upload_buffer_3 = v4;
-//   delay(1000);
-//   Blynk.run();
-//   timer.run();
-// }
 
 void pinSetup(){
   pinMode(pumpPin, OUTPUT);
   pinMode(colPin,OUTPUT);
   pinMode(NTCC,INPUT);
   pinMode(btn_rst, INPUT);
-  // pinMode(senH,OUTPUT);
+  pinMode(sensor_h,OUTPUT);
 }
 
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
   ledcWrite(colChannel, dutyCycle_col);
-  dacWrite(pumpPin, 128);
+  dacWrite(pumpPin, 200);
   delay(100);
-  dacWrite(pumpPin, dutyCycle_pump);
-  // dacWrite(senH,220);
+  dacWrite(pumpPin, 150);
+  delay(100);
+  dacWrite(pumpPin, 80);
+  delay(100);
+  dacWrite(sensor_h, 220);
 }
 
 void checkSetup(){
-  WiFi.begin(ssid,password);
-  configTime(0, 0, ntpServer);
-  unsigned long clk = getTime();
-  // while (1) {
-  //   if (clk - getTime() < 10) {
-  //     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
-  //     break;
-  //   }
-  // }
-
-  // if (Blynk.connect() == false) {
-  //   ESP.restart();        //custom function I wrote to check wifi connection
-  // }
-
-  // timer.setInterval(1000L, myTimerEvent);
   if (!Wire.begin(21,22)) {
   Serial.println("Failed to initialize wire library");
   while (1);
   }
 
-  // if (!SPIFFS.begin(true)) {
-  //   Serial.println("An Error has occurred while mounting SPIFFS");
-  //   return;
-  // }
+  if (!SPIFFS.begin()) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
 
-   //To rewrite each file from the first file
-  EEPROM_setup();
-  sht20.begin();
-
-  if (!ads.begin()) {
+  if (!ads.begin(0x49)) {
   Serial.println("Failed to initialize ADS.");
   while (1);
   }
-  // PID_setup();
+  //To rewrite each file from the first file
+  EEPROM_setup();
+  sht20.begin();
+
+  PID_setup();
   Serial.println("Setup Complete."); 
 }
 
 void restore_humidity(){
   while(1){
-    // ledcWrite(pumpChannel, 255);
     float previous = sht20.humidity();
-    // sht20.read();
     Serial.println(sht20.humidity());
     if (sht20.humidity() - previous  < 2) {
       printf("Humiditty Restored\n");
@@ -133,7 +81,7 @@ void restore_humidity(){
   }
 }
 
-double read_humidity(){
+double read_humidity(){ 
   float value;
   value = sht20.humidity();
   return value;
@@ -141,25 +89,22 @@ double read_humidity(){
 
 void breath_check(){
   while (true) {
+    PID_control();
     float arr[3];
     float humd;
     double gradient;
     long previous;  
     for (int i = 0; i < 3; i++) {
-      // sht20.read();
       arr[i] = sht20.humidity();
-      // printf("%.2f\n",arr[i]);
       previous= millis();
-      // printf("%d\n",previous);
     }
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    printf("%d\n",adc_CO2);
+    // printf("%d\n",adc_CO2);
     draw_sensor((double)adc_CO2);
-    // draw_humid(arr[2]);
     // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
-    // printf("Grad: %.3f\n",gradient);
     if (gradient > 0.6) {
+      printf("breath real...");
       break;
     }
   }
@@ -181,18 +126,13 @@ int baselineRead(int channel) {
 
 int restore_baseline(){
   while (1) {
-
-
       int temp = baselineRead(CO2_channel );
-      
       for(int i= 0;i<10;i++){
         tft.pushImage(80, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
         delay(100);
       }
       tft.fillRect(80,250,70,70,TFT_NEIGHBOUR_GREEN);
       int ref = baselineRead(CO2_channel );
-
-
 
       if (temp + 3 >= ref && temp - 3 <= ref) {
         printf("Found Baseline %d\n", temp);
@@ -202,19 +142,19 @@ int restore_baseline(){
       }
     }
 }
-void power_saving(unsigned long last_time){
-  while(1){
-    delay(5);
-    if (digitalRead(btn_rst) == HIGH) {
-      Serial.println("New loop");
-      dacWrite(pumpChannel, dutyCycle_pump);
-      break;
-    }
-    if (millis() - last_time > wait_time) {
-      dacWrite(pumpChannel, 0);
-    }
-  }
-}
+// void power_saving(unsigned long last_time){
+//   while(1){
+//     delay(5);
+//     if (digitalRead(btn_rst) == HIGH) {
+//       Serial.println("New loop");
+//       dacWrite(pumpChannel, dutyCycle_pump);
+//       break;
+//     }
+//     if (millis() - last_time > wait_time) {
+//       dacWrite(pumpChannel, 0);
+//     }
+//   }
+// }
 
 double conc_Ace;
 double conc_CO2;
@@ -225,7 +165,7 @@ void sample_collection(){
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
-
+  PID_control();
   restore_humidity();
   baseline = restore_baseline();
   set_range(baseline);
@@ -237,20 +177,23 @@ void sample_collection(){
   int previous_counter;
   int previosu_counter_2;
   draw_wait();
-  while (millis() - previous < sampletime + 1) {
+  for(int i =0; i<store_size; i++){
+    Sensor_arr[i]=0;
+  }
+  while (millis() - previous < sampletime ) {
     if (millis() -previous_counter >1000){
       int time;
-      time = (60-((millis()-previous))/1000)-1;
+      time = ((sampletime-((millis()-previous)))/1000);
       previous_counter= millis();
       draw_time(time);
     }
     if (millis()-previosu_counter_2>10){
         adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-        printf("%d\n",adc_CO2);
+        // printf("%d\n",adc_CO2);
         previosu_counter_2 = millis();
         draw_sensor((double)adc_CO2); 
     }
-    // PID_control();
+    PID_control();
     if (store == false) {
       fail_count += 1 ;
       if (fail_count== 50){
@@ -263,13 +206,19 @@ void sample_collection(){
       }
     }
     Sensor_arr[q] = adc_CO2;
-    Serial.println(q);delay(1);
+    // Serial.println(q);delay(1);
     q = q + 1;
   }
   if(fail_count==50){
     return;
   }
+  output_result();
 }
+
+void storing_data(){
+  cloud_upload();
+}
+
 
 int peak_value(int address) {
   int peak = 0;
@@ -277,15 +226,13 @@ int peak_value(int address) {
   EEPROM.begin(20);
   int start = EEPROM.get(address,position)-200;
   delay(100); 
-  if(start<0){
-    start=0;
-  }
+  if(start<0){start=0;}
   int end =  EEPROM.get(address,position) + 200;
   delay(100);
   EEPROM.end();
   printf("start: %d , end: %d\n", (int)start, (int)end);
   for (int i = start ; i < end; i++){
-    printf("value: %d\n", Sensor_arr[i]);
+    // printf("value: %d\n", Sensor_arr[i]);
     if ( Sensor_arr[i] > peak) {
       peak = Sensor_arr[i];
       printf("Replaced %d\n", i);
@@ -310,7 +257,6 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
         printf("buffer: %.6f\n",buffer);
         
         buffer = buffer*correct_factor;
-        
         // float coeff_1 = 0.596;
         // float coeff_2 = -1.0194;
         // float coeff_3 = 0.4467;
@@ -358,28 +304,19 @@ void output_result(){
   double baseline_resist = ads_convert(baseline, true); 
   double peak_resist_CO2 = ads_convert(CO2_peak, true);
   double peak_resist_Ace = ads_convert(ace_peak, true);
-    conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
-    conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
+  conc_CO2 = CO2_peak/baseline;
+  conc_Ace = ace_peak/baseline;
+  // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
+  // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
 
-//   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
-//   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
-  printf("Breath Analysis Result:\n");
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
-  printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
+  // printf("Breath Analysis Result:\n");
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
+  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
+  
+  // not percentage
   draw_result(conc_Ace,conc_CO2);// Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
-}
-
-
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    // Serial.println("Failed to obtain time");
-    return (0);
+  storing_data();
   }
-  time(&now);
-  return now;
-}
 
 
 
