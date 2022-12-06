@@ -47,7 +47,7 @@
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			4096 //Number of data collect within sample time //
+#define store_size 			2000 //Number of data collect within sample time //
 
 #define pumpChannel 		0
 #define solChannel 			1

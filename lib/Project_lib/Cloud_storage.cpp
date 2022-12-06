@@ -98,7 +98,7 @@ void storeinfo(String namee, String sx, int height, int weight){
 }
 
 
-void storedata(String namee,long tim ,int number){
+void storedata(String namee,unsigned long tim ,int number){
   String data_dir = "/Simple_Ace/Sample/";
   data_dir.concat(name);
   data_dir.concat("/");
@@ -107,13 +107,12 @@ void storedata(String namee,long tim ,int number){
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
   const char *filename = data_dir.c_str();
-  delay(1);
-  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-  delay(100);
+  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(1000);
   // array.toString(Serial, true);
   array.clear();
   delay(100);
 }
+unsigned long time;
 
 void cloud_upload(){
   checkstatus();
@@ -121,16 +120,18 @@ void cloud_upload(){
   if(isWifi){
     if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
       sendDataPrevMillis = millis();
-      long time= getTime(); 
+      
+      delay(10);
       printf("%d\n",time);
       storeinfo(name,sex,h,w);
       //Check first file
       if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
         File file = SPIFFS.open("/Dataset_1");
         String data = "0";
+        time= getTime(); 
         while(file.available()){
           for (int j = 0; j < 4; j++){
-            for (int i = 0; i < 1024; i++){ 
+            for (int i = 0; i < 250; i++){ 
               if(file.read() != 0){
                 data = file.readStringUntil(',');
                 array.add(data);
@@ -147,38 +148,41 @@ void cloud_upload(){
         delay(1000); //deleted Spiffs file
       }
       // Check Second file
-      // else if (SPIFFS.exists("/Dataset_2")){
-      //   Serial.println("Stored from previos stored value");
-      //   File file = SPIFFS.open("/Dataset_2");
-      //   String data = "0";
-      //   while(file.available()){
-      //     for (int j = 0; j < 4; j++){
-      //       for (int i = 0; i < 1024; i++){ 
-      //         if(file.read() != 0){
-      //           data = file.readStringUntil(',');
-      //           array.add(data);
-      //         }
-      //       }
-      //       storedata(name,time,j);
-      //       // String str = "/Simple_Ace/Sample/" +name+  (String)time +"/File" + (String)j ;
-      //       // const char *filename = str.c_str();
-      //       // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-      //       // delay(10);
-      //       // array.toString(Serial, true);
-      //       // array.clear();
-      //       // delay(1);
-      //     }
-      //   }
-      //   file.close();
-      //   SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
-      // }
+      if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
+        Serial.println("Stored from previos stored value");
+        File file = SPIFFS.open("/Dataset_2");
+        String data = "0";
+        time= getTime(); 
+        while(file.available()){
+          for (int j = 0; j < 4; j++){
+            for (int i = 0; i < 1024; i++){ 
+              if(file.read() != 0){
+                data = file.readStringUntil(',');
+                array.add(data);
+              }
+            }
+            storedata(name,time,j);
+            // String str = "/Simple_Ace/Sample/" +name+  (String)time +"/File" + (String)j ;
+            // const char *filename = str.c_str();
+            // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
+            // delay(10);
+            // array.toString(Serial, true);
+            // array.clear();
+            // delay(1);
+          }
+        }
+        file.close();
+        SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
+      }
       //Sample realtime
-      else if(Firebase.ready()){
+      if(Firebase.ready()){
+        time= getTime(); 
+        printf("%d\n",time);
         int value = 0.00;
         for (int j = 0; j < 4; j++){
-          for (int i = 0; i < 1024; i++){ 
-            if(Sensor_arr[j*1024+i] != 0){
-              value = Sensor_arr[j*1024+i];
+          for (int i = 0; i < 250; i++){ 
+            if(Sensor_arr[j*250+i] != 0){
+              value = Sensor_arr[j*250+i];
               array.add(value);
             } 
           }
@@ -194,6 +198,7 @@ void cloud_upload(){
     }
   }
   else{
+    Wifi_disconnect();
     String file_dir = "/Dataset_";
     file_dir.concat((String)(counter%2 + 1));
     counter ++;
@@ -216,7 +221,7 @@ void cloud_upload(){
     // while(file.available()){
     //   Serial.write(file.read());
     // }
-    file.close();
+    // file.close();
   }  
 }
 

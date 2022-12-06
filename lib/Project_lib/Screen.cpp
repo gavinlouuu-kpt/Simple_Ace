@@ -113,42 +113,18 @@ void set_range(int value){
 }
 
 void draw_sensor(double value){
-    // graph1.scroll(-1); 
-    // // Move sprite content 1 pixel left. Default dy is 0
-    // // value = map(value,rangeL,rangeH,0,100);
-    // value =  (value-rangeL)*(150*3.14-0)/(rangeH-rangeL)+0;
-    // // printf("%f\n",value); 
-    // graph1.drawFastVLine(199, 150 - (int)(150*(sin((value/150.0)-(3.14/2.0))+1.0)),5, beige);
-    // graph1.pushSprite(20, 40);
-    // // graph1.drawString("Breathe Here, ")
-
-  // graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-  // int Time = millis();
-  // while (1){
-    float ADS0 = ads.readADC_SingleEnded(0);
-    // float ADS1 = ads.readADC_SingleEnded(1);
-    // tft.drawString("ADS0:", 25, 220, 2);
-    // tft.drawString("ADS1:", 110, 220, 2);
-    // tft.drawString("H:", 200, 220, 2);
-    // tft.drawFloat(float(ADS1), 0, 150, 220, 2);
-    // tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
-
+    // float ADS0 = ads.readADC_SingleEnded(0)
     graph1.pushSprite(20, 40);
 
     if (i < 201)
     {
-
-      H[i] = ads.readADC_SingleEnded(0);
-
-      if (numMax < 0)
-      { //relocate maximum point
+      // H[i] = ads.readADC_SingleEnded(0);
+      H[i] = (int)value;
+      if (numMax < 0){ //relocate maximum point
         max1 = H[0];
         numMax = 0;
-        for (int a = 0; a < i; a++)
-        {
-
-          if (H[a] > max1)
-          {
+        for (int a = 0; a < i; a++){
+          if (H[a] > max1){
             max1 = H[a];
             numMax = a;
           }
@@ -157,14 +133,11 @@ void draw_sensor(double value){
         Change = 1;
       }
 
-      if (numMin < 0)
-      { // relocate minimum point
+      if (numMin < 0){ // relocate minimum point
         numMin = 0;
         min1 = H[0];
-        for (int a = 0; a < i; a++)
-        {
-          if (H[a] < min1)
-          {
+        for (int a = 0; a < i; a++){
+          if (H[a] < min1){
             min1 = H[a];
             numMin = a;
           }
@@ -173,15 +146,13 @@ void draw_sensor(double value){
         Change = 1;
       }
 
-      if (H[i] > HighY)
-      {
+      if (H[i] > HighY){ //update maximum bound
         HighY = H[i] + 200;
         numMax = i;
         Change = 1;
       }
 
-      if (H[i] < LowY)
-      {
+      if (H[i] < LowY){//update minimum bound
         LowY = H[i] - 200;
         numMin = i;
         Change = 1;
@@ -194,10 +165,10 @@ void draw_sensor(double value){
 
       // printf("%f\n", ((H[i] - LowY) / (HighY - LowY)));
       // printf("%d\n", max1);
-      printf("%f\n", HighY);
+      // printf("%f\n", HighY);
       // tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_GREEN);
       // tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_GREEN);
-      tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
+      // tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);//
       // tft.drawFloat(float(HighY), 0, 15, 30, 1);
       // tft.drawFloat(float(LowY), 0, 15, 200, 1);
       // tft.drawFloat(float(ADS0), 0, 65, 220, 2);
@@ -278,7 +249,6 @@ extern int fail_count;
 void draw_result(double ace, double co2){
   tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);// cover analyzing
   tft.fillRect(70,200,100,50,TFT_NEIGHBOUR_GREEN);//cover timer
-  // tft.fillRect(50,250,135,30,TFT_NEIGHBOUR_GREEN); 
   tft.pushImage(50,200,A7_w,A7_h,Asset_7,0x0000);
   tft.pushImage(90,200,A8_w,A8_h,Asset_8,0x0000);
   tft.pushImage(130,200,A10_w,A10_h,Asset_10,0x0000);
@@ -296,18 +266,37 @@ void draw_result(double ace, double co2){
     tft.drawFloat((float)co2 , 2, 60, 140, 2);
   }
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-  if(ace > 1 || ace <= 0||store == false){
+  // if(ace > 1 || ace <= 0||store == false){
+  // tft.drawString("Try Again",120,60,4); 
+  // }
+  // else if (ace > 0.96 && ace <= 1 ){
+  // tft.drawString("Workout More!",120,60,4);
+  // }
+  // else if(ace > 0.9 && ace <= 0.96){
+  // tft.drawString("Pretty Good!",120,60,4);
+  // }
+  // else if(ace <= 0.9 && ace > 0){
+  // tft.drawString("Excellent Fat Burn!",120,60,4);
+  // } 
+  if(ace < 1 || co2 < 1||store == false){
   tft.drawString("Try Again",120,60,4); 
   }
-  else if (ace > 0.96 && ace <= 1){
-  tft.drawString("Workout More!",120,60,4);
-  }
-  else if(ace > 0.9 && ace <= 0.96){
-  tft.drawString("Pretty Good!",120,60,4);
-  }
-  else if(ace <= 0.9 && ace > 0){
-  tft.drawString("Excellent Fat Burn!",120,60,4);
+  else if((ace >= 1 && ace < 1.1) && (co2 >= 1 && co2 < 1.3)){
+  tft.drawString("Inactive workout",120,60,4);
   } 
+  else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
+  tft.drawString("Moderate calories burn",120,60,4);
+  } 
+  else if((ace >= 1 && ace < 1.3) && (co2 >= 1.5)){
+  tft.drawString("Effective training",120,60,4);
+  } 
+  else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
+  tft.drawString("Moderate Ketosis",120,60,4);
+  } 
+  else if(ace >= 1.3 && co2 >= 1 ){
+  tft.drawString("Deep Ketosis",120,60,4);
+  } 
+
 }
 
 void HomeScreen(){
@@ -448,6 +437,7 @@ void bluetooth_display(){
 void wifi_display(){
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
   ResetXY;
+  delay(150);
   tft.pushImage(180-offset, 260, settingWidth  ,settingHeight, setting);
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.fillRoundRect(10, 40, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
@@ -498,7 +488,7 @@ void TouchScreen(){
 
     if(stage == 2){//sample
       if(t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70){
-        tft.fillRect(10,40,200,150,TFT_NEIGHBOUR_GREEN);
+        tft.fillRect(0,40,240,150,TFT_NEIGHBOUR_GREEN);
         sample_collection();
         output_result();
       }
@@ -950,6 +940,7 @@ void TouchScreen(){
     }
 
     if (stage == 9){ 
+      ResetXY;
       if (t_x > 180 && t_x < 210 && t_y > 10 && t_y < 295){ // WIFI
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         ResetXY;
@@ -959,7 +950,7 @@ void TouchScreen(){
         tft.drawRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
         tft.drawString("Wi-fi", 120, 22, 2);
-        checkstatus();
+        Wifi_connect();
         if(isWifi == true){
           tft.drawString("Connected", 180, 22, 2);
           delay(2000);
@@ -970,7 +961,27 @@ void TouchScreen(){
           tft.drawString("Failed", 180, 22, 2);
         }
       }
-      
+
+      if (t_x > 130 && t_x < 160  && t_y >10  && t_y < 295){
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        ResetXY;
+        extern bool isWifi;
+        tft.pushImage(180, 260, settingWidth, settingHeight, setting);
+        tft.fillRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
+        tft.drawRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+        tft.drawString("Wi-fi", 120, 22, 2);
+        Wifi_disconnect();
+        if(isWifi == false){
+          tft.drawString("Disconnected", 180, 22, 2);
+          delay(2000);
+          tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+          stage=0;
+        }
+        else{
+          tft.drawString("Failed", 180, 22, 2);
+        }
+      }
     }
   }
 }
