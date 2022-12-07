@@ -3,6 +3,9 @@
 // BlynkWifi Blynk(_blynkTransport);
 #include <Simple_ACE.h>
 #include <Screen.h>
+#include <PID.h>
+#include <Cloud_storage.h>
+#include <Wifi_connection.h>
 
 // ////////////////////////SPIFFS File//////////////////////////////////////
 // String format_1 = "/";
@@ -28,29 +31,12 @@ void setup() {
   analogSetup();
   checkSetup();
   draw_framework();
+  firebase_setup();
   Serial.println( "Setup done" );
-  // use only when data has to write into spiffs //
-  // only flush the file when EEPROM is rebooted
-  // if (EEPROM.read(EEP_add) == 0) {
-  //   printf("Clearing Files");
-  //   for (int i = 0; i < 255 ; i ++) {
-  //     String filename = format_1 + (String)i + format_2;
-  //     SPIFFS.remove(filename);
-  //     if (!filename) {
-  //       File dat_file_w = SPIFFS.open(filename, FILE_WRITE);
-  //       Serial.println("cleared");
-  //       if (!dat_file_w) {
-  //         Serial.println("There was an error opening the file for writing");
-  //         return;
-  //       }
-  //       dat_file_w.close();
-  //     }
-  //   }
-  // }
 }
 
 void loop() {
-
+  PID_control();
   TouchScreen();
   // // Blynk.connect();
   // // blynk_upload(avg_ratio_Ace, avg_ratio_O2, rq, map_rq);//editted
@@ -58,5 +44,18 @@ void loop() {
   // // data_logging(avg_ratio_CO2, avg_ratio_O2,rq , 0 , 1 );
   // // Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
   // data_logging(avg_ratio_Ace, avg_ratio_O2, rq , 0, 5 );
+// if WiFi is down, try reconnecting
+// if(isWifi ==true){
+//   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >2000)) {
+//     // Serial.print(millis());
+//     Serial.println("Reconnecting to WiFi...");
+//     WiFi.disconnect();
+//     delay(100);
+//     WiFi.reconnect();
+//     delay(100);
+//     previousMillis = currentMillis;
+//     }
+//   }
+// Wifi_reconnect();
 }
 
