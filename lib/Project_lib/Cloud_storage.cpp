@@ -5,6 +5,7 @@
 #include <Firebase_ESP_Client.h>
 #include <addons/TokenHelper.h>
 #include <addons/RTDBHelper.h>
+#include <Simple_ACE.h>
 
 
 #if defined(ESP32)
@@ -18,7 +19,8 @@
 /* 4. Define the user Email and password that alreadey registerd or added in your project */
 #define USER_EMAIL "chichungchan91@gmail.com"
 #define USER_PASSWORD "121688"
-
+#define filenumber 8
+#define filesize  256
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
@@ -35,9 +37,13 @@ const char* ntpServer = "pool.ntp.org";
 // Variable to save current epoch time
 unsigned long epochTime; 
 
-extern bool isWifi;
+extern bool isConnect;
 int counter = 0;
 
+// int filenumber = 8;
+// int filesize =store_size/filenumber;
+
+String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
 int h =178;
@@ -55,6 +61,9 @@ unsigned long getTime() {
 }
 
 void firebase_setup(){
+  Serial.print("ESP Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+
   Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
   /* Assign the api key (required) */
   config.api_key = API_KEY;
@@ -67,7 +76,7 @@ void firebase_setup(){
   config.database_url = DATABASE_URL;
 
   /* Assign the callback function for the long running token generation task */
-  config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  // config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
   #if defined(ESP8266)
   // In ESP8266 required for BearSSL rx/tx buffer for large data handle, increase Rx size as needed.
   fbdo.setBSSLBufferSize(2048 /* Rx buffer size in bytes from 512 - 16384 */, 2048 /* Tx buffer size in bytes from 512 - 16384 */);
@@ -88,7 +97,9 @@ void storeinfo(String namee, String sx, int height, int weight){
   jj.set("/Sex", sx);
   jj.set("/Height", String(height));
   jj.set("/Weight", String(weight));
-  String info_dir = "/Simple_Ace/Sample/";
+  String info_dir = "/Simple_Ace/";
+  info_dir.concat(macadddress);
+  info_dir.concat("/");
   info_dir.concat(name);
   info_dir.concat("/info");
   Serial.print("Directory:");Serial.println(info_dir);
@@ -99,7 +110,9 @@ void storeinfo(String namee, String sx, int height, int weight){
 
 
 void storedata(String namee,unsigned long tim ,int number){
-  String data_dir = "/Simple_Ace/Sample/";
+  String data_dir = "/Simple_Ace/";
+  data_dir.concat(macadddress);
+  data_dir.concat("/");
   data_dir.concat(name);
   data_dir.concat("/");
   data_dir.concat((String)tim);
@@ -112,82 +125,71 @@ void storedata(String namee,unsigned long tim ,int number){
   array.clear();
   delay(100);
 }
-unsigned long time;
+
 
 void cloud_upload(){
   checkstatus();
-  extern short Sensor_arr[4096];
-  if(isWifi){
+  extern short Sensor_arr[store_size];
+  unsigned long time =0;
+  if(isConnect){
     if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
+      storeinfo(name,sex,h,w);        
       sendDataPrevMillis = millis();
-      
-      delay(10);
-      printf("%d\n",time);
-      storeinfo(name,sex,h,w);
       //Check first file
       if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
         File file = SPIFFS.open("/Dataset_1");
         String data = "0";
-        time= getTime(); 
-        while(file.available()){
-          for (int j = 0; j < 4; j++){
-            for (int i = 0; i < 250; i++){ 
+        time= getTime();       
+        printf("%d\n",time);
+          for (int j = 0; j < 8; j++){
+            for (int i = 0; i <256; i++){ 
               if(file.read() != 0){
                 data = file.readStringUntil(',');
                 array.add(data);
               }
-            }
+            }        
             Serial.println("Pushing data");
             storedata(name,time,j);
             delay(10);
-          }        
-        }
+          }
         Serial.println("Stored from previous /Dataset_1");
         file.close();
-        SPIFFS.remove("/Dataset_1");
-        delay(1000); //deleted Spiffs file
+        SPIFFS.remove("/Dataset_1");//deleted Spiffs file
+        delay(1000); 
       }
       // Check Second file
       if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
-        Serial.println("Stored from previos stored value");
         File file = SPIFFS.open("/Dataset_2");
         String data = "0";
         time= getTime(); 
-        while(file.available()){
-          for (int j = 0; j < 4; j++){
-            for (int i = 0; i < 1024; i++){ 
-              if(file.read() != 0){
-                data = file.readStringUntil(',');
-                array.add(data);
-              }
+        for (int j = 0; j < 8; j++){
+          for (int i = 0; i <256; i++){ 
+            if(file.read() != 0){
+              data = file.readStringUntil(',');
+              array.add(data);
             }
-            storedata(name,time,j);
-            // String str = "/Simple_Ace/Sample/" +name+  (String)time +"/File" + (String)j ;
-            // const char *filename = str.c_str();
-            // Firebase.RTDB.setArray(&fbdo, F((filename)), &array);
-            // delay(10);
-            // array.toString(Serial, true);
-            // array.clear();
-            // delay(1);
           }
+          storedata(name,time,j);
+          delay(10);
         }
+         Serial.println("Stored from previous /Dataset_2");
         file.close();
         SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
+        delay(1000);
       }
       //Sample realtime
       if(Firebase.ready()){
         time= getTime(); 
         printf("%d\n",time);
         int value = 0.00;
-        for (int j = 0; j < 4; j++){
-          for (int i = 0; i < 250; i++){ 
-            if(Sensor_arr[j*250+i] != 0){
-              value = Sensor_arr[j*250+i];
+        for (int j = 0; j < 8; j++){
+          for (int i = 0; i < 256; i++){ 
+            if(Sensor_arr[j*256+i] != 0){
+              value = Sensor_arr[j*256+i];
               array.add(value);
             } 
           }
           storedata(name,time,j);
-          delay(10);
         }
         Serial.println("Storing Directly");
       }
@@ -198,7 +200,7 @@ void cloud_upload(){
     }
   }
   else{
-    Wifi_disconnect();
+    // Wifi_disable();
     String file_dir = "/Dataset_";
     file_dir.concat((String)(counter%2 + 1));
     counter ++;
@@ -210,7 +212,7 @@ void cloud_upload(){
 
     File file = SPIFFS.open(file_dir.c_str(),FILE_WRITE);
     file.print(',');file.write('\n'); 
-    for(int i =0; i <4096; i++){
+    for(int i =0; i <2048; i++){
       if(Sensor_arr[i] !=0){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
       }

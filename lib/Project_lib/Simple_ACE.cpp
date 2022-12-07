@@ -11,8 +11,6 @@
 #include <TFT_eSPI.h>
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
-
-#include "Cloud_storage.h"
 #include "Loading.h"
 
 // #define PASSWORD            "10200718"
@@ -57,21 +55,6 @@ void analogSetup(){
 }
 
 void checkSetup(){
-  // WiFi.begin(ssid,password);
-  // configTime(0, 0, ntpServer);
-  // unsigned long clk = getTime();
-  // while (1) {
-  //   if (clk - getTime() < 10) {
-  //     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, password);
-  //     break;
-  //   }
-  // }
-
-  // if (Blynk.connect() == false) {
-  //   ESP.restart();        //custom function I wrote to check wifi connection
-  // }
-
-  // timer.setInterval(1000L, myTimerEvent);
   if (!Wire.begin(21,22)) {
   Serial.println("Failed to initialize wire library");
   while (1);
@@ -81,13 +64,11 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-
    //To rewrite each file from the first file
   EEPROM_setup();
   sht20.begin();
 
   ads.setGain(GAIN_ONE); 
-
   if (!ads.begin(0x49)) {
   Serial.println("Failed to initialize ADS.");
   while (1);
@@ -129,7 +110,6 @@ void breath_check(){
     short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
     // printf("%d\n",adc_CO2);
     draw_sensor(adc_CO2);
-    // PID_control();
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
       printf("breath real...");
@@ -191,7 +171,7 @@ int restore_baseline(){
 
 double conc_Ace;
 double conc_CO2;
-bool store;
+bool isStore;
 int baseline;
 int fail_count = 0 ;
 int unit;
@@ -199,14 +179,13 @@ void sample_collection(){
   int q = 0;
   unsigned long previous ;
   short adc_CO2;
-  PID_control();
   restore_humidity();
   baseline = restore_baseline();
   set_range(baseline);
   delay(1);
   // printf("Blow Now\n");
   breath_check();
-  store = false;
+  isStore = false;
   previous = millis();
   int previous_counter;
   int previous_counter2;
@@ -230,14 +209,15 @@ void sample_collection(){
       previous_counter2 = millis();      
     }
     PID_control();
-    if (store == false) {
+    if (isStore == false) {
       fail_count += 1 ;
       if (fail_count== 50){
         // printf("This is a failed breath");
         break;
       }
       if (read_humidity() > 40) {
-        store = true;
+        isStore = true;
+        fail_count= 0;
         // Serial.println("Certain a breathe. Recording...");
       }
     }

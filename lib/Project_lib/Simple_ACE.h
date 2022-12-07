@@ -47,7 +47,7 @@
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			2000 //Number of data collect within sample time //
+#define store_size 			2048 //Number of data collect within sample time //
 
 #define pumpChannel 		0
 #define solChannel 			1
@@ -66,7 +66,6 @@ const int temperate = 55;
 const int sampletime = 45000;//60000
 
 extern bool clean;
-extern bool store;
 
 void checkSetup(void);
 void pinSetup(void);
