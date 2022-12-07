@@ -20,7 +20,7 @@
 // #define NTCC                39
 
 //Wrover 2.8" display///////////////////////////////////////////////      
-#define pumpPin             26 
+#define pumpPin             26  
 #define solPin              33
 #define buz                 13
 #define colPin              27  
@@ -42,31 +42,30 @@
 // #define Off_s               26
 // #define senH                25
 
-#define CO2_channel  		0
+#define CO2_channel  		0 //raw adc
 #define EEP_add 			0
 #define EEP_add_1           1
 #define O2_channel 			3
 
-#define store_size 			4096 //Number of data collect within sample time //
+#define store_size 			2048 //Number of data collect within sample time //
 
 #define pumpChannel 		0
 #define solChannel 			1
 #define colChannel 			2
 #define fanChannel 			3
 
-#define sampletime          45000//60000
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle_pump = 65; //to be changed
+const int dutyCycle_pump = 100; //to be changed
 const int dutyCycle_col = 80;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
+const int sampletime = 45000;//60000
 
 extern bool clean;
-extern bool store;
 
 void checkSetup(void);
 void pinSetup(void);
@@ -77,8 +76,8 @@ double ads_convert(int value, bool resist);
 
 void sample_collection();
 void power_saving(unsigned long last_time);
-// unsigned long getTime();
+int restore_baseline();
 void storing_data();
-
+int restore_baseline();
 
 #endif 
