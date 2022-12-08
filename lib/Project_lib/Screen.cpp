@@ -250,10 +250,7 @@ extern int fail_count;
 void draw_result(double ace, double co2){
   tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);// cover analyzing
   tft.fillRect(70,200,100,50,TFT_NEIGHBOUR_GREEN);//cover timer
-  tft.pushImage(50,200,A7_w,A7_h,Asset_7,0x0000);
-  tft.pushImage(90,200,A8_w,A8_h,Asset_8,0x0000);
-  tft.pushImage(130,200,A10_w,A10_h,Asset_10,0x0000);
-  tft.pushImage(165,200,A13_w,A13_h,Asset_13,0x0000);  
+  draw_framework();
 
   tft.setTextDatum(4); 
   tft.fillRoundRect(10, 263, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
@@ -317,8 +314,7 @@ void HomeScreen(){
     delay(300);
 }
 
-void show_menu()
-{
+void show_menu(){
   ResetXY();
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
