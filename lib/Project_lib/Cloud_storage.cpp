@@ -46,6 +46,8 @@ int counter = 0;
 String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
+extern String profileNumber;
+
 int h =178;
 int w = 75;
 
@@ -100,7 +102,7 @@ void storeinfo(String namee, String sx, int height, int weight){
   String info_dir = "/Simple_Ace/";
   info_dir.concat(macadddress);
   info_dir.concat("/");
-  info_dir.concat(name);
+  info_dir.concat(profileNumber);
   info_dir.concat("/info");
   Serial.print("Directory:");Serial.println(info_dir);
   const char *filename = info_dir.c_str();
@@ -113,7 +115,7 @@ void storedata(String namee,unsigned long tim ,int number){
   String data_dir = "/Simple_Ace/";
   data_dir.concat(macadddress);
   data_dir.concat("/");
-  data_dir.concat(name);
+  data_dir.concat(profileNumber);
   data_dir.concat("/");
   data_dir.concat((String)tim);
   data_dir.concat("/File");
