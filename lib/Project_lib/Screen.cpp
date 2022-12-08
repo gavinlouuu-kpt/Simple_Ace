@@ -80,6 +80,7 @@ void ResetXY()
 {
   t_x = 0;
   t_y = 0;
+  
 }
 
 void draw_framework()
@@ -526,13 +527,13 @@ void TouchScreen()
 
     if (stage == 1)
     { // Navigation
-      if (t_x > 15 && t_x < 45 && t_y > 10 && t_y < 295)
+      if (t_x > 30 && t_x < 65 && t_y > 10 && t_y < 295)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
       {
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 255, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 255, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Return", 120, 280, 4);
-        delay(200); // return button
+        delay(200);                                                                     // return button
         // DrawHomescreen();
 
         stage = 0;
@@ -542,7 +543,7 @@ void TouchScreen()
       
       else if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295)
       {
-        tft.setTextColor(TFT_BLACK, TFT_SKYBLUE); // User_setup
+        tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);                                       // User_setup
         tft.fillRoundRect(10, 135, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("User Setup", 120, 160, 4);
@@ -555,7 +556,7 @@ void TouchScreen()
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 75, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Calibration", 120, 100, 4); // Calibration
+        tft.drawString("Calibration", 120, 100, 4);                                         // Calibration
         delay(200);
 
         calibration_display();
@@ -566,16 +567,16 @@ void TouchScreen()
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 10, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("OTA Setting", 120, 35, 4); // OTA Setting
+        tft.drawString("OTA Setting", 120, 35, 4);                                                // OTA Setting
         delay(200);
         OTA_display();
       }
-      else if (t_x > 60 && t_x < 95 && t_y > 10 && t_y < 295)
+      else if (t_x > 75 && t_x < 105 && t_y > 10 && t_y < 295)
       {
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 195, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Developer Mode", 120, 220, 4); // developer mode
+        tft.drawString("Developer Mode", 120, 220, 4);                                              // developer mode
         delay(200);
 
         developer_display();
