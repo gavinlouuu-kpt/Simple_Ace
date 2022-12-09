@@ -90,17 +90,27 @@ void draw_framework()
 
 void draw_time(int time){
 
-    tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN); 
-    tft.setTextColor(beige);
-    tft.setTextDatum(TC_DATUM); 
+    tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN); //cover bubble
+    // tft.setTextColor(beige);
+    // tft.setTextDatum(TC_DATUM); 
     //tft.drawFloat(time, 0, 120, 200, 6);
 }
+
+void draw_progress(float bar_length,float bar_percentage){
+  tft.setTextDatum(1);
+  tft.fillRect(15,210,200*(bar_length/45000),5,TFT_NEIGHBOUR_BEIGE); //bar
+  tft.fillRect(75,230,60,25,TFT_NEIGHBOUR_GREEN); //cover previous number
+  tft.drawFloat(bar_percentage,0,120,230,4);
+  tft.drawString("%",155,230,4);
+}
+
 void draw_wait(void){  
-  tft.fillRect(60,210,110,62,TFT_NEIGHBOUR_GREEN); // cover huff now
+  tft.fillRect(60,210,119,62,TFT_NEIGHBOUR_GREEN); // cover huff now
   tft.setTextDatum(3); 
   tft.setTextColor(beige);
   tft.fillRect(10,260,70,50,TFT_NEIGHBOUR_GREEN); //cover button
   tft.drawString("Analyzing...",10, 290,4);
+  tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN);
 }
 
 void set_range(int value)
@@ -254,7 +264,7 @@ extern int fail_count;
 
 void draw_result(double ace, double co2){
   tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);// cover analyzing
-  tft.fillRect(70,200,100,50,TFT_NEIGHBOUR_GREEN);//cover timer
+  tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN);//cover timer
   draw_framework();
 
   tft.setTextDatum(4); 
@@ -310,7 +320,7 @@ void HomeScreen(){
     tft.drawString("Technologies",10,270,1);
     tft.drawString("Phase",10,280,2);
     draw_framework();
-    // draw_Wifi();
+    draw_Wifi();
     tft.setTextDatum(4);
     tft.fillRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
     tft.drawRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BLUE);

@@ -7,29 +7,6 @@ bool isWifi=false;
 bool isConnect =false; 
 
 void checkstatus(){
-// Serial.print("Connecting to Wi-Fi");
-//   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-//   unsigned long countdown= millis();
-//   while(millis()-countdown < 5000){
-//     if (WiFi.status() != WL_CONNECTED){
-//       Serial.print(".");
-//       delay(300);
-//     }
-//     else{
-//       isWifi = true;
-//       Serial.print("Connected with IP: ");
-//       Serial.println(WiFi.localIP());
-//       firebase_setup();
-//       break;
-//     }
-//   } 
-
-  // if (WiFi.status() != WL_CONNECTED) {
-  //   Serial.print(millis());
-  //   Serial.println("Reconnecting to WiFi...");
-  //   WiFi.disconnect();
-  //   WiFi.reconnect();
-  // }
   Wifi_reconnect();
   if(WiFi.status() == WL_CONNECTED){
     isConnect = true;

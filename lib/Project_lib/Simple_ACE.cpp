@@ -141,15 +141,25 @@ int restore_baseline(){
   int ref=0;
   dacWrite(pumpPin,200);
   ledcWrite(colChannel, 255);
+  int counter=0 ;
   unsigned long cleaning_counter=millis();
   while(millis()-cleaning_counter <10000){
-    Serial.println("removing residues...");
-    Serial.println(analogRead(NTCC));
-    delay(1000);
+    // Serial.println("removing residues...");
+    // Serial.println(analogRead(NTCC));
+    // for(int i= 0;i<10;i++){
+        tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
+        delay(100); counter ++;
+        // delay(100);
+      // }
   }
-  // Setpoint=1000;
   while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
     PID_control();
+    // for(int i= 0;i<10;i++){
+    //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
+    //     delay(100);
+    //   }
+    tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
+    delay(100); counter ++;
   } 
 
   unsigned long previous_time= millis();
@@ -158,10 +168,12 @@ int restore_baseline(){
       break;
     }
     temp = baselineRead(CO2_channel);
-    for(int i= 0;i<10;i++){
-        tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
-        delay(100);
-      }
+    // for(int i= 0;i<10;i++){
+    //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
+    //     delay(100);
+    //   }
+    tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
+    delay(100); counter ++;
     tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
     ref = baselineRead(CO2_channel);
     Serial.println(ads.readADC_SingleEnded(0));
@@ -197,8 +209,8 @@ int fail_count = 0 ;
 int unit;
 void sample_collection(){
   int a = 0;
-  float TimeCounter;
-  float Percentage;
+  float bar_time;
+  float bar_percentage;
   int q = 0;
   float previous ;
   short adc_CO2;
@@ -218,27 +230,14 @@ void sample_collection(){
   }
   
   long start_time = millis();
+  // draw_time(time);
   while (millis() - previous < sampletime + 1) {
-
-    if (millis() -previous_counter >1000){
-      int time;
-      time = ((sampletime-((millis()-previous)))/1000);
-      previous_counter= millis();
-      draw_time(time);
-      // tft.pushImage(10, 200, ProgessBarWidth, ProgessBarHeight, ProgessBar[a]);
-      // if(millis()-TimeCounter >3000){
-      //   TimeCounter = millis();
-      //   a++;
-      // }
-    }
-    TimeCounter = millis() - previous;
-    Percentage = (TimeCounter/45000)*100;
-    tft.fillRect(15,210,200*(TimeCounter/45000),5,TFT_GREENYELLOW);
-    tft.fillRect(75,230,50,20,TFT_NEIGHBOUR_GREEN);
-    tft.drawFloat(Percentage,0,110,230,4);
-    tft.drawString("%",145,230,4);
+    int time =0 ;
+    bar_time = millis() - previous;
+    bar_percentage = (bar_time/45000)*100;
+    draw_progress(bar_time,bar_percentage);
     // tft.drawString("100%",210,230);
-    printf("%f\n",Percentage);
+    // printf("%f\n",Percentage);
 
     if (millis()-previous_counter2 >10){ 
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
