@@ -14,7 +14,7 @@ void draw_result(double ace,double co2);
 void set_range(int value);
 void draw_wait(void);
 void TouchScreen();
-
+void draw_Wifi();
 
 #endif
 

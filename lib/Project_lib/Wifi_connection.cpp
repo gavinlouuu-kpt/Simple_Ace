@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include "Wifi_connection.h"
 #include "Cloud_storage.h"
+#include "Screen.h"
 
 bool isWifi=false;
 bool isConnect =false; 
@@ -45,6 +46,7 @@ void Wifi_able(){
   Serial.print("ESP Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
   isWifi= true;
+  draw_Wifi();
   unsigned long countdown= millis();
   while(millis()-countdown < 5000){
     if (WiFi.status() != WL_CONNECTED){

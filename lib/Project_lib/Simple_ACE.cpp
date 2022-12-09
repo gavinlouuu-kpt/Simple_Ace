@@ -50,7 +50,9 @@ void analogSetup(){
   delay(100);
   dacWrite(pumpPin,150);
   dacWrite(pumpPin, dutyCycle_pump);
-  dacWrite(sensor_h, 220); // turn on sensor heater with DAC 220 is HS ~1.9V
+  dacWrite(sensor_h, 240);
+  delay(5000); // turn on sensor heater with DAC 220 is HS ~1.9V
+  dacWrite(sensor_h, 220);
   // dacWrite(senH,220);
 }
 
@@ -133,27 +135,44 @@ int baselineRead(int channel) {
 }
 
 int restore_baseline(){
+  extern double Setpoint;
+  int temp=0;
+  int ref=0;
   dacWrite(pumpPin,200);
-  ledcWrite(colChannel, 150);
+  ledcWrite(colChannel, 255);
+  unsigned long cleaning_counter=millis();
+  while(millis()-cleaning_counter <10000){
+    Serial.println("removing residues...");
+    Serial.println(analogRead(NTCC));
+    delay(1000);
+  }
+  // Setpoint=1000;
+  while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
+    PID_control();
+  } 
+
+  unsigned long previous_time= millis();
   while (1) {
-      int temp = baselineRead(CO2_channel );
-      for(int i= 0;i<10;i++){
+    if(millis()-previous_time > 10000){   //RESTORE TIMER 
+      break;
+    }
+    temp = baselineRead(CO2_channel);
+    for(int i= 0;i<10;i++){
         tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
         delay(100);
       }
-      tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
-      int ref = baselineRead(CO2_channel);
+    tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
+    ref = baselineRead(CO2_channel);
+    Serial.println(ads.readADC_SingleEnded(0));
 
-      if (temp + 4 >= ref && temp - 4 <= ref) { //wait baseline drop flat
-        printf("Found Baseline %d\n", temp);
-        delay(10);  
-        dacWrite(pumpPin, dutyCycle_pump);
-        ledcWrite(colChannel, dutyCycle_col);  
-        return temp;
-        break;
-      }
+    if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
+      printf("Found Baseline %d\n", temp);
+      delay(10);  
+      dacWrite(pumpPin, dutyCycle_pump);
+      return temp;
+      break;
     }
-
+  }
 }
 // void power_saving(unsigned long last_time){
 //   while(1){
