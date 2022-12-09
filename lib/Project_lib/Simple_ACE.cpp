@@ -12,6 +12,7 @@
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
 #include "Loading.h"
+#include "ProgessBar.h"
 
 // #define PASSWORD            "10200718"
 // #define SSID                "KPTESP32"
@@ -176,8 +177,11 @@ int baseline;
 int fail_count = 0 ;
 int unit;
 void sample_collection(){
+  int a = 0;
+  float TimeCounter;
+  float Percentage;
   int q = 0;
-  unsigned long previous ;
+  float previous ;
   short adc_CO2;
   restore_humidity();
   baseline = restore_baseline();
@@ -196,12 +200,27 @@ void sample_collection(){
   
   long start_time = millis();
   while (millis() - previous < sampletime + 1) {
+
     if (millis() -previous_counter >1000){
       int time;
       time = ((sampletime-((millis()-previous)))/1000);
       previous_counter= millis();
       draw_time(time);
+      // tft.pushImage(10, 200, ProgessBarWidth, ProgessBarHeight, ProgessBar[a]);
+      // if(millis()-TimeCounter >3000){
+      //   TimeCounter = millis();
+      //   a++;
+      // }
     }
+    TimeCounter = millis() - previous;
+    Percentage = (TimeCounter/45000)*100;
+    tft.fillRect(15,210,200*(TimeCounter/45000),5,TFT_GREENYELLOW);
+    tft.fillRect(75,230,50,20,TFT_NEIGHBOUR_GREEN);
+    tft.drawFloat(Percentage,0,110,230,4);
+    tft.drawString("%",145,230,4);
+    // tft.drawString("100%",210,230);
+    printf("%f\n",Percentage);
+
     if (millis()-previous_counter2 >10){ 
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
       draw_sensor(Sensor_arr[q]); 
