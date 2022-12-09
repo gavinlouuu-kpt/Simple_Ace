@@ -35,7 +35,7 @@ void PID_control(){
     myPID.Compute();
     ledcWrite(colChannel,Output); //220
     // Serial.println(Output);
-    Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
+    //Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
 }
 
 

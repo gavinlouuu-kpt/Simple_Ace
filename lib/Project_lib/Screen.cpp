@@ -89,10 +89,11 @@ void draw_framework()
 }
 
 void draw_time(int time){
-    tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN); 
+
+    tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN); 
     tft.setTextColor(beige);
     tft.setTextDatum(TC_DATUM); 
-    tft.drawFloat(time, 0, 120, 200, 6);
+    //tft.drawFloat(time, 0, 120, 200, 6);
 }
 void draw_wait(void){  
   tft.fillRect(60,210,110,62,TFT_NEIGHBOUR_GREEN); // cover huff now
@@ -111,6 +112,7 @@ void set_range(int value)
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE,TFT_NEIGHBOUR_GREEN);
   // tft.fillRect(10,120,240,30,TFT_NEIGHBOUR_GREEN);
   // tft.fillRect(0,40,240,80, TFT_NEIGHBOUR_GREEN);
+
   tft.drawString("HUFF now",120, 245, 4);
 }
 
@@ -519,7 +521,7 @@ void TouchScreen(){
       tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
       tft.fillRoundRect(95, 265, 60, 46, 23, TFT_SKYBLUE);
       tft.drawRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
-      tft.drawString("Start", 125, 288, 2); // Sampling start
+      tft.drawString("Start", 125, 288, 2);                                         // Sampling start
       delay(200);
       sampling_display();
     }
@@ -535,8 +537,8 @@ void TouchScreen(){
       }
     }
 
-    if (stage == 1){    // Navigation
-      if (t_x > 15 && t_x < 45 && t_y > 10 && t_y < 295){
+    if (stage == 1){                                                                        // Navigation
+      if (t_x > 30 && t_x < 65 && t_y > 10 && t_y < 295){
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 255, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 255, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
@@ -549,7 +551,7 @@ void TouchScreen(){
       }
       
       else if (t_x > 110 && t_x < 140 && t_y > 10 && t_y < 295){
-        tft.setTextColor(TFT_BLACK, TFT_SKYBLUE); // User_setup
+        tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);                                               // User_setup
         tft.fillRoundRect(10, 135, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("User Setup", 120, 160, 4);
@@ -561,7 +563,7 @@ void TouchScreen(){
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 75, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Calibration", 120, 100, 4); // Calibration
+        tft.drawString("Calibration", 120, 100, 4);                                               // Calibration
         delay(200);
 
         calibration_display();
@@ -571,15 +573,15 @@ void TouchScreen(){
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 10, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("OTA Setting", 120, 35, 4); // OTA Setting
+        tft.drawString("OTA Setting", 120, 35, 4);                                          // OTA Setting
         delay(200);
         OTA_display();
       }
-      else if (t_x > 60 && t_x < 95 && t_y > 10 && t_y < 295){
+      else if (t_x > 75 && t_x < 105 && t_y > 10 && t_y < 295){
         tft.setTextColor(TFT_BLACK, TFT_SKYBLUE);
         tft.fillRoundRect(10, 195, 220, 44, 22, TFT_SKYBLUE);
         tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Developer Mode", 120, 220, 4); // developer mode
+        tft.drawString("Developer Mode", 120, 220, 4);                                    // developer mode
         delay(200);
 
         developer_display();
@@ -587,7 +589,7 @@ void TouchScreen(){
     }
 
 
-    if(stage == 2){     //sample
+    if(stage == 2){                                                                     //sample
       if(t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70){
         tft.fillRect(0,40,240,150,TFT_NEIGHBOUR_GREEN);
         sample_collection();
@@ -595,7 +597,7 @@ void TouchScreen(){
       }
     }
 
-    if (stage == 3){    // Calibration Start Button
+    if (stage == 3){                                                                // Calibration Start Button
       if (t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70)
       {
         int baseline = restore_baseline();
@@ -630,7 +632,7 @@ void TouchScreen(){
       }
     }
 
-    if (stage == 4){    // OTA setting options
+    if (stage == 4){                                                                                    // OTA setting options
       if(t_x > 160 && t_x < 195  && t_y >10  && t_y < 295){ // bluetooth
         bluetooth_display();
       }
