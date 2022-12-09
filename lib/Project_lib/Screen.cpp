@@ -19,6 +19,9 @@
 #include "Asset_14.h"
 #include "setting.h"
 #include "Beagle.h"
+#include "Wifi_connect.h"
+#include "Wifi_not_connect.h"
+
 #include "PID.h"
 
 #define setting_x 170
@@ -86,16 +89,17 @@ void draw_framework()
 }
 
 void draw_time(int time){
+
     tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN); 
     tft.setTextColor(beige);
     tft.setTextDatum(TC_DATUM); 
     //tft.drawFloat(time, 0, 120, 200, 6);
 }
 void draw_wait(void){  
-  tft.fillRect(50,210,120,70,TFT_NEIGHBOUR_GREEN); // cover huff now
+  tft.fillRect(60,210,110,62,TFT_NEIGHBOUR_GREEN); // cover huff now
   tft.setTextDatum(3); 
   tft.setTextColor(beige);
-  tft.fillRect(10,setting_y,70,70,TFT_NEIGHBOUR_GREEN); 
+  tft.fillRect(10,260,70,50,TFT_NEIGHBOUR_GREEN); //cover button
   tft.drawString("Analyzing...",10, 290,4);
 }
 
@@ -108,7 +112,8 @@ void set_range(int value)
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE,TFT_NEIGHBOUR_GREEN);
   // tft.fillRect(10,120,240,30,TFT_NEIGHBOUR_GREEN);
   // tft.fillRect(0,40,240,80, TFT_NEIGHBOUR_GREEN);
-  tft.drawString("HUFF now",110, setting_y, 4);
+
+  tft.drawString("HUFF now",120, 245, 4);
 }
 
 void draw_sensor(double value){
@@ -305,7 +310,7 @@ void HomeScreen(){
     tft.drawString("Technologies",10,270,1);
     tft.drawString("Phase",10,280,2);
     draw_framework();
-
+    // draw_Wifi();
     tft.setTextDatum(4);
     tft.fillRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
     tft.drawRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
@@ -344,6 +349,16 @@ void show_menu(){
   stage = 1;
 }
 
+void draw_Wifi(){     //draw wifi logo
+  extern bool isWifi;
+  extern bool isConnect;
+  if(isWifi== true){
+    tft.pushImage(180, 10, Wifi_true_w ,Wifi_true_h, Wifi_true);
+  }
+  else{
+    tft.pushImage(180,10, Wifi_false_w ,Wifi_false_h, Wifi_false);
+  }
+}
 void sampling_display()
 {
   ResetXY();
