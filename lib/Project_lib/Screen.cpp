@@ -506,6 +506,7 @@ void wifi_display(){
   tft.drawRoundRect(10, 135, 220, 44,22, TFT_NEIGHBOUR_BLUE);
   tft.drawString("Off", 120, 160, 4);
   stage = 9;
+  ResetXY();
 }
 
 void selectfilenumber(){
@@ -1066,7 +1067,8 @@ void TouchScreen(){
     }
 
     if (stage == 9){ 
-      if (t_x > 160 && t_x < 195  && t_y >10  && t_y < 295){ // WIFI
+      // ResetXY();
+      if (t_x > 160 && t_x < 195  && t_y >10  && t_y < 295){      // WIFI
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         extern bool isWifi;
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
