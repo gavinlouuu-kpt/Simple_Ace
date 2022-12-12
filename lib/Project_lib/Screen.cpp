@@ -326,7 +326,7 @@ void HomeScreen(){
     tft.drawRoundRect(95, 265, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
     tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
     tft.drawString("Start", 125, 288, 2);
-    delay(300);
+    // delay(300);
 }
 
 void show_menu(){
@@ -363,10 +363,10 @@ void draw_Wifi(){     //draw wifi logo
   extern bool isWifi;
   extern bool isConnect;
   if(isWifi== true){
-    tft.pushImage(180, 10, Wifi_true_w ,Wifi_true_h, Wifi_true);
+    tft.pushImage(200, 10, Wifi_true_w ,Wifi_true_h, Wifi_true);
   }
   else{
-    tft.pushImage(180,10, Wifi_false_w ,Wifi_false_h, Wifi_false);
+    tft.pushImage(200, 10, Wifi_false_w ,Wifi_false_h, Wifi_false);
   }
 }
 void sampling_display()
@@ -507,6 +507,7 @@ void wifi_display(){
   tft.drawString("Off", 120, 160, 4);
   stage = 9;
   ResetXY();
+  delay(300);
 }
 
 void selectfilenumber(){
@@ -1072,10 +1073,8 @@ void TouchScreen(){
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         extern bool isWifi;
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        tft.fillRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
-        tft.drawRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
-        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-        tft.drawString("Wi-fi", 120, 22, 2);
+        tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+        tft.drawString("WiFi Setting",120,30,4);
         Wifi_able();
         if(isWifi == true){
           tft.drawString("ON", 180, 22, 2);
