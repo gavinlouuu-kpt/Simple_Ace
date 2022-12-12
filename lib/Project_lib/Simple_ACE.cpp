@@ -11,11 +11,6 @@
 #include <TFT_eSPI.h>
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
-#include "Loading.h"
-#include "ProgessBar.h"
-
-// #define PASSWORD            "10200718"
-// #define SSID                "KPTESP32"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -147,10 +142,7 @@ int restore_baseline(){
     // Serial.println("removing residues...");
     // Serial.println(analogRead(NTCC));
     // for(int i= 0;i<10;i++){
-        tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
-        delay(100); counter ++;
-        // delay(100);
-      // }
+    draw_loading(counter);counter ++;
   }
   while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
     PID_control();
@@ -158,8 +150,7 @@ int restore_baseline(){
     //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
     //     delay(100);
     //   }
-    tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
-    delay(100); counter ++;
+    draw_loading(counter);counter ++;
   } 
 
   unsigned long previous_time= millis();
@@ -172,12 +163,10 @@ int restore_baseline(){
     //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
     //     delay(100);
     //   }
-    tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[counter%10]);
-    delay(100); counter ++;
+    draw_loading(counter);counter ++;
     tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
     ref = baselineRead(CO2_channel);
     Serial.println(ads.readADC_SingleEnded(0));
-
     if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
       printf("Found Baseline %d\n", temp);
       delay(10);  
@@ -187,6 +176,7 @@ int restore_baseline(){
     }
   }
 }
+
 // void power_saving(unsigned long last_time){
 //   while(1){
 //     delay(5);

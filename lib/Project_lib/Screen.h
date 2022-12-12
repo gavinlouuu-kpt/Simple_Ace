@@ -16,5 +16,6 @@ void draw_wait(void);
 void TouchScreen();
 void draw_Wifi();
 void draw_progress(float bar_time, float bar_percentage);
+void draw_loading(int count);
 #endif
 

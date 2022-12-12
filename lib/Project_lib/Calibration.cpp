@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
-#include "Loading.h"
+#include "Image_assets/Loading.h"
 #include "PID.h"
 
 
@@ -299,12 +299,13 @@ void  calibration() { //put your main code here, to run repeatedly:
     // printf("%d\n",time);
     // printf("%d\n",num);
     if(millis() - time > waittime){
-      tft.drawString("Remain ",110,120,4);
+      tft.setTextDatum(4);
+      tft.drawString("Remain ",90,120,4);
       if((sampletime-(millis() - previous))/waittime < 10 && istenth ==true){
-        tft.fillRect(165,100,40,40,TFT_NEIGHBOUR_GREEN);
+        tft.fillRect(150,100,40,40,TFT_NEIGHBOUR_GREEN);
         istenth = false;
       }
-      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,180,120,4);
+      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,160,120,4);
       time= millis();
     }
 

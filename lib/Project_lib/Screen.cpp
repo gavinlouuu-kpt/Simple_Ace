@@ -9,21 +9,21 @@
 #include <Adafruit_ADS1X15.h>
 #include "Wifi_connection.h"
 #include "Simple_ACE.h"
-
-
-#include "Asset_2.h"
-#include "Asset_7.h"
-#include "Asset_8.h"
-#include "Asset_10.h"
-#include "Asset_13.h"
-#include "Asset_14.h"
-#include "setting.h"
-#include "Beagle.h"
-#include "Wifi_connect.h"
-#include "Wifi_not_connect.h"
-#include "Wifi_Off.h"
-
 #include "PID.h"
+
+#include "Image_assets/Asset_2.h"
+#include "Image_assets/Asset_7.h"
+#include "Image_assets/Asset_8.h"
+#include "Image_assets/Asset_10.h"
+#include "Image_assets/Asset_13.h"
+#include "Image_assets/Asset_14.h"
+#include "Image_assets/setting.h"
+#include "Image_assets/Beagle.h"
+#include "Image_assets/Wifi_connect.h"
+#include "Image_assets/Wifi_not_connect.h"
+#include "Image_assets/Wifi_Off.h"
+#include "Image_assets/Loading.h"
+
 
 #define setting_x 170
 #define setting_y 250
@@ -88,7 +88,10 @@ void draw_framework()
   tft.setTextDatum(TC_DATUM); 
   tft.pushImage(setting_x, setting_y, settingWidth  ,settingHeight, setting);
 }
-
+void draw_loading(int count){
+  tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[count%10]);
+  delay(100); 
+}
 void draw_time(int time){
 
     tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN); //cover bubble
