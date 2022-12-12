@@ -21,6 +21,7 @@
 #include "Beagle.h"
 #include "Wifi_connect.h"
 #include "Wifi_not_connect.h"
+#include "Wifi_Off.h"
 
 #include "PID.h"
 
@@ -362,8 +363,11 @@ void show_menu(){
 void draw_Wifi(){     //draw wifi logo
   extern bool isWifi;
   extern bool isConnect;
-  if(isWifi== true){
+  if(isWifi== true && isConnect ==true){
     tft.pushImage(200, 10, Wifi_true_w ,Wifi_true_h, Wifi_true);
+  }
+  else if(isWifi== true && isConnect ==false){
+    tft.pushImage(200, 10, Wifi_nc_w ,Wifi_nc_h, Wifi_nc);
   }
   else{
     tft.pushImage(200, 10, Wifi_false_w ,Wifi_false_h, Wifi_false);
@@ -1071,19 +1075,20 @@ void TouchScreen(){
       // ResetXY();
       if (t_x > 160 && t_x < 195  && t_y >10  && t_y < 295){      // WIFI
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-        extern bool isWifi;
+        extern bool isConnect;
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
         tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
         tft.drawString("WiFi Setting",120,30,4);
         Wifi_able();
-        if(isWifi == true){
-          tft.drawString("ON", 180, 22, 2);
+        if(isConnect == true){
+          tft.drawString("Connected", 120, 100, 4);
           delay(2000);
           tft.fillScreen(TFT_NEIGHBOUR_GREEN);
           stage=0;
         }
         else{
-          tft.drawString("Failed", 180, 22, 2);
+          tft.drawString("Not Connected", 120, 100, 4);
+          delay(2000);
           wifi_display();
         }
       }

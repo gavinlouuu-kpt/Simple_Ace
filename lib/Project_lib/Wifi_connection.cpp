@@ -23,21 +23,21 @@ void Wifi_able(){
   Serial.print("ESP Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
   isWifi= true;
-  draw_Wifi();
   unsigned long countdown= millis();
+  isConnect =false; 
   while(millis()-countdown < 5000){
     if (WiFi.status() != WL_CONNECTED){
       Serial.print(".");
       delay(300);
     }
     else{
-      isConnect = true;
+      isConnect = true;  
+      draw_Wifi();
       Serial.print("Connected with IP: ");
       Serial.println(WiFi.localIP());
       break;
-    }
+    } 
   }
-  isConnect = false;
 }
 
 void Wifi_disable(){
