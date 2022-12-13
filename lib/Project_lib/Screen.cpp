@@ -270,13 +270,32 @@ extern bool isStore;
 extern int fail_count;
 
 void draw_result(double ace, double co2){
-  tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);// cover analyzing
-  tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN);//cover timer
+  int top_y =60;
+  int base_y =190;
+  int y_length = base_y - top_y;
+  int start_y_ace;
+  int end_y_ace;
+  int start_y_co2;
+  int end_y_co2;
+  tft.fillRect(20,20,200,150,TFT_NEIGHBOUR_GREEN);   // cover graph 
+  tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);    // cover analyzing
+  tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN); 
   draw_framework();
+  tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN);   //cover logo
   // draw_bar();
   // tft.fillRect();
-  tft.fillRect(50, 180, 20, (int)60*(ace/2),TFT_NEIGHBOUR_BEIGE);
-  tft.fillRect(180, 180, 20, (int)60*(co2/2),TFT_NEIGHBOUR_BEIGE);
+  start_y_ace = top_y + (int)(y_length*(1-(ace/2)));
+  end_y_ace = base_y - start_y_ace;
+  start_y_co2 = top_y + (int)(y_length*(1-(co2/2)));
+  end_y_co2 = base_y - start_y_co2;
+  // Serial.print("start_y:");Serial.println(start_y_ace);
+  // Serial.print("end_y:");Serial.println(end_y_ace);
+  // Serial.print("start_y:");Serial.println(start_y_co2);
+  // Serial.print("end_y:");Serial.println(end_y_co2);
+
+  tft.fillRect(50, start_y_co2, 10, end_y_co2,TFT_NEIGHBOUR_BEIGE);
+  tft.fillRect(180, start_y_ace, 10, end_y_ace,TFT_NEIGHBOUR_BEIGE);
+  tft.drawFastHLine(20,190,200,TFT_NEIGHBOUR_BEIGE);
 
   tft.setTextDatum(4); 
   tft.fillRoundRect(10, 263, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
@@ -284,10 +303,10 @@ void draw_result(double ace, double co2){
   tft.drawString("Start", 40 ,287,2);        
   if(fail_count != 50){
     tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-    tft.drawString("Acetone", 180, 125, 2);
-    tft.drawFloat((float)ace, 2, 180, 140, 2);
-    tft.drawString("Metabolic rate", 60, 125, 2);
-    tft.drawFloat((float)co2 , 2, 60, 140, 2);
+    tft.drawString("Acetone", 180, 145, 2);
+    tft.drawFloat((float)ace, 2, 180, 160, 2);
+    tft.drawString("Metabolic rate", 60, 145, 2);
+    tft.drawFloat((float)co2 , 2, 60, 160, 2);
   }
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   // if(ace > 1 || ace <= 0||store == false){
@@ -303,22 +322,22 @@ void draw_result(double ace, double co2){
   // tft.drawString("Excellent Fat Burn!",120,60,4);
   // } 
   if(ace < 1 || co2 < 1||isStore == false){
-  tft.drawString("Try Again",120,60,4); 
+  tft.drawString("Try Again",120,50,4); 
   }
   else if((ace >= 1 && ace < 1.1) && (co2 >= 1 && co2 < 1.3)){
-  tft.drawString("Inactive workout",120,60,4);
+  tft.drawString("Inactive workout",120,50,4);
   } 
   else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
-  tft.drawString("Moderate calories burn",120,60,4);
+  tft.drawString("Moderate calories burn",120,50,4);
   } 
   else if((ace >= 1 && ace < 1.3) && (co2 >= 1.5)){
-  tft.drawString("Effective training",120,60,4);
+  tft.drawString("Effective training",120,50,4);
   } 
   else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
-  tft.drawString("Moderate Ketosis",120,60,4);
+  tft.drawString("Moderate Ketosis",120,50,4);
   } 
   else if(ace >= 1.3 && co2 >= 1 ){
-  tft.drawString("Deep Ketosis",120,60,4);
+  tft.drawString("Deep Ketosis",120,50,4);
   } 
 
 }

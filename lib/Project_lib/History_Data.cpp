@@ -31,7 +31,6 @@ void retrieve_result(){
         previous_data[i] = buffer.toDouble();
         Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(previous_data[i]);
     }
-
     return; //the array
 }
 
