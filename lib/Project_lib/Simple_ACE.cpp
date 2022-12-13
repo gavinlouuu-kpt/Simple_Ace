@@ -11,6 +11,7 @@
 #include <TFT_eSPI.h>
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
+#include "History_Data.h"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -365,6 +366,7 @@ void output_result(){
     conc_Ace = (double)ace_peak/(double)baseline;
     Serial.println(conc_Ace);
     Serial.println(conc_CO2);
+    store_result(conc_Ace,conc_CO2);
 
 
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );

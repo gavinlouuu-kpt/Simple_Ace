@@ -10,6 +10,7 @@
 #include "Wifi_connection.h"
 #include "Simple_ACE.h"
 #include "PID.h"
+#include "History_Data.h"
 
 #include "Image_assets/Asset_2.h"
 #include "Image_assets/Asset_7.h"
@@ -103,8 +104,10 @@ void draw_time(int time){
 void draw_progress(float bar_length,float bar_percentage){
   tft.setTextDatum(1);
   tft.fillRect(15,210,200*(bar_length/45000),5,TFT_NEIGHBOUR_BEIGE); //bar
-  tft.fillRect(75,230,60,25,TFT_NEIGHBOUR_GREEN); //cover previous number
-  tft.drawFloat(bar_percentage,0,120,230,4);
+  if((int)(bar_percentage*10) %10 ==0){
+    tft.fillRect(75,230,60,25,TFT_NEIGHBOUR_GREEN); //cover previous number
+    tft.drawFloat(bar_percentage,0,120,230,4);
+  }
   tft.drawString("%",155,230,4);
 }
 
@@ -113,7 +116,7 @@ void draw_wait(void){
   tft.setTextDatum(3); 
   tft.setTextColor(beige);
   tft.fillRect(10,260,70,50,TFT_NEIGHBOUR_GREEN); //cover button
-  tft.drawString("Analyzing...",10, 290,4);
+  tft.drawString("Analyzing...",10, 280,4);
   tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN);
 }
 
@@ -270,6 +273,10 @@ void draw_result(double ace, double co2){
   tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);// cover analyzing
   tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN);//cover timer
   draw_framework();
+  // draw_bar();
+  // tft.fillRect();
+  tft.fillRect(50, 180, 20, (int)60*(ace/2),TFT_NEIGHBOUR_BEIGE);
+  tft.fillRect(180, 180, 20, (int)60*(co2/2),TFT_NEIGHBOUR_BEIGE);
 
   tft.setTextDatum(4); 
   tft.fillRoundRect(10, 263, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
@@ -383,7 +390,7 @@ void sampling_display()
   draw_framework();
 
   tft.setTextDatum(MC_DATUM); 
-  tft.drawString("Acetone Level",120, 30, 4);
+  // tft.drawString("Acetone Level",120, 30, 4);
   tft.fillRoundRect(10, 263, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
 
@@ -459,6 +466,9 @@ void  developer_display(){
   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
   tft.drawString("Print Spiffs", 120, 160, 4);
+  tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("Previous Value", 120, 220, 4);
   stage=5;
   ResetXY();
 }
@@ -493,7 +503,7 @@ void User_setup(){
 
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.fillRoundRect(8, 264, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
-  tft.drawString("Start", 38,287,2);
+  tft.drawString("Set", 38,287,2);
 
   stage = 11;
 }
@@ -696,6 +706,22 @@ void TouchScreen(){
         tft.drawString("Calibration", 120, 160, 4);
         stage =10;
       }
+      if(t_x > 75 && t_x < 105 && t_y > 10 && t_y < 295){
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.drawFastVLine(20,60,120,TFT_NEIGHBOUR_BEIGE);
+        tft.drawFastHLine(20,180,200,TFT_NEIGHBOUR_BEIGE);
+        retrieve_result();
+
+        //display graph
+        // x_increment = 16
+        // y_increment  =12;
+        // map y coord to ratio value;
+        // for(int m=0; m<sizeofarray; m++){
+        //   tft.drawLine(20+x*m,map arra[i-m],20+2*m, map y, TFT_NEIGHBOUR_BEIGE);
+        //   plot(Array[i-m])
+        // }
+
+      }
     }
 
     if (stage == 11){// user_setup
@@ -709,6 +735,8 @@ void TouchScreen(){
 
       if(t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70){    //define file number
         profileNumber = (String)SetupNumber;
+        delay(500);
+        show_menu();
       }
     }
 
