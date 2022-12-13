@@ -137,6 +137,7 @@ void set_range(int value)
 
 void draw_sensor(double value){
     // float ADS0 = ads.readADC_SingleEnded(0)
+    tft.fillScreen(TFT_NEIGHBOUR_GREEN);
     graph1.pushSprite(20, 40);
 
     if (i < 201)
@@ -562,7 +563,7 @@ void TouchScreen(){
     printf("%d\n", t_x);
     printf("%d\n", t_y);
 
-    if (stage == 0 || stage == 2 || stage == 3 || stage == 4 || stage == 5 || stage == 6 || stage == 8 || stage == 9 || stage == 10 || stage == 11){
+    if (stage == 0 || stage == 2 || stage == 3 || stage == 4 || stage == 5 || stage == 6 || stage == 7 || stage == 8 || stage == 9 || stage == 10 || stage == 11 || stage == 12){
       if (t_x > 10 && t_x < 70 && t_y > 210 && t_y < 300){
         show_menu();
       }
@@ -709,6 +710,7 @@ void TouchScreen(){
         stage =10;
       }
       if(t_x > 75 && t_x < 105 && t_y > 10 && t_y < 295){
+        stage = 12;
         int DataCounter = 0;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(setting_x, setting_y, settingWidth  ,settingHeight, setting);
@@ -720,6 +722,15 @@ void TouchScreen(){
         for(int i =0;i<10;i++){
           if(previous_data[i]>0.5){
             tft.fillCircle((i+2)*20,(120-120*((previous_data[i]-0.9)/1.1))+60,2,TFT_YELLOW);
+            tft.setTextColor(TFT_YELLOW,TFT_NEIGHBOUR_GREEN);
+            if(i == 0 ||i ==2 ||i == 4 ||i ==6 || i ==8 ){
+              tft.drawFloat(previous_data[i],2,(i+2)*20,(120-120*((previous_data[i]-0.9)/1.1))+40,1);
+            }
+            if(i == 1 ||i ==3 ||i == 5 ||i ==7 || i ==9 ){
+              tft.drawFloat(previous_data[i],2,(i+2)*20,(120-120*((previous_data[i]-0.9)/1.1))+20,1);
+            }
+
+            
             DataCounter++;
           }
         }
