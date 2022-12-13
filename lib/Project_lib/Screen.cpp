@@ -34,6 +34,8 @@ TFT_eSprite graph1 = TFT_eSprite(&tft);
 extern Adafruit_ADS1115 ads;
 extern uFire_SHT20 sht20;
 extern float ref_position[2];
+// float previous[10] = {0.9,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
+extern double previous_data[10];
 String profileNumber = "";
 
 int rangeL = 0;
@@ -707,10 +709,27 @@ void TouchScreen(){
         stage =10;
       }
       if(t_x > 75 && t_x < 105 && t_y > 10 && t_y < 295){
+        int DataCounter = 0;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.pushImage(setting_x, setting_y, settingWidth  ,settingHeight, setting);
+        ResetXY();
         tft.drawFastVLine(20,60,120,TFT_NEIGHBOUR_BEIGE);
         tft.drawFastHLine(20,180,200,TFT_NEIGHBOUR_BEIGE);
+        // tft.drawFastHLine(20,60,200,TFT_NEIGHBOUR_BEIGE);
         retrieve_result();
+        for(int i =0;i<10;i++){
+          if(previous_data[i]>0.5){
+            tft.fillCircle((i+2)*20,(120-120*((previous_data[i]-0.9)/1.1))+60,2,TFT_YELLOW);
+            DataCounter++;
+          }
+        }
+        if(DataCounter>1){
+          for(int i =0;i<DataCounter-1;i++){
+            tft.drawLine((i+2)*20,(120-120*((previous_data[i]-0.9)/1.1))+60,(i+3)*20,(120-120*((previous_data[i+1]-0.9)/1.1))+60,TFT_YELLOW);
+          }
+        }
+
+
 
         //display graph
         // x_increment = 16

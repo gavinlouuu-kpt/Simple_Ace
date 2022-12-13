@@ -1,7 +1,7 @@
 #include "History_Data.h"
 #include "SPIFFS.h"
 extern String profileNumber;
-float previous_data[10] = {0};
+double previous_data[10] = {0};
 String file_dir = "0";
 
 void store_result(float ratio_co2,float ratio_acetone){
