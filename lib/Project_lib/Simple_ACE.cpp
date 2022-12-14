@@ -30,6 +30,7 @@ double upload_buffer_2;
 double upload_buffer_3; 
 
 short Sensor_arr[store_size]={0};
+bool control = true;
 
 void pinSetup(){
   pinMode(pumpPin, OUTPUT);
@@ -42,15 +43,37 @@ void pinSetup(){
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
-  ledcWrite(colChannel, dutyCycle_col);
-  dacWrite(pumpPin, 225);
-  delay(100);
-  dacWrite(pumpPin,150);
-  dacWrite(pumpPin, dutyCycle_pump);
+  // ledcWrite(colChannel, dutyCycle_col);
+  
   dacWrite(sensor_h, 240);
   delay(5000); // turn on sensor heater with DAC 220 is HS ~1.9V
   dacWrite(sensor_h, 220);
   // dacWrite(senH,220);
+}
+
+void warm_up(){
+  extern double Setpoint;
+  unsigned long counttime=  0;
+  while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
+    PID_control();
+    if(millis()- counttime >1000){
+      Serial.println("heating up");
+      counttime = millis();
+    }
+  }
+}
+
+void pump_control(bool control){
+  if(control == true){
+  dacWrite(pumpPin, 225);
+  delay(100);
+  dacWrite(pumpPin,150);
+  dacWrite(pumpPin, dutyCycle_pump);
+  }
+  else{
+    dacWrite(pumpPin, 0);
+    delay(100);
+  }
 }
 
 void checkSetup(){
@@ -195,6 +218,7 @@ void sample_collection(){
   int q = 0;
   float previous ;
   short adc_CO2;
+  pump_control(control);
   restore_humidity();
   baseline = restore_baseline();
   set_range(baseline);
@@ -212,13 +236,12 @@ void sample_collection(){
   
   long start_time = millis();
   // draw_time(time);
-  while (millis() - previous < sampletime + 1) {
+  while (millis() - previous <= sampletime + 1) {
     int time =0 ;
     bar_time = millis() - previous;
     bar_percentage = (bar_time/45000)*100;
     draw_progress(bar_time,bar_percentage);
-    // tft.drawString("100%",210,230);
-    // printf("%f\n",Percentage);
+
 
     if (millis()-previous_counter2 >10){ 
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
@@ -243,6 +266,8 @@ void sample_collection(){
   if(fail_count==50){
     return;
   }
+  control=false;
+  pump_control(control);
   Serial.print("Number of sample:");Serial.println(q);
   int expose = millis() - start_time;
   Serial.print("Exposed time");Serial.println(expose);

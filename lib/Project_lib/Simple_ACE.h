@@ -71,13 +71,15 @@ void checkSetup(void);
 void pinSetup(void);
 void analogSetup(void);
 void output_result();
-int baselineRead(int channel);
-double ads_convert(int value, bool resist);
-
+void pump_control(bool control);
 void sample_collection();
 void power_saving(unsigned long last_time);
-int restore_baseline();
 void storing_data();
+void warm_up();
+
+int baselineRead(int channel);
 int restore_baseline();
+int restore_baseline();
+double ads_convert(int value, bool resist);
 
 #endif 

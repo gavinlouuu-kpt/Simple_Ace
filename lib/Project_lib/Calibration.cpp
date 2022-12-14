@@ -300,12 +300,13 @@ void  calibration() { //put your main code here, to run repeatedly:
     // printf("%d\n",num);
     if(millis() - time > waittime){
       tft.setTextDatum(4);
-      tft.drawString("Remain ",90,120,4);
-      if((sampletime-(millis() - previous))/waittime < 10 && istenth ==true){
-        tft.fillRect(150,100,40,40,TFT_NEIGHBOUR_GREEN);
-        istenth = false;
-      }
-      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,160,120,4);
+      tft.drawString("Remain ",100,120,4);
+      // if((sampletime-(millis() - previous))/waittime < 10 && istenth ==true){
+      //   tft.fillRect(150,100,40,40,TFT_NEIGHBOUR_GREEN);
+      //   istenth = false;
+      // }
+      tft.fillRect(160,100,60,40,TFT_NEIGHBOUR_GREEN);
+      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,170,120,4);
       time= millis();
     }
 
