@@ -5,19 +5,23 @@ double previous_data[10] = {0};
 String file_dir = "0";
 
 void store_result(float ratio_co2,float ratio_acetone){
-    file_dir = "/History_data_";
-    file_dir.concat(profileNumber);
-    File file = SPIFFS.open(file_dir,FILE_APPEND);
-    Serial.print("Saved directory");Serial.println(file_dir);
-    // file_print(ratio_co2);file.print(",");  //store CO2
-    file.print(ratio_acetone);file.write('\n');
-    file.close();   
+    if(profileNumber == NULL){
+        Serial.println("Not stored");
+    }else{
+        file_dir = "/History_data_";
+        file_dir.concat(profileNumber);
+        File file = SPIFFS.open(file_dir,FILE_APPEND);
+        Serial.print("Saved directory");Serial.println(file_dir);
+        // file_print(ratio_co2);file.print(",");  //store CO2
+        file.print(ratio_acetone);file.write('\n');
+        file.close();   
 
-    file = SPIFFS.open(file_dir,FILE_READ);
-    while(file.available()){
-      Serial.write(file.read());
+        file = SPIFFS.open(file_dir,FILE_READ);
+        while(file.available()){
+        Serial.write(file.read());
+        }
+        file.close();
     }
-    file.close();
 }
 
 void retrieve_result(){
@@ -31,7 +35,6 @@ void retrieve_result(){
         previous_data[i] = buffer.toDouble();
         Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(previous_data[i]);
     }
-
     return; //the array
 }
 
