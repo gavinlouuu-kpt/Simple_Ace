@@ -122,9 +122,9 @@ void draw_wait(void){
 
 void set_range(int value)
 {
-  rangeL = value - 1000;
-  rangeH = (value + 3000 * 1.3);
-  tft.setTextDatum(4);
+  // rangeL = value - 1000;
+  // rangeH = (value + 3000 * 1.3);
+  // tft.setTextDatum(4);
 
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE,TFT_NEIGHBOUR_GREEN);
   // tft.fillRect(10,120,240,30,TFT_NEIGHBOUR_GREEN);
@@ -266,45 +266,59 @@ void draw_sensor(double value){
   // }
   
 }
-extern bool isStore;
-extern int fail_count;
 
-void draw_result(double ace, double co2){
-  int top_y =60;
-  int base_y =190;
+void draw_bar(double bar_1, double bar_2){
+  const int top_y =60;
+  const int base_y =190;
   int y_length = base_y - top_y;
   int start_y_ace;
   int end_y_ace;
   int start_y_co2;
   int end_y_co2;
+  start_y_co2 = top_y + (int)(y_length*(1-(bar_1/2)));
+  end_y_co2 = base_y - start_y_co2;
+  start_y_ace = top_y + (int)(y_length*(1-bar_2/2));
+  end_y_ace = base_y - start_y_ace;
+  Serial.print("start_y_co2:");Serial.println(start_y_co2);
+  Serial.print("end_y_co2:");Serial.println(end_y_co2);
+  Serial.print("start_y_ace:");Serial.println(start_y_ace);
+  Serial.print("end_y_ace:");Serial.println(end_y_ace);
+
+  // tft.fillRect(50, start_y_co2, 10, end_y_co2,TFT_NEIGHBOUR_BEIGE);
+  // tft.fillRect(180, start_y_ace, 10, end_y_ace,TFT_NEIGHBOUR_BEIGE);
+  tft.drawFastHLine(20,190,200,TFT_NEIGHBOUR_BEIGE);
+  int slice =10;
+  unsigned long previous = 0;
+  tft.drawRect(50,top_y, 20, y_length,TFT_NEIGHBOUR_BEIGE);
+  tft.drawRect(160,top_y, 20, y_length,TFT_NEIGHBOUR_BEIGE);
+  for(int i =0; i<slice; i++){
+    while(millis()-previous <150){
+    }
+    previous =millis();
+    Serial.println("extending");
+    tft.fillRect(50,190 - (int)((i+1)*(end_y_co2/slice)), 20, (int)(end_y_co2/slice) ,TFT_NEIGHBOUR_BEIGE);
+    tft.fillRect(160,190 - (int)((i+1)*(end_y_ace/slice)), 20, (int)(end_y_ace/slice) ,TFT_NEIGHBOUR_BEIGE);
+  }
+}
+extern bool isStore;
+extern int fail_count;
+void draw_result(double co2, double ace){
   tft.fillRect(20,20,200,150,TFT_NEIGHBOUR_GREEN);   // cover graph 
   tft.fillRect(10,260,150,50,TFT_NEIGHBOUR_GREEN);    // cover analyzing
   tft.fillRect(0,200,240,50,TFT_NEIGHBOUR_GREEN); 
   draw_framework();
   tft.fillRect(0,200,240,30,TFT_NEIGHBOUR_GREEN);   //cover logo
-  // draw_bar();
-  // tft.fillRect();
-  start_y_ace = top_y + (int)(y_length*(1-(ace/2)));
-  end_y_ace = base_y - start_y_ace;
-  start_y_co2 = top_y + (int)(y_length*(1-(co2/2)));
-  end_y_co2 = base_y - start_y_co2;
-  // Serial.print("start_y:");Serial.println(start_y_ace);
-  // Serial.print("end_y:");Serial.println(end_y_ace);
-  // Serial.print("start_y:");Serial.println(start_y_co2);
-  // Serial.print("end_y:");Serial.println(end_y_co2);
-
-  tft.fillRect(50, start_y_co2, 10, end_y_co2,TFT_NEIGHBOUR_BEIGE);
-  tft.fillRect(180, start_y_ace, 10, end_y_ace,TFT_NEIGHBOUR_BEIGE);
-  tft.drawFastHLine(20,190,200,TFT_NEIGHBOUR_BEIGE);
-
+ 
   tft.setTextDatum(4); 
   tft.fillRoundRect(10, 263, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE);
   tft.drawString("Start", 40 ,287,2);        
-  if(fail_count != 50){
+  if(fail_count != 50){ 
+    draw_bar(co2,ace);
+    delay(500);
     tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-    tft.drawString("Acetone", 180, 145, 2);
-    tft.drawFloat((float)ace, 2, 180, 160, 2);
+    tft.drawString("Acetone", 170, 145, 2);
+    tft.drawFloat((float)ace, 2, 170, 160, 2);
     tft.drawString("Metabolic rate", 60, 145, 2);
     tft.drawFloat((float)co2 , 2, 60, 160, 2);
   }
@@ -322,22 +336,22 @@ void draw_result(double ace, double co2){
   // tft.drawString("Excellent Fat Burn!",120,60,4);
   // } 
   if(ace < 1 || co2 < 1||isStore == false){
-  tft.drawString("Try Again",120,50,4); 
+    tft.drawString("Try Again",120,40,4); 
   }
   else if((ace >= 1 && ace < 1.1) && (co2 >= 1 && co2 < 1.3)){
-  tft.drawString("Inactive workout",120,50,4);
+    tft.drawString("Inactive workout",120,40,4);
   } 
   else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
-  tft.drawString("Moderate calories burn",120,50,4);
+    tft.drawString("Moderate burn",120,40,4);
   } 
   else if((ace >= 1 && ace < 1.3) && (co2 >= 1.5)){
-  tft.drawString("Effective training",120,50,4);
+    tft.drawString("Effective training",120,40,4);
   } 
   else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
-  tft.drawString("Moderate Ketosis",120,50,4);
+    tft.drawString("Moderate Ketosis",120,40,4);
   } 
   else if(ace >= 1.3 && co2 >= 1 ){
-  tft.drawString("Deep Ketosis",120,50,4);
+    tft.drawString("Deep Ketosis",120,40,4);
   } 
 
 }
@@ -639,7 +653,8 @@ void TouchScreen(){
 
     if(stage == 2){                                                                     //sample
       if(t_x > 20 && t_x < 50  && t_y > 10 && t_y < 70){
-        tft.fillRect(0,40,240,150,TFT_NEIGHBOUR_GREEN);
+        draw_framework();
+        tft.fillRect(0,20,240,165,TFT_NEIGHBOUR_GREEN);                                 //cover result
         sample_collection();
         output_result();
       }

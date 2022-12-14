@@ -141,16 +141,10 @@ int restore_baseline(){
   unsigned long cleaning_counter=millis();
   while(millis()-cleaning_counter <10000){
     // Serial.println("removing residues...");
-    // Serial.println(analogRead(NTCC));
-    // for(int i= 0;i<10;i++){
     draw_loading(counter);counter ++;
   }
   while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
     PID_control();
-    // for(int i= 0;i<10;i++){
-    //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
-    //     delay(100);
-    //   }
     draw_loading(counter);counter ++;
   } 
 
@@ -160,12 +154,8 @@ int restore_baseline(){
       break;
     }
     temp = baselineRead(CO2_channel);
-    // for(int i= 0;i<10;i++){
-    //     tft.pushImage(90, 250, LoadingWidth  ,LoadingHeight, Loading[i]);
-    //     delay(100);
-    //   }
     draw_loading(counter);counter ++;
-    tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);
+    tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN); // remove?
     ref = baselineRead(CO2_channel);
     Serial.println(ads.readADC_SingleEnded(0));
     if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
@@ -376,7 +366,7 @@ void output_result(){
   // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
   
   // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
-  draw_result(conc_Ace,conc_CO2);
+  draw_result(conc_CO2,conc_Ace);
   cloud_upload();
 }// not in percentage
 
