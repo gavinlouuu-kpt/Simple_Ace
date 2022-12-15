@@ -21,9 +21,8 @@
 
 //Wrover 2.8" display///////////////////////////////////////////////      
 #define pumpPin             26  
-#define solPin              33
 #define buz                 13
-#define colPin              27  
+#define colPin              33  
 #define btn_rst             39
 #define btn_1               36
 #define NTCC                34

@@ -307,7 +307,7 @@ void draw_bar(double bar_1, double bar_2){
     while(millis()-previous_data <150){
     }
     previous_data =millis();
-    Serial.println("extending");
+    // Serial.println("extending");
     tft.fillRect(50,190 - (int)((i+1)*(end_y_co2/slice)), 20, (int)(end_y_co2/slice) ,TFT_NEIGHBOUR_BEIGE);
     tft.fillRect(160,190 - (int)((i+1)*(end_y_ace/slice)), 20, (int)(end_y_ace/slice) ,TFT_NEIGHBOUR_BEIGE);
   }

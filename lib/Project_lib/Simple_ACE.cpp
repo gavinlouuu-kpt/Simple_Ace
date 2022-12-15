@@ -12,6 +12,7 @@
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
 #include "History_Data.h"
+#include "Image_assets/Beagle.h"
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -53,14 +54,20 @@ void analogSetup(){
 
 void warm_up(){
   extern double Setpoint;
-  unsigned long counttime=  0;
-  while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
+  unsigned long counttime = 0;
+  double warm_up_length = 0;
+  double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
+  int boundary = 10;
+  tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
+  while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
+    Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
-    if(millis()- counttime >1000){
-      Serial.println("heating up");
-      counttime = millis();
-    }
+    warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
+    tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
+    delay(10);
   }
+  Serial.print("Analog read:");Serial.println(analogRead(NTCC));
+  tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
 }
 
 void pump_control(bool control){
@@ -91,7 +98,7 @@ void checkSetup(){
   sht20.begin();
 
   ads.setGain(GAIN_ONE); 
-  if (!ads.begin(0x49)) {
+  if (!ads.begin(0x48)) {
   Serial.println("Failed to initialize ADS.");
   while (1);
   }

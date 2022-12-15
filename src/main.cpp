@@ -30,9 +30,7 @@ void setup() {
   pinSetup();
   analogSetup();
   checkSetup();
-  draw_framework();
   warm_up();
-  // warm up column
   firebase_setup();
   Serial.println( "Setup done" );
 }
