@@ -36,7 +36,7 @@ void PID_control(){
     ledcWrite(colChannel,Output); //220
     // delay(10);
     // Serial.println(Output);
-    Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
+    // Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
 }
 
 

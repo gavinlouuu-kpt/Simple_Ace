@@ -44,18 +44,5 @@ void loop() {
   // // data_logging(avg_ratio_CO2, avg_ratio_O2,rq , 0 , 1 );
   // // Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
   // data_logging(avg_ratio_Ace, avg_ratio_O2, rq , 0, 5 );
-// if WiFi is down, try reconnecting
-// if(isWifi ==true){
-//   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >2000)) {
-//     // Serial.print(millis());
-//     Serial.println("Reconnecting to WiFi...");
-//     WiFi.disconnect();
-//     delay(100);
-//     WiFi.reconnect();
-//     delay(100);
-//     previousMillis = currentMillis;
-//     }
-//   }
-// Wifi_reconnect();
 }
 

@@ -24,7 +24,7 @@ uFire_SHT20 sht20;
 // char ssid[] = SSID;
 // char password[] = PASSWORD;
 
-
+int dutyCycle_pump = 80; //to be changed
 double upload_buffer;
 double upload_buffer_1;
 double upload_buffer_2;
@@ -60,13 +60,13 @@ void warm_up(){
   int boundary = 10;
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
   while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
-    Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
+    // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
     warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
     tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
     delay(10);
   }
-  Serial.print("Analog read:");Serial.println(analogRead(NTCC));
+  // Serial.print("Analog read:");Serial.println(analogRead(NTCC));
   tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
 }
 
@@ -75,6 +75,7 @@ void pump_control(bool control){
   dacWrite(pumpPin, 225);
   delay(100);
   dacWrite(pumpPin,150);
+  delay(100);
   dacWrite(pumpPin, dutyCycle_pump);
   }
   else{
@@ -185,12 +186,13 @@ int restore_baseline(){
     }
     temp = baselineRead(CO2_channel);
     draw_loading(counter);counter ++;
-    tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN); // remove?
     ref = baselineRead(CO2_channel);
     Serial.println(ads.readADC_SingleEnded(0));
     if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
       printf("Found Baseline %d\n", temp);
       delay(10);  
+      dacWrite(pumpPin, 150);
+      delay(100);
       dacWrite(pumpPin, dutyCycle_pump);
       return temp;
       break;
@@ -228,9 +230,10 @@ void sample_collection(){
   pump_control(control);
   restore_humidity();
   baseline = restore_baseline();
-  set_range(baseline);
-  delay(1);
-  // printf("Blow Now\n");
+  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+  tft.drawString("HUFF now", 120, 245, 4);
+  // set_range(baseline);
+  // delay(1);
   breath_check();
   isStore = false;
   previous = millis();

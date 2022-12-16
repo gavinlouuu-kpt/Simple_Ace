@@ -58,13 +58,10 @@
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle_pump = 100; //to be changed
 const int dutyCycle_col = 80;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
 const int sampletime = 45000;//60000
-
-extern bool clean;
 
 void checkSetup(void);
 void pinSetup(void);
