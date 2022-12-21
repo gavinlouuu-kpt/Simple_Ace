@@ -305,7 +305,7 @@ void  calibration() { //put your main code here, to run repeatedly:
       //   tft.fillRect(150,100,40,40,TFT_NEIGHBOUR_GREEN);
       //   istenth = false;
       // }
-      tft.fillRect(160,100,60,40,TFT_NEIGHBOUR_GREEN);
+      tft.fillRect(155,100,65,40,TFT_NEIGHBOUR_GREEN);
       tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,170,120,4);
       time= millis();
     }

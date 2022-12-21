@@ -19,10 +19,10 @@ void checkstatus(){
 }
 
 void Wifi_able(){
+  WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
   Serial.print("ESP Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
-  isWifi= true;
   unsigned long countdown= millis();
   isConnect =false; 
   while(millis()-countdown < 5000){
@@ -32,7 +32,7 @@ void Wifi_able(){
     }
     else{
       isConnect = true;  
-      draw_Wifi();
+      // draw_Wifi();
       Serial.print("Connected with IP: ");
       Serial.println(WiFi.localIP());
       break;

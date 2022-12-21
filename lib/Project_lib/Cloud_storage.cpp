@@ -39,6 +39,7 @@ unsigned long epochTime;
 
 extern bool isConnect;
 int counter = 0;
+extern bool isWifi;
 
 // int filenumber = 8;
 // int filesize =store_size/filenumber;
@@ -54,6 +55,7 @@ int w = 75;
 unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
+  delay(500);
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return(0);
@@ -91,7 +93,6 @@ void firebase_setup(){
   config.timeout.serverResponse = 10 * 1000;
   config.timeout.socketConnection = 10 * 1000;
   config.timeout.wifiReconnect = 10 * 1000;
-  configTime(0, 0, ntpServer);
 }
 
 void storeinfo(String namee, String sx, int height, int weight){
@@ -129,10 +130,14 @@ void storedata(String namee,unsigned long tim ,int number){
 }
 
 
+unsigned long unixtime =0;
 void cloud_upload(){
-  checkstatus();
+  if(isWifi ==true){
+    Wifi_able();
+    configTime(0, 0, ntpServer);
+  }
+
   extern short Sensor_arr[store_size];
-  unsigned long time =0;
   if(isConnect){
     if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
       storeinfo(name,sex,h,w);        
@@ -141,8 +146,8 @@ void cloud_upload(){
       if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
         File file = SPIFFS.open("/Dataset_1");
         String data = "0";
-        time= getTime();       
-        printf("%d\n",time);
+        unixtime= getTime();       
+        printf("%d\n",unixtime);
           for (int j = 0; j < 8; j++){
             for (int i = 0; i <256; i++){ 
               if(file.read() != 0){
@@ -151,7 +156,7 @@ void cloud_upload(){
               }
             }        
             Serial.println("Pushing data");
-            storedata(name,time,j);
+            storedata(name,unixtime,j);
             delay(10);
           }
         Serial.println("Stored from previous /Dataset_1");
@@ -163,7 +168,7 @@ void cloud_upload(){
       if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
         File file = SPIFFS.open("/Dataset_2");
         String data = "0";
-        time= getTime(); 
+        unixtime= getTime(); 
         for (int j = 0; j < 8; j++){
           for (int i = 0; i <256; i++){ 
             if(file.read() != 0){
@@ -171,7 +176,7 @@ void cloud_upload(){
               array.add(data);
             }
           }
-          storedata(name,time,j);
+          storedata(name,unixtime,j);
           delay(10);
         }
          Serial.println("Stored from previous /Dataset_2");
@@ -181,8 +186,8 @@ void cloud_upload(){
       }
       //Sample realtime
       if(Firebase.ready()){
-        time= getTime(); 
-        printf("%d\n",time);
+        unixtime= getTime(); 
+        printf("%d\n",unixtime);
         int value = 0.00;
         for (int j = 0; j < 8; j++){
           for (int i = 0; i < 256; i++){ 
@@ -191,7 +196,7 @@ void cloud_upload(){
               array.add(value);
             } 
           }
-          storedata(name,time,j);
+          storedata(name,unixtime,j);
         }
         Serial.println("Storing Directly");
       }
@@ -226,6 +231,7 @@ void cloud_upload(){
     //   Serial.write(file.read());
     // }
     // file.close();
-  }  
+  }
+  WiFi.disconnect();
 }
 

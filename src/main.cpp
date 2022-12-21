@@ -34,15 +34,22 @@ void setup() {
   firebase_setup();
   Serial.println( "Setup done" );
 }
+// unsigned long previousMillis =0;
 
 void loop() {
   PID_control();
   TouchScreen();
-  // // Blynk.connect();
-  // // blynk_upload(avg_ratio_Ace, avg_ratio_O2, rq, map_rq);//editted
 
-  // // data_logging(avg_ratio_CO2, avg_ratio_O2,rq , 0 , 1 );
-  // // Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
-  // data_logging(avg_ratio_Ace, avg_ratio_O2, rq , 0, 5 );
+  // if(isWifi == true){
+  //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
+  //     // Serial.print(millis());
+  //     Serial.println("Reconnecting to WiFi...");
+  //     WiFi.disconnect();
+  //     delay(2000);
+  //     WiFi.reconnect();
+  //     delay(2000);
+  //     previousMillis = millis();
+  //   }
+  // }
 }
 

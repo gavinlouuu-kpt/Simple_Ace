@@ -166,7 +166,7 @@ int restore_baseline(){
   extern double Setpoint;
   int temp=0;
   int ref=0;
-  dacWrite(pumpPin,200);
+  dacWrite(pumpPin,80);
   ledcWrite(colChannel, 255);
   int counter=0 ;
   unsigned long cleaning_counter=millis();
@@ -184,8 +184,9 @@ int restore_baseline(){
     if(millis()-previous_time > 10000){   //RESTORE TIMER 
       break;
     }
-    temp = baselineRead(CO2_channel);
+    PID_control();
     draw_loading(counter);counter ++;
+    temp = baselineRead(CO2_channel);
     ref = baselineRead(CO2_channel);
     Serial.println(ads.readADC_SingleEnded(0));
     if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
@@ -256,15 +257,14 @@ void sample_collection(){
     if (millis()-previous_counter2 >10){ 
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
       draw_sensor(Sensor_arr[q]); 
-      q = q + 1;
+      q ++;
       previous_counter2 = millis();      
     }
     PID_control();
     if (isStore == false) {
       fail_count += 1 ;
       if (fail_count== 50){
-        // printf("This is a failed breath");
-        break;
+       break;
       }
       if (read_humidity() > 40) {
         isStore = true;
