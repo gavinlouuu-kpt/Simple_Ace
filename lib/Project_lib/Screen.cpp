@@ -11,6 +11,8 @@
 #include "Simple_ACE.h"
 #include "PID.h"
 #include "History_Data.h"
+#include "Cloud_storage.h"
+#include "WiFi.h"
 
 #include "Image_assets/Asset_2.h"
 #include "Image_assets/Asset_7.h"
@@ -37,6 +39,8 @@ extern float ref_position[2];
 extern double previous_data[10];
 String profileNumber = "";
 
+extern const char* ntpServer;
+
 int rangeL = 0;
 int rangeH = 8000;
 int stage = 0;
@@ -46,12 +50,13 @@ uint16_t t_x = 0, t_y = 0;
 int SetupNumber = 1;
 extern int dutyCycle_pump;
 extern bool control;
-
+extern bool isWifi;
+extern bool isConnect;
+bool isSensor =true;
 const int offset = 10;
 int Change = 0;
 float max1;
 float min1;
-
 int i = 0;
 float H[210];
 float LowY;
@@ -96,7 +101,7 @@ void draw_framework()
 void draw_loading(int count)
 {
   tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);//  cover loading logo
-  tft.pushImage(90, 250, LoadingWidth, LoadingHeight, Loading[count % 12]);
+  tft.pushImage(90, 250, LoadingWidth, LoadingHeight, Loading[count % 11]);
   delay(100); 
 }
 
@@ -120,15 +125,6 @@ void draw_wait(void)
   tft.fillRect(10, 260, 70, 50, TFT_NEIGHBOUR_GREEN); // cover button
   tft.drawString("Analyzing...", 10, 280, 4);
   tft.fillRect(0, 200, 240, 30, TFT_NEIGHBOUR_GREEN);
-}
-
-void set_range(int value)
-{
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  // tft.fillRect(10,120,240,30,TFT_NEIGHBOUR_GREEN);
-  // tft.fillRect(0,40,240,80, TFT_NEIGHBOUR_GREEN);
-
-  tft.drawString("HUFF now", 120, 245, 4);
 }
 
 void draw_sensor(double value)
@@ -357,7 +353,7 @@ void draw_result(double co2, double ace){
     tft.drawString("Deep Ketosis",120,40,4);
   } 
 }
-
+extern unsigned long previous_sensor_time;
 void HomeScreen()
 {
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
@@ -373,6 +369,11 @@ void HomeScreen()
   tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.drawString("Start", 125, 280, 2);
+  
+  //timeot
+  //press button
+  //write new store time into spiff
+
   // delay(300);
 }
 
@@ -408,8 +409,6 @@ void show_menu()
 
 void draw_Wifi()
 { // draw wifi logo
-  extern bool isWifi;
-  extern bool isConnect;
   if (isWifi == true && isConnect == true)
   {
     tft.pushImage(200, 10, Wifi_true_w, Wifi_true_h, Wifi_true);
@@ -508,10 +507,8 @@ void bluetooth_display()
   ResetXY();
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
   tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.fillRoundRect(10, 10, 220, 24, 12, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 10, 220, 24, 12, TFT_WHITE);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  tft.drawString("Bluetooth", 120, 22, 2);
+  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Bluetooth", 120, 30, 4);
 }
 
 void User_setup_display()
@@ -590,11 +587,15 @@ void default_setting_display(){
 
   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Column ", 120, 100, 4);
+  tft.drawString("Column Temp", 120, 100, 4);
 
   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
   tft.drawString("Sample Time", 120, 160, 4);
+
+  tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("Update sensor", 120, 220, 4);
 }
 
 void Spiffs_display(){
@@ -655,6 +656,32 @@ void select_pump_dutycycle()
 
 void TouchScreen()
 {
+  if(isSensor!=true){
+    tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+    tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
+    tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+    tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+    tft.drawString("Change sensor", 120, 160, 4);
+    stage =99;
+  }
+
+  while(stage == 99){
+    if (tft.getTouch(&t_x, &t_y)){
+      if(t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305){
+        tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_GREEN);
+        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+        tft.drawString("Change sensor", 120, 160, 4);
+        update_sensor();
+        update_check_time();
+        isSensor = true;
+        stage = 0;
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        break;
+      }
+    }
+  }
+
   if (stage == 0)
   {
     HomeScreen();
@@ -664,11 +691,11 @@ void TouchScreen()
       tft.fillRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
       tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
       tft.drawString("Start", 125, 280, 2);
-      sampling_display();// Sampling start
+      sampling_display();
       stage = 2;
     }
   }
-
+  
   if (tft.getTouch(&t_x, &t_y))
   {
     printf("%d\n", t_x);
@@ -744,14 +771,24 @@ void TouchScreen()
     }
 
 
-  if(stage == 2){                                                          //sample
+    if(stage == 2){                                                          //sample
       if(t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305){
+        if(isConnect ==true){
+          WiFi.disconnect();
+          isConnect = false;
+          Serial.println("Disconnected");
+        }
         draw_framework();
         tft.fillRect(0,20,240,172,TFT_NEIGHBOUR_GREEN);                    //cover previosu result screeen                               //cover result
         sample_collection();
+        if(isWifi ==true){
+          Wifi_able();
+          configTime(0, 0, ntpServer);
+        } 
         output_result();
+        }
+        
       }
-    }
 
     if (stage == 3)
     { // Calibration Start Button
@@ -895,7 +932,7 @@ void TouchScreen()
       }
     }
 
-    if (stage == 10)
+    if (stage == 10)      //print spiffs
     {
       if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
       {
@@ -936,7 +973,7 @@ void TouchScreen()
       }
     }
 
-    if (stage == 11){ // user_setup
+    if (stage == 11){     // user_setup
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
       selectfilenumber();
@@ -984,9 +1021,54 @@ void TouchScreen()
         Pump_setup_display();
         stage =15;
       }
-      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305){}
-      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305){}         //User Set up 
+      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305){
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);    //Pump dutycycle
+        tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);   
+        tft.drawString("Columm Temp", 120, 100, 4);
+        delay(200);
+        // Pump_setup_display();
+        // stage =15;
+      }
+      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305){
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);    //Pump dutycycle
+        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);   
+        tft.drawString("Sampling Time", 120, 160, 4);
+        delay(200);
+        // Pump_setup_display();
+        // stage =15;
+      }         //User Set up 
+
+      else if (t_x > 150 && t_x < 190 && t_y > 0 && t_y < 305)
+      {
+        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+        tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        tft.drawString("Update sensor", 120, 220, 4); // developer mode
+        delay(200);
+        if(isWifi != true){
+          ResetXY();
+          Serial.println("Connect Wifi");
+          tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+          tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+          tft.drawString("Update senosor", 120, 30, 4);
+          tft.drawString("WIFI", 120, 100, 4);
+          tft.drawString("Not Connected", 120, 140, 4);
+          delay(2000);
+          default_setting_display();
+        }
+        else{
+          update_sensor();
+          update_check_time();
+          Serial.println("Timer updated");
+        }
+      }
+        // updat sensor time 
+        // developer_display();
+        // stage = 5;
     }
+
     if (stage == 13)
     { // developer mode:ADS0 
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
@@ -1125,7 +1207,7 @@ void TouchScreen()
       }
     }
 
-    if (stage == 14){                                        //Stage7 = Humidity
+    if (stage == 14){     //HUmidiity
       tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
       if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
       {
@@ -1298,6 +1380,7 @@ void TouchScreen()
         stage = 1;
       }
     }
+    
     if (stage == 9){
       if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)    //WIFI on 
       { // WIFI
@@ -1307,26 +1390,27 @@ void TouchScreen()
         tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
         tft.drawString("WiFi Setting", 120, 30, 4);
         isWifi = true;
-        draw_Wifi();
-        tft.drawString("Connected", 120, 100, 4);
-        delay(2000);
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-        stage = 0;
 
-        // Wifi_able();
-        // if (isConnect == true)
-        // {
-        //   tft.drawString("Connected", 120, 100, 4);
-        //   delay(2000);
-        //   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-        //   stage = 0;
-        // }
-        // else
-        // {
-        //   tft.drawString("Not Connected", 120, 100, 4);
-        //   delay(2000);
-        //   wifi_display();
-        // }
+        // tft.drawString("Connected", 120, 100, 4);
+        // delay(2000);
+        // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        // stage = 0;
+        Wifi_able();
+        configTime(0, 0, ntpServer);
+        if (isConnect == true)
+        {
+          tft.drawString("Connected", 120, 100, 4);
+          delay(2000);
+          tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+          stage = 0;        
+          draw_Wifi();
+        }
+        else
+        {
+          tft.drawString("Not Connected", 120, 100, 4);
+          delay(2000);
+          wifi_display();
+        }
       }
 
       else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305)  //WIFI off

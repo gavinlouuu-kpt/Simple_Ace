@@ -310,15 +310,8 @@ void  calibration() { //put your main code here, to run repeatedly:
       time= millis();
     }
 
-    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[j]);
-    delay(10);
-    j++;
-    if(j>10){
-      j = 0;
-    }
-    // tft.drawFloat(float((9000-millis())/1000),0,200,120,2);
-    
-    // printf("%d\n", millis());
+    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[j%11]);
+    delay(10); j++;
 
     if (millis()-previous_2>10){
       // Serial.print("Start:");Serial.println(millis());  

@@ -32,9 +32,9 @@ void Wifi_able(){
     }
     else{
       isConnect = true;  
-      // draw_Wifi();
       Serial.print("Connected with IP: ");
       Serial.println(WiFi.localIP());
+      delay(500);
       break;
     } 
   }

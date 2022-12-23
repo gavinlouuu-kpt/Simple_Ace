@@ -28,7 +28,7 @@ void retrieve_result(){
     file_dir = "/History_data_";
     file_dir.concat(profileNumber);
     Serial.print("Retrieved directory");Serial.println(file_dir);
-    File file = SPIFFS.open(file_dir);
+    File file = SPIFFS.open(file_dir,FILE_READ);
     String buffer;
     for(int i = 0; i<10;i++){
         buffer = file.readStringUntil('\n');

@@ -63,8 +63,9 @@ void warm_up(){
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
     warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
-    tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
-    delay(10);
+    // tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
+    tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
+     delay(10);
   }
   // Serial.print("Analog read:");Serial.println(analogRead(NTCC));
   tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
@@ -126,7 +127,7 @@ double read_humidity(){
   return value;
 }
 
-void breath_check(){
+int breath_check(){
   while (true) {
     PID_control();
     float arr[3];
@@ -143,7 +144,7 @@ void breath_check(){
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
       printf("breath real...");
-      break;
+      return adc_CO2;
     }
   }
 }
@@ -232,10 +233,11 @@ void sample_collection(){
   restore_humidity();
   baseline = restore_baseline();
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+  tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
   tft.drawString("HUFF now", 120, 245, 4);
   // set_range(baseline);
   // delay(1);
-  breath_check();
+  baseline = breath_check();
   isStore = false;
   previous = millis();
   int previous_counter;

@@ -11,7 +11,6 @@ void tft_setup();
 void draw_sensor(double value);
 void draw_time(int time);
 void draw_result(double ace,double co2);
-void set_range(int value);
 void draw_wait(void);
 void TouchScreen();
 void draw_Wifi();

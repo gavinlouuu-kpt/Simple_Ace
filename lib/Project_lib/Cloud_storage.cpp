@@ -1,5 +1,5 @@
 #include "Cloud_storage.h"
-#include"time.h"
+#include "time.h"
 #include "Wifi_connection.h"
 #include "SPIFFS.h"
 #include <Firebase_ESP_Client.h>
@@ -29,7 +29,7 @@ FirebaseJson jj;
 
 unsigned long sendDataPrevMillis = 0;
 unsigned long count = 0;
-
+unsigned long sensor_life = 605000;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 // NTP server to request epoch time
@@ -134,7 +134,6 @@ unsigned long unixtime =0;
 void cloud_upload(){
   if(isWifi ==true){
     Wifi_able();
-    configTime(0, 0, ntpServer);
   }
 
   extern short Sensor_arr[store_size];
@@ -234,4 +233,40 @@ void cloud_upload(){
   }
   WiFi.disconnect();
 }
+String sensor_dir = "/Sensor_update";
+void update_sensor(){
+  Wifi_able();
+  configTime(0, 0, ntpServer);
+  unsigned long update_time = getTime();
+  Serial.println(update_time);
+  File file = SPIFFS.open(sensor_dir.c_str(),FILE_WRITE);
+  file.print(update_time);file.write('\n'); 
+  file.close();
+  delay(500);
+  WiFi.disconnect();
+}
+unsigned long previous_sensor_time = 0;
 
+void update_check_time(){
+  File file = SPIFFS.open(sensor_dir,FILE_READ);
+  previous_sensor_time = strtoul(file.readStringUntil('\n').c_str(),NULL,10);
+  file.close();
+  Serial.print("Updated previous time:");Serial.println(previous_sensor_time);
+}
+
+void check_sensor_life(){
+  Serial.print("Previous time:"); Serial.println(previous_sensor_time);
+  if(isWifi == true && previous_sensor_time !=0){
+    // Wifi_able();
+    // configTime(0, 0, ntpServer);
+    Serial.println();
+    Serial.println("Checking sensor life...");
+    Serial.println(getTime());
+    if(getTime() - previous_sensor_time > sensor_life){ // sensor
+      Serial.println("Change sensor!");
+      extern bool isSensor;
+      isSensor =false;
+    }
+    // WiFi.disconnect();
+  }
+}

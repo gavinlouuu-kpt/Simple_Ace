@@ -33,13 +33,17 @@ void setup() {
   warm_up();
   firebase_setup();
   Serial.println( "Setup done" );
+  update_check_time();
 }
-// unsigned long previousMillis =0;
+unsigned long previous_checktime =0;
 
 void loop() {
   PID_control();
   TouchScreen();
-
+  if(millis()-previous_checktime > 10000){
+    check_sensor_life();
+    previous_checktime = millis();
+  }
   // if(isWifi == true){
   //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
   //     // Serial.print(millis());

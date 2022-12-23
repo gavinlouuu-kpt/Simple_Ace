@@ -75,7 +75,6 @@ void warm_up();
 
 int baselineRead(int channel);
 int restore_baseline();
-int restore_baseline();
 double ads_convert(int value, bool resist);
 
 #endif 
