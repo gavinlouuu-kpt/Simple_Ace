@@ -123,7 +123,7 @@ void storedata(String namee,unsigned long tim ,int number){
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
   const char *filename = data_dir.c_str();
-  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(1000);
+  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(2000);
   // array.toString(Serial, true);
   array.clear();
   delay(100);
@@ -132,8 +132,8 @@ void storedata(String namee,unsigned long tim ,int number){
 
 unsigned long unixtime =0;
 void cloud_upload(){
-  if(isWifi ==true){
-    Wifi_able();
+  if(isWifi == true){
+    checkstatus();
   }
 
   extern short Sensor_arr[store_size];
@@ -156,7 +156,7 @@ void cloud_upload(){
             }        
             Serial.println("Pushing data");
             storedata(name,unixtime,j);
-            delay(10);
+            delay(100);
           }
         Serial.println("Stored from previous /Dataset_1");
         file.close();
@@ -176,7 +176,7 @@ void cloud_upload(){
             }
           }
           storedata(name,unixtime,j);
-          delay(10);
+          delay(100);
         }
          Serial.println("Stored from previous /Dataset_2");
         file.close();
@@ -196,6 +196,7 @@ void cloud_upload(){
             } 
           }
           storedata(name,unixtime,j);
+          delay(100);
         }
         Serial.println("Storing Directly");
       }
@@ -233,6 +234,7 @@ void cloud_upload(){
   }
   WiFi.disconnect();
 }
+
 String sensor_dir = "/Sensor_update";
 void update_sensor(){
   Wifi_able();

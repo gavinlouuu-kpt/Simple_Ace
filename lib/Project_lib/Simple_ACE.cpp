@@ -59,6 +59,7 @@ void warm_up(){
   double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
   int boundary = 10;
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
+  tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
   while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
@@ -128,6 +129,7 @@ double read_humidity(){
 }
 
 int breath_check(){
+  int average = 0;
   while (true) {
     PID_control();
     float arr[3];
@@ -138,13 +140,14 @@ int breath_check(){
       arr[i] = sht20.humidity();
       previous= millis();
     }
-    short adc_CO2 = ads.readADC_SingleEnded(CO2_channel);
-    // printf("%d\n",adc_CO2);
-    draw_sensor(adc_CO2);
+    average = baselineRead(CO2_channel);
+    Serial.print("Average baseline:");Serial.println(average);
+    draw_sensor((double)average);
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
       printf("breath real...");
-      return adc_CO2;
+      Serial.print("Baseline");Serial.println(average);
+      return average;
     }
   }
 }
@@ -163,7 +166,7 @@ int baselineRead(int channel) {
   return int(mean);
 }
 
-int restore_baseline(){
+void restore_baseline(){
   extern double Setpoint;
   int temp=0;
   int ref=0;
@@ -182,21 +185,22 @@ int restore_baseline(){
 
   unsigned long previous_time= millis();
   while (1) {
-    if(millis()-previous_time > 10000){   //RESTORE TIMER 
+    if(millis()-previous_time > 20000){   //RESTORE TIMER 
       break;
     }
     PID_control();
     draw_loading(counter);counter ++;
     temp = baselineRead(CO2_channel);
+    delay(100);
     ref = baselineRead(CO2_channel);
-    Serial.println(ads.readADC_SingleEnded(0));
-    if (temp + 5 >= ref && temp - 5 <= ref) { //wait baseline drop flat
-      printf("Found Baseline %d\n", temp);
-      delay(10);  
+    Serial.print("Difference:");Serial.println(temp - ref);
+    if (abs(temp-ref)<2) { //wait baseline drop flat
+      // printf("Found Baseline %d\n", temp);
+      // delay(10);  
       dacWrite(pumpPin, 150);
       delay(100);
       dacWrite(pumpPin, dutyCycle_pump);
-      return temp;
+      // return temp;
       break;
     }
   }
@@ -231,7 +235,7 @@ void sample_collection(){
   short adc_CO2;
   pump_control(control);
   restore_humidity();
-  baseline = restore_baseline();
+  restore_baseline();
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
   tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
   tft.drawString("HUFF now", 120, 245, 4);
@@ -340,7 +344,6 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
         // concentration = 1.9433 * exp(-6.143* buffer) ;
         // // return concentration;
         return buffer;
-        break;
       }
     case (2): // acetone _concentration
       {
@@ -349,7 +352,6 @@ double ratio_calibration(double base_resist, double peak_resist, int formula){
         // concentration = (buffer - constant) / slope;
         // // return concentration;
         return buffer;
-        break;
       }
   }
 }

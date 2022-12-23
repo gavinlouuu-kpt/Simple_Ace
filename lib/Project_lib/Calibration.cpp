@@ -26,7 +26,6 @@ int position_counter = 1;
 int sample_size=0;
 int ref_position[2];
 
-int finding_baseline();
 void process_data();
 void find_peak();
 void store_history();
@@ -262,7 +261,7 @@ void update_parameters(int unit){
     delay(500);
 }
 
-void  calibration() { //put your main code here, to run repeatedly:
+void calibration() {
   PID_control();
   long previous = millis(); 
   long previous_2 =0 ;
