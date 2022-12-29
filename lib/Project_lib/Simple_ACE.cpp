@@ -24,7 +24,7 @@ uFire_SHT20 sht20;
 // char ssid[] = SSID;
 // char password[] = PASSWORD;
 
-int dutyCycle_pump = 80; //to be changed
+int dutyCycle_pump = 70; //to be changed
 double upload_buffer;
 double upload_buffer_1;
 double upload_buffer_2;
@@ -170,10 +170,10 @@ void restore_baseline(){
   extern double Setpoint;
   int temp=0;
   int ref=0;
-  dacWrite(pumpPin,80);
+  dacWrite(pumpPin,70);
   ledcWrite(colChannel, 255);
   int counter=0 ;
-  unsigned long cleaning_counter=millis();
+  unsigned long cleaning_counter = millis();
   while(millis()-cleaning_counter <10000){
     // Serial.println("removing residues...");
     draw_loading(counter);counter ++;
@@ -197,9 +197,6 @@ void restore_baseline(){
     if (abs(temp-ref)<2) { //wait baseline drop flat
       // printf("Found Baseline %d\n", temp);
       // delay(10);  
-      dacWrite(pumpPin, 150);
-      delay(100);
-      dacWrite(pumpPin, dutyCycle_pump);
       // return temp;
       break;
     }

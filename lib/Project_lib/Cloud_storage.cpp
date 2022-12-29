@@ -108,7 +108,7 @@ void storeinfo(String namee, String sx, int height, int weight){
   Serial.print("Directory:");Serial.println(info_dir);
   const char *filename = info_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &jj);
-  delay(1000);
+  // delay(1000);
 }
 
 
@@ -123,10 +123,10 @@ void storedata(String namee,unsigned long tim ,int number){
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
   const char *filename = data_dir.c_str();
-  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(2000);
+  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(800);
   // array.toString(Serial, true);
   array.clear();
-  delay(100);
+  delay(10);
 }
 
 
@@ -154,9 +154,8 @@ void cloud_upload(){
                 array.add(data);
               }
             }        
-            Serial.println("Pushing data");
             storedata(name,unixtime,j);
-            delay(100);
+            delay(10);
           }
         Serial.println("Stored from previous /Dataset_1");
         file.close();
@@ -176,9 +175,9 @@ void cloud_upload(){
             }
           }
           storedata(name,unixtime,j);
-          delay(100);
+          delay(10);
         }
-         Serial.println("Stored from previous /Dataset_2");
+        Serial.println("Stored from previous /Dataset_2");
         file.close();
         SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
         delay(1000);
@@ -196,7 +195,7 @@ void cloud_upload(){
             } 
           }
           storedata(name,unixtime,j);
-          delay(100);
+          delay(10);
         }
         Serial.println("Storing Directly");
       }
@@ -258,7 +257,7 @@ void update_check_time(){
 
 void check_sensor_life(){
   Serial.print("Previous time:"); Serial.println(previous_sensor_time);
-  if(isWifi == true && previous_sensor_time !=0){
+  if(isConnect == true && previous_sensor_time !=0){
     // Wifi_able();
     // configTime(0, 0, ntpServer);
     Serial.println();

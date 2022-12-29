@@ -34,6 +34,7 @@ void Wifi_able(){
       isConnect = true;  
       Serial.print("Connected with IP: ");
       Serial.println(WiFi.localIP());
+      Serial.print("Wifi status:");Serial.println(WiFi.status());
       delay(500);
       break;
     } 
@@ -41,23 +42,33 @@ void Wifi_able(){
 }
 
 void Wifi_disable(){
-  WiFi.disconnect();
+  WiFi.disconnect(true,true);
+  delay(1000);
   isWifi = false;
   isConnect = false;
   Serial.println("Wifi_off");
+  Serial.print("Wifi status:");Serial.println(WiFi.status());
 }
 
 unsigned long previousMillis =0;
 void Wifi_reconnect(){
   if(isWifi == true){
-    if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
-      // Serial.print(millis());
-      Serial.println("Reconnecting to WiFi...");
-      WiFi.disconnect();
-      delay(2000);
-      WiFi.reconnect();
-      delay(2000);
-      previousMillis = millis();
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
+    unsigned long countdown= millis();
+    isConnect =false; 
+    while(millis()-countdown < 5000){
+      if (WiFi.status() != WL_CONNECTED){
+        Serial.print(".");
+        delay(300);
+      }
+      else{
+        isConnect = true;  
+        Serial.print("Connected with IP: ");
+        Serial.println(WiFi.localIP());
+        Serial.print("Wifi status:");Serial.println(WiFi.status());
+        delay(500);
+        break;
+      } 
     }
   }
 }

@@ -37,7 +37,7 @@ extern uFire_SHT20 sht20;
 extern float ref_position[2];
 // float previous_data[10] = {0.9,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
 extern double previous_data[10];
-String profileNumber = "";
+String profileNumber = "1";
 
 extern const char* ntpServer;
 
@@ -364,10 +364,10 @@ void HomeScreen()
   // tft.drawString("Phase", 10, 280, 2);
   draw_framework();
   draw_Wifi();
+  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.setTextDatum(4);
   tft.fillRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.drawString("Start", 125, 280, 2);
   
   //timeot
@@ -638,7 +638,7 @@ void select_pump_dutycycle()
   {
     if (dutyCycle_pump <255)
     {
-      dutyCycle_pump = dutyCycle_pump + 10;
+      dutyCycle_pump = dutyCycle_pump + 5;
       ResetXY();
       delay(150);
     }
@@ -647,7 +647,7 @@ void select_pump_dutycycle()
   {
     if (dutyCycle_pump > 0)
     {
-      dutyCycle_pump = dutyCycle_pump - 10;
+      dutyCycle_pump = dutyCycle_pump - 5;
       ResetXY();
       delay(150);
     }
@@ -677,6 +677,7 @@ void TouchScreen()
         isSensor = true;
         stage = 0;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        HomeScreen();
         break;
       }
     }
@@ -684,25 +685,14 @@ void TouchScreen()
 
   if (stage == 0)
   {
-    HomeScreen();
-    while(true){
-      tft.getTouch(&t_x, &t_y);
-      if (t_x > 195 && t_x < 240 && t_y > 100 && t_y < 195)
-      {
+    if (t_x > 195 && t_x < 240 && t_y > 100 && t_y < 195)
+    {
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
         tft.fillRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
         tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Start", 125, 280, 2);
         sampling_display();
         stage = 2;
-        break;
-      }
-      if (t_x > 195 && t_x < 235 && t_y > 5 && t_y < 75)                 // press
-      {
-        show_menu();
-        stage = 1;
-        break;
-      }
     }
   }
   
@@ -710,6 +700,7 @@ void TouchScreen()
   {
     printf("%d\n", t_x);
     printf("%d\n", t_y);
+
 
     if (stage !=1)
     {
@@ -776,6 +767,7 @@ void TouchScreen()
 
         stage = 0;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        HomeScreen();
         ResetXY();
       }
     }
@@ -784,10 +776,11 @@ void TouchScreen()
     if(stage == 2){                                                          //sample
       if(t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305){
         if(isConnect ==true){
-          WiFi.disconnect();
+          WiFi.disconnect(true,true);
           delay(500);
           isConnect = false;
           Serial.println("Disconnected");
+          Serial.print("Wifi status:");Serial.println(WiFi.status());
         }
         tft.fillRect(0,20,240,210,TFT_NEIGHBOUR_GREEN);                    //cover previosu result screeen                               //cover result
         draw_framework();
@@ -1413,7 +1406,8 @@ void TouchScreen()
           tft.drawString("Connected", 120, 100, 4);
           delay(2000);
           tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-          stage = 0;        
+          stage = 0;    
+          HomeScreen();    
           draw_Wifi();
         }
         else

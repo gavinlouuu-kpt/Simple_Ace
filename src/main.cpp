@@ -34,6 +34,7 @@ void setup() {
   firebase_setup();
   Serial.println( "Setup done" );
   update_check_time();
+  HomeScreen();
 }
 unsigned long previous_checktime =0;
 
