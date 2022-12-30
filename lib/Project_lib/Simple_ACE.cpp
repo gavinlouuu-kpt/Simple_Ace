@@ -234,7 +234,6 @@ void sample_collection(){
   int q = 0;
   float previous ;
   short adc_CO2;
-  pump_control(control);
   restore_humidity();
   restore_baseline();
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);

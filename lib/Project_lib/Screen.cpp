@@ -325,14 +325,17 @@ void draw_result(double co2, double ace){
   if(ace < 1 || co2 < 1||isStore == false){
     tft.drawString("Try Again",120,40,4); 
   }
-  else if((ace >= 1 && ace < 1.1) && (co2 >= 1 && co2 < 1.3)){
+  else if((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3)){
     tft.drawString("Inactive workout",120,40,4);
   } 
   else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
     tft.drawString("Moderate burn",120,40,4);
   } 
-  else if((ace >= 1 && ace < 1.2) && (co2 >= 1.5)){
+  else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.3 && co2 < 1.5)){
     tft.drawString("Effective training",120,40,4);
+  } 
+  else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.5)){
+    tft.drawString("Intensive training",120,40,4);
   } 
   
   else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
