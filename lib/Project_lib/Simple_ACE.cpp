@@ -24,7 +24,7 @@ uFire_SHT20 sht20;
 // char ssid[] = SSID;
 // char password[] = PASSWORD;
 
-int dutyCycle_pump = 70; //to be changed
+int dutyCycle_pump = 80; //to be changed
 double upload_buffer;
 double upload_buffer_1;
 double upload_buffer_2;
@@ -66,7 +66,7 @@ void warm_up(){
     warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
     // tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
     tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
-     delay(10);
+    delay(10);
   }
   // Serial.print("Analog read:");Serial.println(analogRead(NTCC));
   tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
@@ -75,9 +75,11 @@ void warm_up(){
 void pump_control(bool control){
   if(control == true){
   dacWrite(pumpPin, 225);
-  delay(100);
+  delay(200);
   dacWrite(pumpPin,150);
-  delay(100);
+  delay(200);
+  dacWrite(pumpPin,100);
+  delay(200);
   dacWrite(pumpPin, dutyCycle_pump);
   }
   else{
@@ -170,7 +172,9 @@ void restore_baseline(){
   extern double Setpoint;
   int temp=0;
   int ref=0;
-  dacWrite(pumpPin,70);
+  Serial.print("Duty Cycle");Serial.println(dutyCycle_pump);
+  pump_control(true);
+  // dacWrite(pumpPin, dutyCycle_pump);
   ledcWrite(colChannel, 255);
   int counter=0 ;
   unsigned long cleaning_counter = millis();

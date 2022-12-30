@@ -321,19 +321,7 @@ void draw_result(double co2, double ace){
     tft.drawFloat((float)co2 , 2, 60, 220, 2);
   }
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  // if(ace > 1 || ace <= 0||store == false){
-  // tft.drawString("Try Again",120,60,4);
-  // }
-  // else if (ace > 0.96 && ace <= 1 ){
-  // tft.drawString("Workout More!",120,60,4);
-  // }
-  // else if(ace > 0.9 && ace <= 0.96){
-  // tft.drawString("Pretty Good!",120,60,4);
-  // }
-  // else if(ace <= 0.9 && ace > 0){
-  // tft.drawString("Excellent Fat Burn!",120,60,4);
 
-  // } 
   if(ace < 1 || co2 < 1||isStore == false){
     tft.drawString("Try Again",120,40,4); 
   }
@@ -798,8 +786,6 @@ void TouchScreen()
     { // Calibration Start Button
       if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
       {
-        control = true;
-        pump_control(control);
         restore_baseline();
         tft.setTextDatum(4);
         tft.fillRect(10, 50, 200, 150, TFT_NEIGHBOUR_GREEN);      //
@@ -1084,6 +1070,7 @@ void TouchScreen()
         pump_control(control);
         while (1)
         {
+          Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
           PID_control();  
           float ADS0 = ads.readADC_SingleEnded(0);
           // float ADS1 = ads.readADC_SingleEnded(1);
@@ -1154,7 +1141,7 @@ void TouchScreen()
 
             // printf("%f\n", ((H[i] - LowY) / (HighY - LowY)));
             // printf("%d\n", max1);
-            printf("%f\n", HighY);
+            // printf("%f\n", HighY);
             tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_GREEN);
             tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_GREEN);
             tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
@@ -1183,7 +1170,7 @@ void TouchScreen()
               for (int j = 1; j <= 199; j++)
               {
                 H[j - 1] = H[j];
-                // printf("%d\n",H[j]);
+                // printf("%d\n",H[j]);mnn 
                 // printf("%d\n",j);
               }
               as_counter = 1;

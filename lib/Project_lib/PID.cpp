@@ -9,7 +9,7 @@ SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
 // double aggKp=4, aggKi=0.2, aggKd=1;
 double consKp=6, consKi=0.125, consKd=0.25;
 
-double Setpoint = 1000;
+double Setpoint = 900;
 double Input, Output;
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
 
