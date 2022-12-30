@@ -331,9 +331,10 @@ void draw_result(double co2, double ace){
   else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
     tft.drawString("Moderate burn",120,40,4);
   } 
-  else if((ace >= 1 && ace < 1.3) && (co2 >= 1.5)){
+  else if((ace >= 1 && ace < 1.2) && (co2 >= 1.5)){
     tft.drawString("Effective training",120,40,4);
   } 
+  
   else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
     tft.drawString("Moderate Ketosis",120,40,4);
   } 
