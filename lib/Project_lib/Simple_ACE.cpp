@@ -143,7 +143,7 @@ int breath_check(){
       previous= millis();
     }
     average = baselineRead(CO2_channel);
-    Serial.print("Average baseline:");Serial.println(average);
+    // Serial.print("Average baseline:");Serial.println(average);
     draw_sensor((double)average);
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
