@@ -8,7 +8,7 @@
 // #define BLYNK_PRINT         Serial
 
 #define BLACK				0x0000
-#define baseSample 			20
+#define baseSample 			50
 
 //Lilygo T-Disaply////////////////////////////////////////////////
 // #define fanPin              15
@@ -73,8 +73,8 @@ void power_saving(unsigned long last_time);
 void storing_data();
 void warm_up();
 
-int baselineRead(int channel);
-void restore_baseline();
+double baselineRead(int channel);
+int restore_baseline();
 double ads_convert(int value, bool resist);
 
 #endif 

@@ -746,6 +746,8 @@ void TouchScreen()
     {
       if (t_x > 195 && t_x < 235 && t_y > 5 && t_y < 75)                 // press
       {
+          pump_control(false);
+          Serial.println("OFF");
         show_menu();
         stage = 1;
       }
@@ -850,8 +852,6 @@ void TouchScreen()
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
 
         calibration();
-        control = false;
-        pump_control(control);
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
         EEPROM.begin(20);
         int value, value_1;
@@ -1134,7 +1134,7 @@ void TouchScreen()
         pump_control(control);
         while (1)
         {
-          Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
+          // Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
           PID_control();  
           float ADS0 = ads.readADC_SingleEnded(0);
           // float ADS1 = ads.readADC_SingleEnded(1);
@@ -1142,7 +1142,7 @@ void TouchScreen()
           // tft.drawString("ADS1:", 110, 220, 2);
           tft.drawString("H:", 200, 220, 2);
           // tft.drawFloat(float(ADS1), 0, 150, 220, 2);
-          tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
+          // tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
 
           graph1.pushSprite(20, 40);
 
@@ -1246,6 +1246,8 @@ void TouchScreen()
             {
               i = 199;
             }
+            // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
+            Serial.print(ADS0);Serial.println(analogRead(NTCC)); 
           }
           if (tft.getTouch(&t_x, &t_y))
           {
@@ -1424,7 +1426,6 @@ void TouchScreen()
       select_pump_dutycycle();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover pump cycle
       tft.drawFloat(dutyCycle_pump, 0, 120, 100, 4);
-      printf("%d\n", dutyCycle_pump);
 
       if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305){    
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);

@@ -24,7 +24,7 @@ uFire_SHT20 sht20;
 // char ssid[] = SSID;
 // char password[] = PASSWORD;
 
-int dutyCycle_pump = 80; //to be changed
+int dutyCycle_pump = 120; //to be changed
 double upload_buffer;
 double upload_buffer_1;
 double upload_buffer_2;
@@ -130,8 +130,7 @@ double read_humidity(){
   return value;
 }
 
-int breath_check(){
-  int average = 0;
+void breath_check(){
   while (true) {
     PID_control();
     float arr[3];
@@ -142,19 +141,17 @@ int breath_check(){
       arr[i] = sht20.humidity();
       previous= millis();
     }
-    average = baselineRead(CO2_channel);
     // Serial.print("Average baseline:");Serial.println(average);
-    draw_sensor((double)average);
+    draw_sensor(ads.readADC_SingleEnded(0));
     gradient  = (arr[2] - arr[0]) * 7 ;
     if (gradient > 1) {
       printf("breath real...");
-      Serial.print("Baseline");Serial.println(average);
-      return average;
+      break;
     }
   }
 }
 
-int baselineRead(int channel) {
+double baselineRead(int channel) {
   int toSort[baseSample];
   float mean = 0;
   for (int i = 0; i < baseSample; ++i ) {
@@ -165,13 +162,13 @@ int baselineRead(int channel) {
     mean += toSort[i];
   }
   mean /= baseSample;
-  return int(mean);
+  return mean;
 }
 
-void restore_baseline(){
+int restore_baseline(){
   extern double Setpoint;
-  int temp=0;
-  int ref=0;
+  double temp=0;
+  double ref=0;
   Serial.print("Duty Cycle");Serial.println(dutyCycle_pump);
   pump_control(true);
   // dacWrite(pumpPin, dutyCycle_pump);
@@ -188,21 +185,36 @@ void restore_baseline(){
   } 
 
   unsigned long previous_time= millis();
+  double slope =0 ;
+  double buffer[5]= {0};
+  int count = 0;
   while (1) {
-    if(millis()-previous_time > 20000){   //RESTORE TIMER 
-      break;
-    }
+    // if(millis()-previous_time > 20000){   //RESTORE TIMER 
+    //   break;
+    // }
     PID_control();
     draw_loading(counter);counter ++;
     temp = baselineRead(CO2_channel);
-    delay(100);
+    Serial.print("Temp value:");Serial.println(temp);
+    delay(10);
     ref = baselineRead(CO2_channel);
-    Serial.print("Difference:");Serial.println(temp - ref);
-    if (abs(temp-ref)<2) { //wait baseline drop flat
-      // printf("Found Baseline %d\n", temp);
-      // delay(10);  
-      // return temp;
-      break;
+    Serial.print("Ref value:");Serial.println(ref);
+    slope = (temp - ref)/0.5;
+    Serial.print("Slope:");Serial.println(slope);
+    if (abs(slope)< 8) { //wait baseline drop flat
+      buffer[count] = slope;
+      count ++; 
+      if(count > 4){
+        Serial.print("Found Baseline:");Serial.println(temp);
+        Serial.println("Start forecasting...");
+        return (int)ref;
+      }
+    }
+    else{
+      for(int i=0; i<5; i++){
+        buffer[i]= 0;
+      }
+      count = 0;
     }
   }
 }
@@ -235,13 +247,13 @@ void sample_collection(){
   float previous ;
   short adc_CO2;
   restore_humidity();
-  restore_baseline();
+  baseline = restore_baseline();
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
   tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
   tft.drawString("HUFF now", 120, 245, 4);
   // set_range(baseline);
   // delay(1);
-  baseline = breath_check();
+  breath_check();
   isStore = false;
   previous = millis();
   int previous_counter;
@@ -261,7 +273,9 @@ void sample_collection(){
 
 
     if (millis()-previous_counter2 >10){ 
+      // Sensor_arr[q]= analogRead(NTCC);
       Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
+      // Serial.println(Sensor_arr[q]);
       draw_sensor(Sensor_arr[q]); 
       q ++;
       previous_counter2 = millis();      
@@ -282,18 +296,11 @@ void sample_collection(){
   if(fail_count==50){
     return;
   }
-  control=false;
-  pump_control(control);
   Serial.print("Number of sample:");Serial.println(q);
   int expose = millis() - start_time;
   Serial.print("Exposed time");Serial.println(expose);
   unit= expose/q;
 }
-
-void storing_data(){
-  cloud_upload();
-}
-
 
 int peak_value(int address, int unittime) {
   int peak = 0;
@@ -407,6 +414,8 @@ void output_result(){
   // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   draw_result(conc_CO2,conc_Ace);
   cloud_upload();
+  // control=false;
+  // pump_control(control);
 }// not in percentage
 
 

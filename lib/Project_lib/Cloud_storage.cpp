@@ -253,11 +253,11 @@ void cloud_upload(){
     file.close();
 
     // Read
-    file = SPIFFS.open(file_dir.c_str(),FILE_READ);
-    while(file.available()){
-      Serial.write(file.read());
-    }
-    file.close();
+    // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
+    // while(file.available()){
+    //   Serial.write(file.read());
+    // }
+    // file.close();
   }
   WiFi.disconnect();
 }

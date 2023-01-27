@@ -3,13 +3,17 @@
 #include <PID_v1.h>
 #include <SimpleKalmanFilter.h>
 
-SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
+SimpleKalmanFilter simpleKalmanFilter(5, 5, 0.1);
 
 //Define the aggressive and conservative Tuning Parameters
 // double aggKp=4, aggKi=0.2, aggKd=1;
-double consKp=6, consKi=0.125, consKd=0.25;
+// double consKp=6, consKi=0.125, consKd=0.25;
+// double consKp=4, consKi=0.3, consKd=0.6;
+// double consKp=4, consKi=0.08, consKd=0.015;
+double consKp=40, consKi=5, consKd=5;
 
-double Setpoint = 900;
+
+double Setpoint = 800;
 double Input, Output;
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
 
@@ -18,8 +22,8 @@ void PID_setup(){
 }
 
 void PID_control(){
-    Input = simpleKalmanFilter.updateEstimate(analogRead(NTCC));
-    // Input = analogRead(NTCC);
+    // Input = simpleKalmanFilter.updateEstimate(analogRead(NTCC));
+    Input = analogRead(NTCC);
 
     //   double gap = abs(Setpoint-Input); //distance away from setpoint
 //   if (gap < 100)
@@ -36,7 +40,8 @@ void PID_control(){
     ledcWrite(colChannel,Output); //220
     // delay(10);
     // Serial.println(Output);
-    // Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
+    // Serial.print("Column temp:"); 
+    // Serial.println(analogRead(NTCC));
 }
 
 
