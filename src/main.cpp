@@ -7,6 +7,9 @@
 #include <Cloud_storage.h>
 #include <Wifi_connection.h>
 
+
+
+
 // ////////////////////////SPIFFS File//////////////////////////////////////
 // String format_1 = "/";
 // String format_2 = ".txt";
@@ -24,6 +27,8 @@ double map_rq;
 int file_label;
 
 
+
+
 void setup() {
   Serial.begin(115200);
   tft_setup();
@@ -35,6 +40,7 @@ void setup() {
   Serial.println( "Setup done" );
   update_check_time();
   HomeScreen();
+  
 }
 unsigned long previous_checktime =0;
 
@@ -45,6 +51,8 @@ void loop() {
     check_sensor_life();
     previous_checktime = millis();
   }
+
+  
   // if(isWifi == true){
   //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
   //     // Serial.print(millis());
