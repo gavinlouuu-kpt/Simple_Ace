@@ -1247,7 +1247,9 @@ void TouchScreen()
               i = 199;
             }
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
-            Serial.print(ADS0);Serial.println(analogRead(NTCC)); 
+            
+            extern double Output;
+            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
           }
           if (tft.getTouch(&t_x, &t_y))
           {
