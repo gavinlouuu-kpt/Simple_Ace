@@ -55,7 +55,7 @@
 
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
-const int freq = 5000;
+const int freq = 8000;
 const int resolution = 10;
 const int zone = 5000;
 const int dutyCycle_col = 80;

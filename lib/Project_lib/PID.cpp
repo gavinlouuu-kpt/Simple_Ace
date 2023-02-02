@@ -15,6 +15,8 @@ double consKp=4, consKi=0.08, consKd=0.015;
 
 double Setpoint = 800;
 double Input, Output;
+int pid_counter =0;
+int buffer_input= 0;
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
 
 void PID_setup(){
@@ -23,8 +25,19 @@ void PID_setup(){
 
 void PID_control(){
     // Input = simpleKalmanFilter.updateEstimate(analogRead(NTCC));
+    // if(pid_counter%10 !=0){
+    //    buffer_input += analogRead(NTCC);
+    //    pid_counter ++;
+    //    Serial.println(buffer_input);
+    // }
+    // else{
+    //     pid_counter = 0;
+    //     buffer_input /= 10;
+    //     // Input = analogRead(NTCC);
+    //     Serial.println(buffer_input);
+    // }
+    // Input = (double)buffer_input;
     Input = analogRead(NTCC);
-
     //   double gap = abs(Setpoint-Input); //distance away from setpoint
 //   if (gap < 100)
 //   {  //we're close to setpoint, use conservative tuning parameters
@@ -37,11 +50,12 @@ void PID_control(){
 //   }
 
     myPID.Compute();
-    ledcWrite(colChannel,Output); //220
-    // delay(10);
-    Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC));
-    // Serial.print("Column temp:"); 
+    long map_Output = (long)Output;
+    map_Output = map(map_Output,0,255,0,1024);
+    ledcWrite(colChannel,map_Output); //220
     
+    // Serial.print(map_Output);Serial.print(",");Serial.println(analogRead(NTCC));
+    // buffer_input = 0; // Serial.print("Column temp:"); 
 }
 
 
