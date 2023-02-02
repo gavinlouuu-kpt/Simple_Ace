@@ -30,32 +30,31 @@ void setup() {
   pinSetup();
   analogSetup();
   checkSetup();
-  draw_framework();
+  warm_up();
   firebase_setup();
   Serial.println( "Setup done" );
+  update_check_time();
+  HomeScreen();
 }
+unsigned long previous_checktime =0;
 
 void loop() {
   PID_control();
   TouchScreen();
-  // // Blynk.connect();
-  // // blynk_upload(avg_ratio_Ace, avg_ratio_O2, rq, map_rq);//editted
-
-  // // data_logging(avg_ratio_CO2, avg_ratio_O2,rq , 0 , 1 );
-  // // Serial.print("Fat Burn effeciency: "); Serial.print(rq); Serial.print (" "); Serial.println(map_rq);
-  // data_logging(avg_ratio_Ace, avg_ratio_O2, rq , 0, 5 );
-// if WiFi is down, try reconnecting
-// if(isWifi ==true){
-//   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >2000)) {
-//     // Serial.print(millis());
-//     Serial.println("Reconnecting to WiFi...");
-//     WiFi.disconnect();
-//     delay(100);
-//     WiFi.reconnect();
-//     delay(100);
-//     previousMillis = currentMillis;
-//     }
-//   }
-// Wifi_reconnect();
+  if(millis()-previous_checktime > 10000){
+    check_sensor_life();
+    previous_checktime = millis();
+  }
+  // if(isWifi == true){
+  //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
+  //     // Serial.print(millis());
+  //     Serial.println("Reconnecting to WiFi...");
+  //     WiFi.disconnect();
+  //     delay(2000);
+  //     WiFi.reconnect();
+  //     delay(2000);
+  //     previousMillis = millis();
+  //   }
+  // }
 }
 

@@ -21,9 +21,8 @@
 
 //Wrover 2.8" display///////////////////////////////////////////////      
 #define pumpPin             26  
-#define solPin              33
 #define buz                 13
-#define colPin              27  
+#define colPin              33  
 #define btn_rst             39
 #define btn_1               36
 #define NTCC                34
@@ -59,25 +58,23 @@
 const int freq = 5000;
 const int resolution = 8;
 const int zone = 5000;
-const int dutyCycle_pump = 100; //to be changed
 const int dutyCycle_col = 80;
 const double LSB = 0.125 / 1000;
 const int temperate = 55; 
 const int sampletime = 45000;//60000
 
-extern bool clean;
-
 void checkSetup(void);
 void pinSetup(void);
 void analogSetup(void);
 void output_result();
-int baselineRead(int channel);
-double ads_convert(int value, bool resist);
-
+void pump_control(bool control);
 void sample_collection();
 void power_saving(unsigned long last_time);
-int restore_baseline();
 void storing_data();
-int restore_baseline();
+void warm_up();
+
+int baselineRead(int channel);
+void restore_baseline();
+double ads_convert(int value, bool resist);
 
 #endif 

@@ -4,7 +4,7 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
-#include "Loading.h"
+#include "Image_assets/Loading.h"
 #include "PID.h"
 
 
@@ -26,7 +26,6 @@ int position_counter = 1;
 int sample_size=0;
 int ref_position[2];
 
-int finding_baseline();
 void process_data();
 void find_peak();
 void store_history();
@@ -262,7 +261,7 @@ void update_parameters(int unit){
     delay(500);
 }
 
-void  calibration() { //put your main code here, to run repeatedly:
+void calibration() {
   PID_control();
   long previous = millis(); 
   long previous_2 =0 ;
@@ -299,24 +298,19 @@ void  calibration() { //put your main code here, to run repeatedly:
     // printf("%d\n",time);
     // printf("%d\n",num);
     if(millis() - time > waittime){
-      tft.drawString("Remain ",110,120,4);
-      if((sampletime-(millis() - previous))/waittime < 10 && istenth ==true){
-        tft.fillRect(165,100,40,40,TFT_NEIGHBOUR_GREEN);
-        istenth = false;
-      }
-      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,180,120,4);
+      tft.setTextDatum(4);
+      tft.drawString("Remain ",100,120,4);
+      // if((sampletime-(millis() - previous))/waittime < 10 && istenth ==true){
+      //   tft.fillRect(150,100,40,40,TFT_NEIGHBOUR_GREEN);
+      //   istenth = false;
+      // }
+      tft.fillRect(155,100,65,40,TFT_NEIGHBOUR_GREEN);
+      tft.drawFloat(float((sampletime-(millis() - previous))/waittime),0,170,120,4);
       time= millis();
     }
 
-    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[j]);
-    delay(10);
-    j++;
-    if(j>10){
-      j = 0;
-    }
-    // tft.drawFloat(float((9000-millis())/1000),0,200,120,2);
-    
-    // printf("%d\n", millis());
+    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[j%11]);
+    delay(10); j++;
 
     if (millis()-previous_2>10){
       // Serial.print("Start:");Serial.println(millis());  

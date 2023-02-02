@@ -1,5 +1,5 @@
 #include "Cloud_storage.h"
-#include"time.h"
+#include "time.h"
 #include "Wifi_connection.h"
 #include "SPIFFS.h"
 #include <Firebase_ESP_Client.h>
@@ -29,7 +29,7 @@ FirebaseJson jj;
 
 unsigned long sendDataPrevMillis = 0;
 unsigned long count = 0;
-
+unsigned long sensor_life = 605000;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 // NTP server to request epoch time
@@ -39,6 +39,7 @@ unsigned long epochTime;
 
 extern bool isConnect;
 int counter = 0;
+extern bool isWifi;
 
 // int filenumber = 8;
 // int filesize =store_size/filenumber;
@@ -46,12 +47,15 @@ int counter = 0;
 String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
+extern String profileNumber;
+
 int h =178;
 int w = 75;
 
 unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
+  delay(500);
   if (!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return(0);
@@ -89,7 +93,6 @@ void firebase_setup(){
   config.timeout.serverResponse = 10 * 1000;
   config.timeout.socketConnection = 10 * 1000;
   config.timeout.wifiReconnect = 10 * 1000;
-  configTime(0, 0, ntpServer);
 }
 
 void storeinfo(String namee, String sx, int height, int weight){
@@ -100,12 +103,12 @@ void storeinfo(String namee, String sx, int height, int weight){
   String info_dir = "/Simple_Ace/";
   info_dir.concat(macadddress);
   info_dir.concat("/");
-  info_dir.concat(name);
+  info_dir.concat(profileNumber);
   info_dir.concat("/info");
   Serial.print("Directory:");Serial.println(info_dir);
   const char *filename = info_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &jj);
-  delay(1000);
+  // delay(1000);
 }
 
 
@@ -113,74 +116,101 @@ void storedata(String namee,unsigned long tim ,int number){
   String data_dir = "/Simple_Ace/";
   data_dir.concat(macadddress);
   data_dir.concat("/");
-  data_dir.concat(name);
+  data_dir.concat(profileNumber);
   data_dir.concat("/");
   data_dir.concat((String)tim);
   data_dir.concat("/File");
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
   const char *filename = data_dir.c_str();
-  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(1000);
+  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(800);
   // array.toString(Serial, true);
   array.clear();
-  delay(100);
+  delay(10);
 }
 
 
+unsigned long unixtime =0;
 void cloud_upload(){
-  checkstatus();
+  if(isWifi == true){
+    checkstatus();
+  }
+
   extern short Sensor_arr[store_size];
-  unsigned long time =0;
   if(isConnect){
     if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
       storeinfo(name,sex,h,w);        
       sendDataPrevMillis = millis();
       //Check first file
-      if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
-        File file = SPIFFS.open("/Dataset_1");
-        String data = "0";
-        time= getTime();       
-        printf("%d\n",time);
-          for (int j = 0; j < 8; j++){
-            for (int i = 0; i <256; i++){ 
-              if(file.read() != 0){
-                data = file.readStringUntil(',');
-                array.add(data);
-              }
-            }        
-            Serial.println("Pushing data");
-            storedata(name,time,j);
-            delay(10);
-          }
-        Serial.println("Stored from previous /Dataset_1");
-        file.close();
-        SPIFFS.remove("/Dataset_1");//deleted Spiffs file
-        delay(1000); 
-      }
-      // Check Second file
-      if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
-        File file = SPIFFS.open("/Dataset_2");
-        String data = "0";
-        time= getTime(); 
-        for (int j = 0; j < 8; j++){
-          for (int i = 0; i <256; i++){ 
-            if(file.read() != 0){
-              data = file.readStringUntil(',');
-              array.add(data);
+      for(int i = 0; i <20 ;i++){
+        String upload_file_dir = "/Dataset_";
+        upload_file_dir.concat((String)(i%20 + 1));
+         if(Firebase.ready() && SPIFFS.exists(upload_file_dir.c_str())){
+          File file = SPIFFS.open(upload_file_dir.c_str());
+          String data = "0";
+          unixtime= getTime();       
+          printf("%d\n",unixtime);
+            for (int j = 0; j < 8; j++){
+              for (int i = 0; i <256; i++){ 
+                if(file.read() != 0){
+                  data = file.readStringUntil(',');
+                  array.add(data);
+                }
+              }        
+              storedata(name,unixtime,j);
+              delay(10);
             }
-          }
-          storedata(name,time,j);
-          delay(10);
+          Serial.print("Stored from previous ");Serial.println(upload_file_dir.c_str());
+          file.close();
+          SPIFFS.remove(upload_file_dir.c_str());//deleted Spiffs file
+          delay(1000); 
         }
-         Serial.println("Stored from previous /Dataset_2");
-        file.close();
-        SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
-        delay(1000);
+
+        // if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
+        //   File file = SPIFFS.open("/Dataset_1");
+        //   String data = "0";
+        //   unixtime= getTime();       
+        //   printf("%d\n",unixtime);
+        //     for (int j = 0; j < 8; j++){
+        //       for (int i = 0; i <256; i++){ 
+        //         if(file.read() != 0){
+        //           data = file.readStringUntil(',');
+        //           array.add(data);
+        //         }
+        //       }        
+        //       storedata(name,unixtime,j);
+        //       delay(10);
+        //     }
+        //   Serial.println("Stored from previous /Dataset_1");
+        //   file.close();
+        //   SPIFFS.remove("/Dataset_1");//deleted Spiffs file
+        //   delay(1000); 
+        // }
+        // // Check Second file
+        // if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
+        //   File file = SPIFFS.open("/Dataset_2");
+        //   String data = "0";
+        //   unixtime= getTime(); 
+        //   for (int j = 0; j < 8; j++){
+        //     for (int i = 0; i <256; i++){ 
+        //       if(file.read() != 0){
+        //         data = file.readStringUntil(',');
+        //         array.add(data);
+        //       }
+        //     }
+        //     storedata(name,unixtime,j);
+        //     delay(10);
+        //   }
+        //   Serial.println("Stored from previous /Dataset_2");
+        //   file.close();
+        //   SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
+        //   delay(1000);
+        // }
       }
       //Sample realtime
       if(Firebase.ready()){
-        time= getTime(); 
-        printf("%d\n",time);
+        unixtime= getTime(); 
+        printf("%d\n",unixtime);
         int value = 0.00;
         for (int j = 0; j < 8; j++){
           for (int i = 0; i < 256; i++){ 
@@ -189,7 +219,8 @@ void cloud_upload(){
               array.add(value);
             } 
           }
-          storedata(name,time,j);
+          storedata(name,unixtime,j);
+          delay(10);
         }
         Serial.println("Storing Directly");
       }
@@ -202,14 +233,14 @@ void cloud_upload(){
   else{
     // Wifi_disable();
     String file_dir = "/Dataset_";
-    file_dir.concat((String)(counter%2 + 1));
+    file_dir.concat((String)(counter%20 + 1));
     counter ++;
     if(SPIFFS.exists(file_dir.c_str())){
       SPIFFS.remove(file_dir.c_str());
       printf("removed file: %s\n",file_dir.c_str());
     }
     printf("Storing into %s\n",file_dir.c_str());
-
+    unsigned long save_time = millis();
     File file = SPIFFS.open(file_dir.c_str(),FILE_WRITE);
     file.print(',');file.write('\n'); 
     for(int i =0; i <2048; i++){
@@ -217,13 +248,53 @@ void cloud_upload(){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
       }
     }
+    Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
+    Serial.print("File size: ");Serial.println(file.size());
     file.close();
+
     // Read
-    // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
-    // while(file.available()){
-    //   Serial.write(file.read());
-    // }
-    // file.close();
-  }  
+    file = SPIFFS.open(file_dir.c_str(),FILE_READ);
+    while(file.available()){
+      Serial.write(file.read());
+    }
+    file.close();
+  }
+  WiFi.disconnect();
 }
 
+String sensor_dir = "/Sensor_update";
+void update_sensor(){
+  Wifi_able();
+  configTime(0, 0, ntpServer);
+  unsigned long update_time = getTime();
+  Serial.println(update_time);
+  File file = SPIFFS.open(sensor_dir.c_str(),FILE_WRITE);
+  file.print(update_time);file.write('\n'); 
+  file.close();
+  delay(500);
+  WiFi.disconnect();
+}
+unsigned long previous_sensor_time = 0;
+
+void update_check_time(){
+  File file = SPIFFS.open(sensor_dir,FILE_READ);
+  previous_sensor_time = strtoul(file.readStringUntil('\n').c_str(),NULL,10);
+  file.close();
+  Serial.print("Updated previous time:");Serial.println(previous_sensor_time);
+}
+
+void check_sensor_life(){
+  Serial.print("Previous time:"); Serial.println(previous_sensor_time);
+  if(isConnect == true && previous_sensor_time !=0){
+    // Wifi_able();
+    // configTime(0, 0, ntpServer);
+    Serial.println();
+    Serial.println("Checking sensor life...");
+    Serial.println(getTime());
+    if(getTime() - previous_sensor_time > sensor_life){ // sensor
+      Serial.println("Change sensor!");
+      extern bool isSensor;
+      isSensor = false;
+    }
+  }
+}

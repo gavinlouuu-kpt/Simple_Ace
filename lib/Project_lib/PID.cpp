@@ -7,9 +7,9 @@ SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
 
 //Define the aggressive and conservative Tuning Parameters
 // double aggKp=4, aggKi=0.2, aggKd=1;
-double consKp=4, consKi=0.125, consKd=0.25;
+double consKp=6, consKi=0.125, consKd=0.25;
 
-double Setpoint = 1000;
+double Setpoint = 900;
 double Input, Output;
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
 
@@ -34,8 +34,9 @@ void PID_control(){
 
     myPID.Compute();
     ledcWrite(colChannel,Output); //220
+    // delay(10);
     // Serial.println(Output);
-    Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
+    // Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
 }
 
 
