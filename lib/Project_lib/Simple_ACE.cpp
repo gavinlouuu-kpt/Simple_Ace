@@ -63,9 +63,12 @@ void warm_up(){
   while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
-    warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
-    // tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
-    tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
+    if(analogRead(NTCC) < (int)Setpoint){
+       tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
+    }else{
+      warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
+      tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
+    }
     delay(10);
   }
   // Serial.print("Analog read:");Serial.println(analogRead(NTCC));
@@ -111,43 +114,55 @@ void checkSetup(){
   Serial.println("Setup Complete."); 
 }
 
-void restore_humidity(){
-  while(1){
-    float previous = sht20.humidity();
-    Serial.println(sht20.humidity());
-    if (sht20.humidity() - previous  < 2) {
-      printf("Humiditty Restored\n");
-      dacWrite(pumpChannel, dutyCycle_pump);
-      delay(5);
-      break;
-    }    
-  }
-}
+// void restore_humidity(){
+//   while(1){
+//     float previous = sht20.humidity();
+//     Serial.println(sht20.humidity());
+//     if (sht20.humidity() - previous  < 2) {
+//       printf("Humiditty Restored\n");
+//       dacWrite(pumpChannel, dutyCycle_pump);
+//       delay(5);
+//       break;
+//     }    
+//   }
+// }
 
-double read_humidity(){ 
-  float value;
-  value = sht20.humidity();
-  return value;
-}
-
+// double read_humidity(){ 
+//   float value;
+//   value = sht20.humidity();
+//   return value;
+// }
+long previoustime = millis();
+short baselin_buffer = 0;
 void breath_check(){
   while (true) {
     PID_control();
     float arr[3];
     float humd;
-    double gradient;
-    long previous;  
-    for (int i = 0; i < 3; i++) {
-      arr[i] = sht20.humidity();
-      previous= millis();
+    // double gradient;
+    long previous; 
+   
+    // for (int i = 0; i < 3; i++) {
+    //   arr[i] = sht20.humidity();
+    //   previous= millis();
+    // }
+    if(millis() - previoustime > 1000){
+      // if(buffer == 0){
+      //   buffer = ads.readADC_SingleEnded(0);
+      //   Serial.print("update");Serial.println(buffer);
+      // }
+      if(abs(ads.readADC_SingleEnded(0) - baselin_buffer) > 200){
+        Serial.println("Start recording");
+        break;
+      }
+      baselin_buffer = ads.readADC_SingleEnded(0);
+      previoustime =millis();
     }
-    // Serial.print("Average baseline:");Serial.println(average);
     draw_sensor(ads.readADC_SingleEnded(0));
-    gradient  = (arr[2] - arr[0]) * 7 ;
-    if (gradient > 1) {
-      printf("breath real...");
-      break;
-    }
+    // if (gradient > 1) {
+    //   printf("breath real...");
+    //   break;
+    // }
   }
 }
 
@@ -205,6 +220,7 @@ int restore_baseline(){
       buffer[count] = slope;
       count ++; 
       if(count > 4){
+        baselin_buffer = temp;
         Serial.print("Found Baseline:");Serial.println(temp);
         Serial.println("Start forecasting...");
         return (int)ref;
@@ -246,22 +262,22 @@ void sample_collection(){
   int q = 0;
   float previous ;
   short adc_CO2;
-  restore_humidity();
+  // restore_humidity();
   baseline = restore_baseline();
+  for(int i =0; i<store_size; i++){
+    Sensor_arr[i]=0;
+  }
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
   tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
   tft.drawString("HUFF now", 120, 245, 4);
   // set_range(baseline);
   // delay(1);
   breath_check();
-  isStore = false;
+  isStore = true;
   previous = millis();
   int previous_counter;
   int previous_counter2;
   draw_wait();
-  for(int i =0; i<store_size; i++){
-    Sensor_arr[i]=0;
-  }
   
   long start_time = millis();
   // draw_time(time);
@@ -281,17 +297,18 @@ void sample_collection(){
       previous_counter2 = millis();      
     }
     PID_control();
-    if (isStore == false) {
-      fail_count += 1 ;
-      if (fail_count== 50){
-       break;
-      }
-      if (read_humidity() > 40) {
-        isStore = true;
-        fail_count= 0;
-        // Serial.println("Certain a breathe. Recording...");
-      }
-    }
+  
+    // if (isStore == false) {
+    //   fail_count += 1 ;
+    //   if (fail_count== 50){
+    //    break;
+    //   }
+    //   if (read_humidity() > 40) {
+    //     isStore = true;
+    //     fail_count= 0;
+    //     // Serial.println("Certain a breathe. Recording...");
+    //   }
+    // }
   }
   if(fail_count==50){
     return;

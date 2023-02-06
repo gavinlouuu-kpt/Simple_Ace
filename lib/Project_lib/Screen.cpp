@@ -620,14 +620,28 @@ void Spiffs_display(){
   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("SPIFFS 1", 120, 35, 4);
+  tft.drawString("Data", 120, 35, 4);
   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("SPIFFS 2", 120, 100, 4);
+  tft.drawString("Calibration", 120, 100, 4);
+}
+
+void Data_display(){
+  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("SPIFFS 1 - 5", 120, 35, 4);
+  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("SPIFFS 6 - 10", 120, 100, 4);
   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Calibration", 120, 160, 4);
+  tft.drawString("SPIFFS 11 - 15", 120, 160, 4);
+  tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("SPIFFS 16 - 20", 120, 220, 4);
 }
+
 void selectfilenumber()
 {
   if (t_x > 110 && t_x <190 && t_y > 0 && t_y <145)
@@ -693,7 +707,6 @@ void select_PID_setpoint()
     }
   }
 }
-
 void TouchScreen()
 {
   if(isSensor!=true){
@@ -972,32 +985,15 @@ void TouchScreen()
 
     if (stage == 10)      //print spiffs
     {
-      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
-      {
-        if (SPIFFS.exists("/Dataset_1"))
-        {
-          File file = SPIFFS.open("/Dataset_1", FILE_READ);
-          while (file.available())
-          {
-            Serial.write(file.read());
-          }
-          file.close();
-        }
-      }
-      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)
-      {
-        if (SPIFFS.exists("/Dataset_2"))
-        {
-          File file = SPIFFS.open("/Dataset_2", FILE_READ);
-          while (file.available())
-          {
-            Serial.write(file.read());
-          }
-          file.close();
-        }
+      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305){
+        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
+        ResetXY();
+        Data_display();
+        stage = 17;
       }
 
-      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305)
+      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)
       {
         if (SPIFFS.exists("/Calibration"))
         {
@@ -1007,6 +1003,89 @@ void TouchScreen()
             Serial.write(file.read());
           }
           file.close();
+        }
+      }
+    }
+    if(stage == 17){
+      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
+      {
+        for(int i = 0; i< 5; i++){
+          String data_name = "/Dataset_";
+          data_name.concat(i+1);
+          Serial.println(data_name);
+          if (SPIFFS.exists(data_name))
+          {
+            File file = SPIFFS.open(data_name, FILE_READ);
+            while (file.available())
+            {
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+          Serial.println();
+        }
+      }
+      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)
+      {
+        // if (SPIFFS.exists("/Dataset_2"))
+        // {
+        //   File file = SPIFFS.open("/Dataset_2", FILE_READ);
+        //   while (file.available())
+        //   {
+        //     Serial.write(file.read());
+        //   }
+        //   file.close();
+        // }
+        for(int i = 0; i< 5; i++){
+          String data_name = "/Dataset_";
+          data_name.concat(i+6);
+          Serial.println(data_name);
+          if (SPIFFS.exists(data_name))
+          {
+            File file = SPIFFS.open(data_name, FILE_READ);
+            while (file.available())
+            {
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+          Serial.println();
+        }
+      }
+      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305)
+      {
+        for(int i = 0; i< 5; i++){
+          String data_name = "/Dataset_";
+          data_name.concat(i+11);
+          Serial.println(data_name);
+          if (SPIFFS.exists(data_name))
+          {
+            File file = SPIFFS.open(data_name, FILE_READ);
+            while (file.available())
+            {
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+          Serial.println();
+        }
+      }
+      else if(t_x > 150 && t_x < 190 && t_y > 0 && t_y < 305)
+      {
+        for(int i = 0; i< 5; i++){
+          String data_name = "/Dataset_";
+          data_name.concat(i+16);
+          Serial.println(data_name);
+          if (SPIFFS.exists(data_name))
+          {
+            File file = SPIFFS.open(data_name, FILE_READ);
+            while (file.available())
+            {
+              Serial.write(file.read());
+            }
+            file.close();
+          }
+          Serial.println();
         }
       }
     }

@@ -15,6 +15,7 @@ double consKp=4, consKi=0.08, consKd=0.015;
 
 double Setpoint = 800;
 double Input, Output;
+long map_Output;
 int pid_counter =0;
 int buffer_input= 0;
 PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
@@ -50,9 +51,9 @@ void PID_control(){
 //   }
 
     myPID.Compute();
-    long map_Output = (long)Output;
-    map_Output = map(map_Output,0,255,0,1024);
-    ledcWrite(colChannel,map_Output); //220
+    // map_Output = (long)Output;
+    // map_Output = map(map_Output,0,255,0,1024);
+    ledcWrite(colChannel,Output); //220
     
     // Serial.print(map_Output);Serial.print(",");Serial.println(analogRead(NTCC));
     // buffer_input = 0; // Serial.print("Column temp:"); 
