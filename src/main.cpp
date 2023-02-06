@@ -14,17 +14,17 @@
 //////////////////////////Request time//////////////////////////////////////
 unsigned long previous_time;
 //////////////////////////functions/////////////////////////////////////////
-int data_logging(double value, double value_1, double value_2, double value_3,  int storage);
+int data_logging(double value, double value_1, double value_2, double value_3, int storage);
 double mapping(double CO2, double O2);
 ///////////////////////////////////Global Data.//////////////////////////////////////
 double avg_ratio_Ace;
-double avg_ratio_O2 ;
+double avg_ratio_O2;
 double rq;
 double map_rq;
 int file_label;
 
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   tft_setup();
   pinSetup();
@@ -32,19 +32,22 @@ void setup() {
   checkSetup();
   warm_up();
   firebase_setup();
-  Serial.println( "Setup done" );
+  Serial.println("Setup done");
   update_check_time();
   HomeScreen();
 }
-unsigned long previous_checktime =0;
+unsigned long previous_checktime = 0;
 
-void loop() {
+void loop()
+{
   PID_control();
   TouchScreen();
-  if(millis()-previous_checktime > 10000){
+  if (millis() - previous_checktime > 10000)
+  {
     check_sensor_life();
     previous_checktime = millis();
   }
+
   // if(isWifi == true){
   //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
   //     // Serial.print(millis());
@@ -57,4 +60,3 @@ void loop() {
   //   }
   // }
 }
-
