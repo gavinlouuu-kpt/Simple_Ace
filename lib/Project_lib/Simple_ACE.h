@@ -29,17 +29,6 @@
 #define BOOT                0
 #define sensor_h            25
 
-// //Wrover IB///////////////////////////////////////////////////
-// #define pumpPin             32  
-// #define solPin              33
-// #define buz                 13
-// #define colPin              27  
-// #define btn_rst             39
-// #define btn_1               36
-// #define NTCC                34
-// #define BOOT                0
-// #define Off_s               26
-// #define senH                25
 
 #define CO2_channel  		0 //raw adc
 #define EEP_add 			0
