@@ -44,7 +44,7 @@ void pinSetup(){
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
   ledcAttachPin(colPin, colChannel);
-  // ledcWrite(colChannel, dutyCycle_col);
+  ledcWrite(colChannel, dutyCycle_col);
   
   dacWrite(sensor_h, 240);
   delay(5000); // turn on sensor heater with DAC 220 is HS ~1.9V
@@ -59,20 +59,36 @@ void warm_up(){
   double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
   int boundary = 10;
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
-  tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
-  while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
+  tft.drawRoundRect(15,210,200,15,7,TFT_NEIGHBOUR_BEIGE);
+  tft.setTextDatum(4);
+  // while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
+  //   // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
+  //   // PID_control();
+  //   if(analogRead(NTCC) < (int)Setpoint){
+  //      tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
+  //   }else{
+  //     warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
+  //     tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
+  //   }
+  //   delay(10);
+  // }
+  while(analogRead(NTCC)> (int)Setpoint ){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
-    PID_control();
+    // PID_control();
     if(analogRead(NTCC) < (int)Setpoint){
        tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
     }else{
       warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
       tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
     }
+    tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+    tft.drawFloat(float(analogRead(NTCC)-(int)Setpoint),0,120,230,1);
     delay(10);
+    tft.fillRect(0,228,160,10,TFT_NEIGHBOUR_GREEN);
+    Serial.println(analogRead(NTCC));
   }
   // Serial.print("Analog read:");Serial.println(analogRead(NTCC));
-  tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
+  tft.fillRect(20,200,200,120,TFT_NEIGHBOUR_GREEN);   // cover graph 
 }
 
 void pump_control(bool control){
@@ -136,7 +152,7 @@ long previoustime = millis();
 short baselin_buffer = 0;
 void breath_check(){
   while (true) {
-    PID_control();
+    // PID_control();
     float arr[3];
     float humd;
     // double gradient;
@@ -195,7 +211,7 @@ int restore_baseline(){
     draw_loading(counter);counter ++;
   }
   while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
-    PID_control();
+    // PID_control();
     draw_loading(counter);counter ++;
   } 
 
@@ -207,7 +223,7 @@ int restore_baseline(){
     // if(millis()-previous_time > 20000){   //RESTORE TIMER 
     //   break;
     // }
-    PID_control();
+    // PID_control();
     draw_loading(counter);counter ++;
     temp = baselineRead(CO2_channel);
     Serial.print("Temp value:");Serial.println(temp);
@@ -296,19 +312,7 @@ void sample_collection(){
       q ++;
       previous_counter2 = millis();      
     }
-    PID_control();
-  
-    // if (isStore == false) {
-    //   fail_count += 1 ;
-    //   if (fail_count== 50){
-    //    break;
-    //   }
-    //   if (read_humidity() > 40) {
-    //     isStore = true;
-    //     fail_count= 0;
-    //     // Serial.println("Certain a breathe. Recording...");
-    //   }
-    // }
+    // PID_control();
   }
   if(fail_count==50){
     return;

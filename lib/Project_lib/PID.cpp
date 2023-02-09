@@ -13,7 +13,7 @@ double consKp=4, consKi=0.08, consKd=0.015;
 // double consKp=40, consKi=5, consKd=5;
 
 
-double Setpoint = 800;
+double Setpoint = 1000;
 double Input, Output;
 long map_Output;
 int pid_counter =0;

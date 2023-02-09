@@ -1214,7 +1214,7 @@ void TouchScreen()
         while (1)
         {
           // Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
-          PID_control();  
+          // PID_control();  
           float ADS0 = ads.readADC_SingleEnded(0);
           tft.drawString("ADS0:", 25, 220, 2);
           // tft.drawString("ADS1:", 110, 220, 2);

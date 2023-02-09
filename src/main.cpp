@@ -39,7 +39,7 @@ void setup() {
 unsigned long previous_checktime =0;
 
 void loop() {
-  PID_control();
+  // PID_control();
   TouchScreen();
   if(millis()-previous_checktime > 10000){
     check_sensor_life();
