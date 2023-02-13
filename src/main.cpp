@@ -30,7 +30,7 @@ void setup() {
   pinSetup();
   analogSetup();
   checkSetup();
-  warm_up();
+  // warm_up();
   firebase_setup();
   Serial.println( "Setup done" );
   update_check_time();

@@ -1215,7 +1215,7 @@ void TouchScreen()
         {
           // Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
           PID_control();  
-          float ADS0 = ads.readADC_SingleEnded(0);
+          float ADS0 = ads.readADC_SingleEnded(Sensor_channel);
           // float ADS1 = ads.readADC_SingleEnded(1);
           tft.drawString("ADS0:", 25, 220, 2);
           // tft.drawString("ADS1:", 110, 220, 2);
@@ -1228,7 +1228,7 @@ void TouchScreen()
           if (i < 201)
           {
 
-            H[i] = ads.readADC_SingleEnded(0);
+            H[i] = ads.readADC_SingleEnded(Sensor_channel);
 
             if (numMax < 0)
             { // relocate maximum point
@@ -1328,7 +1328,7 @@ void TouchScreen()
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
             
             extern double Output;
-            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
+            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(ads.readADC_SingleEnded(NTCC_channel)); 
           }
           if (tft.getTouch(&t_x, &t_y))
           {

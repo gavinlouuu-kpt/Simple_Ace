@@ -34,21 +34,34 @@ short Sensor_arr[store_size]={0};
 bool control = true;
 
 void pinSetup(){
-  pinMode(pumpPin, OUTPUT);
-  pinMode(colPin,OUTPUT);
-  pinMode(NTCC,INPUT);
+  // pinMode(pumpPin, OUTPUT);
+  // pinMode(colPin,OUTPUT);
+  // pinMode(NTCC,INPUT);
+  pinMode(pumpPin_1,OUTPUT);
+  pinMode(pumpPin_2,OUTPUT);
+  pinMode(colPin_1,OUTPUT);
+  pinMode(colPin_2,OUTPUT);
   pinMode(btn_rst, INPUT);
-  pinMode(sensor_h,OUTPUT);
+  // pinMode(sensor_h,OUTPUT);
 }
 
 void analogSetup(){
-  ledcSetup(colChannel, freq, resolution);
-  ledcAttachPin(colPin, colChannel);
+  ledcSetup(colChannel_1, 5000, 8);
+  ledcSetup(colChannel_2, 5000, 8);
+  ledcSetup(pumpChannel_1, freq, resolution);
+  ledcSetup(pumpChannel_2, freq, resolution);
+
+  ledcAttachPin(pumpPin_1,pumpChannel_1);
+  ledcAttachPin(pumpPin_2,pumpChannel_2);
+  ledcAttachPin(colPin_1,colChannel_1);
+  ledcAttachPin(colPin_2,colChannel_2);
+  // ledcSetup(colChannel, freq, resolution);
+  // ledcAttachPin(colPin, colChannel);
   // ledcWrite(colChannel, dutyCycle_col);
   
-  dacWrite(sensor_h, 240);
-  delay(5000); // turn on sensor heater with DAC 220 is HS ~1.9V
-  dacWrite(sensor_h, 220);
+  // dacWrite(sensor_h, 240);
+  // delay(5000); // turn on sensor heater with DAC 220 is HS ~1.9V
+  // dacWrite(sensor_h, 220);
   // dacWrite(senH,220);
 }
 
@@ -56,17 +69,17 @@ void warm_up(){
   extern double Setpoint;
   unsigned long counttime = 0;
   double warm_up_length = 0;
-  double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
+  double ntcc_bar_base  = (double)ads.readADC_SingleEnded(NTCC_channel) - Setpoint;
   int boundary = 10;
   tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
   tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
-  while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
+  while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)Setpoint) > boundary){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
-    if(analogRead(NTCC) < (int)Setpoint){
+    if(ads.readADC_SingleEnded(NTCC_channel) < (int)Setpoint){
        tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
     }else{
-      warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
+      warm_up_length = abs ((double)ads.readADC_SingleEnded(NTCC_channel)-Setpoint);
       tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
     }
     delay(10);
@@ -77,16 +90,16 @@ void warm_up(){
 
 void pump_control(bool control){
   if(control == true){
-  dacWrite(pumpPin, 225);
+  // dacWrite(pumpPin, 225);
+  // delay(200);
+  dacWrite(pumpChannel_1,150);
   delay(200);
-  dacWrite(pumpPin,150);
+  dacWrite(pumpChannel_1,100);
   delay(200);
-  dacWrite(pumpPin,100);
-  delay(200);
-  dacWrite(pumpPin, dutyCycle_pump);
+  ledcWrite(pumpChannel_1, dutyCycle_pump);
   }
   else{
-    dacWrite(pumpPin, 0);
+    ledcWrite(pumpChannel_1, 0);
     delay(100);
   }
 }
@@ -151,14 +164,14 @@ void breath_check(){
       //   buffer = ads.readADC_SingleEnded(0);
       //   Serial.print("update");Serial.println(buffer);
       // }
-      if(abs(ads.readADC_SingleEnded(0) - baselin_buffer) > 200){
+      if(abs(ads.readADC_SingleEnded(Sensor_channel) - baselin_buffer) > 200){
         Serial.println("Start recording");
         break;
       }
-      baselin_buffer = ads.readADC_SingleEnded(0);
+      baselin_buffer = ads.readADC_SingleEnded(Sensor_channel);
       previoustime =millis();
     }
-    draw_sensor(ads.readADC_SingleEnded(0));
+    draw_sensor(ads.readADC_SingleEnded(Sensor_channel));
     // if (gradient > 1) {
     //   printf("breath real...");
     //   break;
@@ -187,17 +200,19 @@ int restore_baseline(){
   Serial.print("Duty Cycle");Serial.println(dutyCycle_pump);
   pump_control(true);
   // dacWrite(pumpPin, dutyCycle_pump);
-  ledcWrite(colChannel, 255);
+  // ledcWrite(colChannel_1, 255);
   int counter=0 ;
   unsigned long cleaning_counter = millis();
   while(millis()-cleaning_counter <10000){
     // Serial.println("removing residues...");
-    draw_loading(counter);counter ++;
-  }
-  while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
     PID_control();
     draw_loading(counter);counter ++;
-  } 
+  }
+  // while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)Setpoint) > 10){
+  //   PID_control();
+  //   Serial.println(ads.readADC_SingleEnded(NTCC_channel));
+  //   draw_loading(counter);counter ++;
+  // } 
 
   unsigned long previous_time= millis();
   double slope =0 ;
@@ -209,10 +224,10 @@ int restore_baseline(){
     // }
     PID_control();
     draw_loading(counter);counter ++;
-    temp = baselineRead(CO2_channel);
+    temp = baselineRead(Sensor_channel);
     Serial.print("Temp value:");Serial.println(temp);
     delay(10);
-    ref = baselineRead(CO2_channel);
+    ref = baselineRead(Sensor_channel);
     Serial.print("Ref value:");Serial.println(ref);
     slope = (temp - ref)/0.5;
     Serial.print("Slope:");Serial.println(slope);
@@ -290,7 +305,7 @@ void sample_collection(){
 
     if (millis()-previous_counter2 >10){ 
       // Sensor_arr[q]= analogRead(NTCC);
-      Sensor_arr[q]= ads.readADC_SingleEnded(CO2_channel);
+      Sensor_arr[q]= ads.readADC_SingleEnded(Sensor_channel);
       // Serial.println(Sensor_arr[q]);
       draw_sensor(Sensor_arr[q]); 
       q ++;
@@ -431,8 +446,6 @@ void output_result(){
   // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   draw_result(conc_CO2,conc_Ace);
   cloud_upload();
-  // control=false;
-  // pump_control(control);
 }// not in percentage
 
 

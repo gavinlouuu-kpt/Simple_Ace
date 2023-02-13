@@ -165,47 +165,6 @@ void cloud_upload(){
           SPIFFS.remove(upload_file_dir.c_str());//deleted Spiffs file
           delay(1000); 
         }
-
-        // if(Firebase.ready() && SPIFFS.exists("/Dataset_1")){
-        //   File file = SPIFFS.open("/Dataset_1");
-        //   String data = "0";
-        //   unixtime= getTime();       
-        //   printf("%d\n",unixtime);
-        //     for (int j = 0; j < 8; j++){
-        //       for (int i = 0; i <256; i++){ 
-        //         if(file.read() != 0){
-        //           data = file.readStringUntil(',');
-        //           array.add(data);
-        //         }
-        //       }        
-        //       storedata(name,unixtime,j);
-        //       delay(10);
-        //     }
-        //   Serial.println("Stored from previous /Dataset_1");
-        //   file.close();
-        //   SPIFFS.remove("/Dataset_1");//deleted Spiffs file
-        //   delay(1000); 
-        // }
-        // // Check Second file
-        // if (Firebase.ready() && SPIFFS.exists("/Dataset_2")){
-        //   File file = SPIFFS.open("/Dataset_2");
-        //   String data = "0";
-        //   unixtime= getTime(); 
-        //   for (int j = 0; j < 8; j++){
-        //     for (int i = 0; i <256; i++){ 
-        //       if(file.read() != 0){
-        //         data = file.readStringUntil(',');
-        //         array.add(data);
-        //       }
-        //     }
-        //     storedata(name,unixtime,j);
-        //     delay(10);
-        //   }
-        //   Serial.println("Stored from previous /Dataset_2");
-        //   file.close();
-        //   SPIFFS.remove("/Dataset_2"); //deleted Spiffs file
-        //   delay(1000);
-        // }
       }
       //Sample realtime
       if(Firebase.ready()){

@@ -1,10 +1,11 @@
 #include "PID.h"
 #include "Simple_ACE.h"
+#include <Adafruit_ADS1X15.h>
 #include <PID_v1.h>
 #include <SimpleKalmanFilter.h>
 
 SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
-
+extern Adafruit_ADS1115 ads;
 //Define the aggressive and conservative Tuning Parameters
 // double aggKp=4, aggKi=0.2, aggKd=1;
 // double consKp=6, consKi=0.125, consKd=0.25;
@@ -13,7 +14,7 @@ double consKp=4, consKi=0.08, consKd=0.015;
 // double consKp=40, consKi=5, consKd=5;
 
 
-double Setpoint = 800;
+double Setpoint = 5500;
 double Input, Output;
 long map_Output;
 int pid_counter =0;
@@ -38,7 +39,7 @@ void PID_control(){
     //     Serial.println(buffer_input);
     // }
     // Input = (double)buffer_input;
-    Input = analogRead(NTCC);
+    Input = (double)ads.readADC_SingleEnded(NTCC_channel);
     //   double gap = abs(Setpoint-Input); //distance away from setpoint
 //   if (gap < 100)
 //   {  //we're close to setpoint, use conservative tuning parameters
@@ -53,7 +54,7 @@ void PID_control(){
     myPID.Compute();
     // map_Output = (long)Output;
     // map_Output = map(map_Output,0,255,0,1024);
-    ledcWrite(colChannel,Output); //220
+    ledcWrite(colChannel_1,Output); //220
     
     // Serial.print(map_Output);Serial.print(",");Serial.println(analogRead(NTCC));
     // buffer_input = 0; // Serial.print("Column temp:"); 
