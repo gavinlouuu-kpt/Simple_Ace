@@ -690,7 +690,7 @@ void select_PID_setpoint()
 {
   if (t_x > 110 && t_x <190 && t_y > 0 && t_y <145)
   {
-    if (Setpoint <1300)
+    if (Setpoint <10000)
     {
       Setpoint = Setpoint + 50;
       ResetXY();
