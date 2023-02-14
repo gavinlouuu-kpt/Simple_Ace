@@ -26,6 +26,7 @@ FirebaseAuth auth;
 FirebaseConfig config;
 FirebaseJsonArray array;
 FirebaseJson jj;
+FirebaseJson default_array;
 
 unsigned long sendDataPrevMillis = 0;
 unsigned long count = 0;
@@ -129,6 +130,27 @@ void storedata(String namee,unsigned long tim ,int number){
   delay(10);
 }
 
+void store_default(unsigned long tim){
+  extern int dutyCycle_pump;
+  extern int sampletime;
+  extern double Setpoint;
+  default_array.set("/Pump power", dutyCycle_pump);
+  default_array.set("/Column setpoint", Setpoint);
+  default_array.set("/Sample Time", sampletime);
+  // default_array.set("/Sensor life", );
+
+  String default_dir = "/Simple_Ace/";
+  default_dir.concat(macadddress);
+  default_dir.concat("/");
+  default_dir.concat(profileNumber);
+  default_dir.concat("/");
+  default_dir.concat((String)tim);
+  default_dir.concat("/Default");
+
+  const char *setting = default_dir.c_str();
+  Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
+}
+
 
 unsigned long unixtime =0;
 void cloud_upload(){
@@ -170,6 +192,7 @@ void cloud_upload(){
       if(Firebase.ready()){
         unixtime= getTime(); 
         printf("%d\n",unixtime);
+        store_default(unixtime);
         int value = 0.00;
         for (int j = 0; j < 8; j++){
           for (int i = 0; i < 256; i++){ 
