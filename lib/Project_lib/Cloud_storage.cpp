@@ -132,7 +132,7 @@ void storedata(String namee,unsigned long tim ,int number){
 
 void store_default(unsigned long tim){
   extern int dutyCycle_pump;
-  extern int sampletime;
+  extern const int sampletime;
   extern double Setpoint;
   default_array.set("/Pump power", dutyCycle_pump);
   default_array.set("/Column setpoint", Setpoint);
