@@ -12,7 +12,7 @@
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
 #include "History_Data.h"
-#include "Image_assets/Beagle.h"
+
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -58,7 +58,7 @@ void warm_up(){
   double warm_up_length = 0;
   double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
   int boundary = 10;
-  tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
+  
   tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
   while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
