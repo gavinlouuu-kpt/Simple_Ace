@@ -285,8 +285,6 @@ void sample_collection(){
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
   tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
   tft.drawString("HUFF now", 120, 245, 4);
-  // set_range(baseline);
-  // delay(1);
   breath_check();
   isStore = true;
   previous = millis();
