@@ -1216,10 +1216,9 @@ void TouchScreen()
           // Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
           PID_control();  
           float ADS0 = ads.readADC_SingleEnded(Sensor_channel);
-          // float ADS1 = ads.readADC_SingleEnded(1);
           tft.drawString("ADS0:", 25, 220, 2);
           // tft.drawString("ADS1:", 110, 220, 2);
-          tft.drawString("H:", 200, 220, 2);
+          // tft.drawString("H:", 200, 220, 2);
           // tft.drawFloat(float(ADS1), 0, 150, 220, 2);
           // tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
 
@@ -1328,7 +1327,8 @@ void TouchScreen()
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
             
             extern double Output;
-            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(ads.readADC_SingleEnded(NTCC_channel)); 
+            // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
+            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");Serial.println(ads.readADC_SingleEnded(NTCC_channel)); 
           }
           if (tft.getTouch(&t_x, &t_y))
           {

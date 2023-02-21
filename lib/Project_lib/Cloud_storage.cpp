@@ -6,7 +6,7 @@
 #include <addons/TokenHelper.h>
 #include <addons/RTDBHelper.h>
 #include <Simple_ACE.h>
-
+#include <TimeLib.h>
 
 #if defined(ESP32)
 #elif defined(ESP8266)
@@ -96,6 +96,37 @@ void firebase_setup(){
   config.timeout.wifiReconnect = 10 * 1000;
 }
 
+String UnixConvert(unsigned long t)
+{
+  // time_t t = 1675827391; //unix timestamp
+  setTime(t);
+  String sampletime = "";
+  sampletime.concat(day());
+  sampletime.concat("-");
+  sampletime.concat(month());
+  sampletime.concat("-");
+  sampletime.concat(year());
+  sampletime.concat(" ");
+  sampletime.concat(hour());
+  sampletime.concat(":");
+  sampletime.concat(minute());
+  sampletime.concat(":");
+  sampletime.concat(second());
+  Serial.print("Date: ");
+  Serial.print(day());
+  Serial.print("/");
+  Serial.print(month());
+  Serial.print("/");
+  Serial.print(year());
+  Serial.print(" ");
+  Serial.print(hour());
+  Serial.print(":");
+  Serial.print(minute());
+  Serial.print(":");
+  Serial.println(second());
+  return sampletime;
+}
+
 void storeinfo(String namee, String sx, int height, int weight){
   jj.set("/Name", namee);
   jj.set("/Sex", sx);
@@ -119,7 +150,7 @@ void storedata(String namee,unsigned long tim ,int number){
   data_dir.concat("/");
   data_dir.concat(profileNumber);
   data_dir.concat("/");
-  data_dir.concat((String)tim);
+  data_dir.concat((String)UnixConvert(tim));
   data_dir.concat("/File");
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
@@ -144,13 +175,12 @@ void store_default(unsigned long tim){
   default_dir.concat("/");
   default_dir.concat(profileNumber);
   default_dir.concat("/");
-  default_dir.concat((String)tim);
+  default_dir.concat((String)UnixConvert(tim));
   default_dir.concat("/Default");
 
   const char *setting = default_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
 }
-
 
 unsigned long unixtime =0;
 void cloud_upload(){
