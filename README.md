@@ -1,5 +1,5 @@
 # Beagle -- miniature gas sensor validation device
-## About Beagle
+## About 
 Beagle is
 ## Function
 Beagle specifies in minture gas chromatography.
