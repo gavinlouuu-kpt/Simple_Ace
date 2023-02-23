@@ -28,10 +28,10 @@ void setup() {
   Serial.begin(115200);
   tft_setup();
   pinSetup();
-  analogSetup();
   checkSetup();
-  // warm_up();
+
   firebase_setup();
+  Warmup_Screen();
   Serial.println( "Setup done" );
   update_check_time();
   HomeScreen();
@@ -40,21 +40,10 @@ unsigned long previous_checktime =0;
 
 void loop() {
   PID_control();
-  TouchScreen();
+  Navigation();
   if(millis()-previous_checktime > 10000){
     check_sensor_life();
     previous_checktime = millis();
   }
-  // if(isWifi == true){
-  //   if ((WiFi.status() != WL_CONNECTED) && (millis() - previousMillis >2000)) {
-  //     // Serial.print(millis());
-  //     Serial.println("Reconnecting to WiFi...");
-  //     WiFi.disconnect();
-  //     delay(2000);
-  //     WiFi.reconnect();
-  //     delay(2000);
-  //     previousMillis = millis();
-  //   }
-  // }
 }
 
