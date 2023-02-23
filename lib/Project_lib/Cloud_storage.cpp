@@ -14,7 +14,9 @@
 #endif
 
 #define API_KEY "AIzaSyAqzqWNYLsZlMh-qk5VhkAoi87Q13r1oHY"
+/* 3. Define the RTDB URL */
 #define DATABASE_URL "https://beagle-66fe3-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+/* 4. Define the user Email and password that alreadey registerd or added in your project */
 #define USER_EMAIL "chichungchan91@gmail.com"
 #define USER_PASSWORD "121688"
 #define filenumber 8
@@ -241,8 +243,8 @@ void Firebase_upload(){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
       }
     }
-    Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
-    Serial.print("File size: ");Serial.println(file.size());
+    // Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
+    // Serial.print("File size: ");Serial.println(file.size());
     file.close();
 
     // Read
