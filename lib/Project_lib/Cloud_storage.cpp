@@ -147,9 +147,9 @@ void upload_data(String namee,unsigned long tim ,int number){
 void store_default(unsigned long tim){
   extern int dutyCycle_pump;
   extern const int sampletime;
-  extern double Setpoint;
+  extern double PID_Setpoint;
   default_array.set("/Pump power", dutyCycle_pump);
-  default_array.set("/Column setpoint", Setpoint);
+  default_array.set("/Column setpoint", PID_Setpoint);
   default_array.set("/Sample Time", sampletime);
   // default_array.set("/Sensor life", );
 
@@ -166,7 +166,7 @@ void store_default(unsigned long tim){
 }
 
 unsigned long millisUnixTime =0;
-void Firebase_upload(){
+void store_data(){
   if(isWifi == true){
     checkstatus();
   }
