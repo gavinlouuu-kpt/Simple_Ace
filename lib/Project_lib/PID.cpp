@@ -11,9 +11,9 @@ extern Adafruit_ADS1115 ads;
 // double consKp=4, consKi=0.3, consKd=0.6;
 double consKp=4, consKi=0.08, consKd=0.015;
 
-double Setpoint = 6000;
+double PID_Setpoint = 6000;
 double Input, Output;
-PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
+PID myPID(&Input, &Output, &PID_Setpoint, consKp, consKi, consKd, REVERSE);
 
 void PID_setup(){
     myPID.SetMode(AUTOMATIC);

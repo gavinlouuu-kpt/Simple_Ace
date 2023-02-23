@@ -169,7 +169,7 @@ int restore_baseline(){
   unsigned long millisCleanStart = millis();
   while(millis()-millisCleanStart < 10000){
     PID_control();
-    draw_loading(loading_index);loading_index ++;
+    display_loading(loading_index);loading_index ++;
   }
   // while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)PID_Setpoint) > 10){
   //   PID_control();
@@ -182,7 +182,7 @@ int restore_baseline(){
   int flat_count = 0;
   while (1) {
     PID_control();
-    draw_loading(loading_index);loading_index ++;
+    display_loading(loading_index);loading_index ++;
     temporal_read = baselineRead(Sensor_channel);
     Serial.print("Temp value:");Serial.println(temporal_read);delay(10);
     reference_read = baselineRead(Sensor_channel);
@@ -239,13 +239,13 @@ void sample_collection(){
   breath_check();
   isStore = true;
   int previousDrawLoad = 0;
-  draw_analyzing();
+  write_analyzing();
   long millisStartSample = millis();
   while (millis() - millisStartSample <= sampletime + 1) {
     int time =0 ;
     bar_time = millis() - (float)millisStartSample;
     bar_percentage = (bar_time/45000)*100;
-    draw_progress(bar_time,bar_percentage);
+    draw_sample_progress(bar_time,bar_percentage);
 
     if (millis()-previousDrawLoad >10){ 
       Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
