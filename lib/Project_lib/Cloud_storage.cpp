@@ -14,44 +14,36 @@
 #endif
 
 #define API_KEY "AIzaSyAqzqWNYLsZlMh-qk5VhkAoi87Q13r1oHY"
-/* 3. Define the RTDB URL */
 #define DATABASE_URL "https://beagle-66fe3-default-rtdb.firebaseio.com/" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
-/* 4. Define the user Email and password that alreadey registerd or added in your project */
 #define USER_EMAIL "chichungchan91@gmail.com"
 #define USER_PASSWORD "121688"
 #define filenumber 8
 #define filesize  256
+
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
-FirebaseJsonArray array;
-FirebaseJson jj;
+FirebaseJsonArray data_array;
+FirebaseJson personal_information;
 FirebaseJson default_array;
 
-unsigned long sendDataPrevMillis = 0;
-unsigned long count = 0;
-unsigned long sensor_life = 605000;
+extern bool isConnect;
+extern bool isWifi;
+extern String profileNumber;
+
+unsigned long millisPreviousTime = 0;
+unsigned long millisSensorLife = 605000;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
-// NTP server to request epoch time
 const char* ntpServer = "pool.ntp.org";
-// Variable to save current epoch time
-unsigned long epochTime; 
 
-extern bool isConnect;
-int counter = 0;
-extern bool isWifi;
-
-// int filenumber = 8;
-// int filesize =store_size/filenumber;
-
+int file_index = 0;
+int h =178;
+int w = 75;
 String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
-extern String profileNumber;
-
-int h =178;
-int w = 75;
+String sensor_dir = "/Sensor_update";
 
 unsigned long getTime() {
   time_t now;
@@ -112,26 +104,15 @@ String UnixConvert(unsigned long t)
   sampletime.concat(minute());
   sampletime.concat(":");
   sampletime.concat(second());
-  Serial.print("Date: ");
-  Serial.print(day());
-  Serial.print("/");
-  Serial.print(month());
-  Serial.print("/");
-  Serial.print(year());
-  Serial.print(" ");
-  Serial.print(hour());
-  Serial.print(":");
-  Serial.print(minute());
-  Serial.print(":");
-  Serial.println(second());
+  Serial.print("Date: ");Serial.print(day());Serial.print("/");Serial.print(month());Serial.print("/");Serial.print(year());Serial.print(" ");Serial.print(hour());Serial.print(":");Serial.print(minute());Serial.print(":");Serial.println(second());
   return sampletime;
 }
 
 void storeinfo(String namee, String sx, int height, int weight){
-  jj.set("/Name", namee);
-  jj.set("/Sex", sx);
-  jj.set("/Height", String(height));
-  jj.set("/Weight", String(weight));
+  personal_information.set("/Name", namee);
+  personal_information.set("/Sex", sx);
+  personal_information.set("/Height", String(height));
+  personal_information.set("/Weight", String(weight));
   String info_dir = "/Simple_Ace/";
   info_dir.concat(macadddress);
   info_dir.concat("/");
@@ -139,12 +120,12 @@ void storeinfo(String namee, String sx, int height, int weight){
   info_dir.concat("/info");
   Serial.print("Directory:");Serial.println(info_dir);
   const char *filename = info_dir.c_str();
-  Firebase.RTDB.setJSON(&fbdo, F((filename)), &jj);
+  Firebase.RTDB.setJSON(&fbdo, F((filename)), &personal_information);
   // delay(1000);
 }
 
 
-void storedata(String namee,unsigned long tim ,int number){
+void upload_data(String namee,unsigned long tim ,int number){
   String data_dir = "/Simple_Ace/";
   data_dir.concat(macadddress);
   data_dir.concat("/");
@@ -155,9 +136,9 @@ void storedata(String namee,unsigned long tim ,int number){
   data_dir.concat((String)number);
   Serial.print("Directory:");Serial.println(data_dir);
   const char *filename = data_dir.c_str();
-  Firebase.RTDB.setArray(&fbdo, F((filename)), &array);delay(800);
-  // array.toString(Serial, true);
-  array.clear();
+  Firebase.RTDB.setArray(&fbdo, F((filename)), &data_array);delay(800);
+  // data_array.toString(Serial, true);
+  data_array.clear();
   delay(10);
 }
 
@@ -182,17 +163,17 @@ void store_default(unsigned long tim){
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
 }
 
-unsigned long unixtime =0;
-void cloud_upload(){
+unsigned long millisUnixTime =0;
+void Firebase_upload(){
   if(isWifi == true){
     checkstatus();
   }
 
   extern short Sensor_arr[store_size];
   if(isConnect){
-    if((millis() - sendDataPrevMillis) > 100 || sendDataPrevMillis == 0){
+    if((millis() - millisPreviousTime) > 100 || millisPreviousTime == 0){
       storeinfo(name,sex,h,w);        
-      sendDataPrevMillis = millis();
+      millisPreviousTime = millis();
       //Check first file
       for(int i = 0; i <20 ;i++){
         String upload_file_dir = "/Dataset_";
@@ -200,16 +181,16 @@ void cloud_upload(){
          if(Firebase.ready() && SPIFFS.exists(upload_file_dir.c_str())){
           File file = SPIFFS.open(upload_file_dir.c_str());
           String data = "0";
-          unixtime= getTime();       
-          printf("%d\n",unixtime);
+          millisUnixTime= getTime();       
+          printf("%d\n",millisUnixTime);
             for (int j = 0; j < 8; j++){
               for (int i = 0; i <256; i++){ 
                 if(file.read() != 0){
                   data = file.readStringUntil(',');
-                  array.add(data);
+                  data_array.add(data);
                 }
               }        
-              storedata(name,unixtime,j);
+              upload_data(name,millisUnixTime,j);
               delay(10);
             }
           Serial.print("Stored from previous ");Serial.println(upload_file_dir.c_str());
@@ -220,33 +201,33 @@ void cloud_upload(){
       }
       //Sample realtime
       if(Firebase.ready()){
-        unixtime= getTime(); 
-        printf("%d\n",unixtime);
-        store_default(unixtime);
+        millisUnixTime= getTime(); 
+        printf("%d\n",millisUnixTime);
+        store_default(millisUnixTime);
         int value = 0.00;
         for (int j = 0; j < 8; j++){
           for (int i = 0; i < 256; i++){ 
             if(Sensor_arr[j*256+i] != 0){
               value = Sensor_arr[j*256+i];
-              array.add(value);
+              data_array.add(value);
             } 
           }
-          storedata(name,unixtime,j);
+          upload_data(name,millisUnixTime,j);
           delay(10);
         }
         Serial.println("Storing Directly");
       }
     }
     else{
-      Serial.println("get array failed");
+      Serial.println("get data_array failed");
       Serial.println(fbdo.errorReason());
     }
   }
   else{
     // Wifi_disable();
     String file_dir = "/Dataset_";
-    file_dir.concat((String)(counter%20 + 1));
-    counter ++;
+    file_dir.concat((String)(file_index%20 + 1));
+    file_index ++;
     if(SPIFFS.exists(file_dir.c_str())){
       SPIFFS.remove(file_dir.c_str());
       printf("removed file: %s\n",file_dir.c_str());
@@ -274,36 +255,35 @@ void cloud_upload(){
   WiFi.disconnect();
 }
 
-String sensor_dir = "/Sensor_update";
 void update_sensor(){
   Wifi_able();
   configTime(0, 0, ntpServer);
-  unsigned long update_time = getTime();
-  Serial.println(update_time);
+  unsigned long millisUpdateSensorTime = getTime();
+  Serial.println(millisUpdateSensorTime);
   File file = SPIFFS.open(sensor_dir.c_str(),FILE_WRITE);
-  file.print(update_time);file.write('\n'); 
+  file.print(millisUpdateSensorTime);file.write('\n'); 
   file.close();
   delay(500);
   WiFi.disconnect();
 }
-unsigned long previous_sensor_time = 0;
+unsigned long millisPreviousUpdate = 0;
 
 void update_check_time(){
   File file = SPIFFS.open(sensor_dir,FILE_READ);
-  previous_sensor_time = strtoul(file.readStringUntil('\n').c_str(),NULL,10);
+  millisPreviousUpdate = strtoul(file.readStringUntil('\n').c_str(),NULL,10);
   file.close();
-  Serial.print("Updated previous time:");Serial.println(previous_sensor_time);
+  Serial.print("Updated previous time:");Serial.println(millisPreviousUpdate);
 }
 
 void check_sensor_life(){
-  Serial.print("Previous time:"); Serial.println(previous_sensor_time);
-  if(isConnect == true && previous_sensor_time !=0){
+  Serial.print("Previous time:"); Serial.println(millisPreviousUpdate);
+  if(isConnect == true && millisPreviousUpdate !=0){
     // Wifi_able();
     // configTime(0, 0, ntpServer);
     Serial.println();
     Serial.println("Checking sensor life...");
     Serial.println(getTime());
-    if(getTime() - previous_sensor_time > sensor_life){ // sensor
+    if(getTime() - millisPreviousUpdate > millisSensorLife){ // sensor
       Serial.println("Change sensor!");
       extern bool isSensor;
       isSensor = false;
