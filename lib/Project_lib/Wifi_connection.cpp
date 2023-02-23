@@ -5,6 +5,7 @@
 
 bool isWifi=false;
 bool isConnect =false; 
+unsigned long previousMillis =0;
 
 void checkstatus(){
   Wifi_reconnect();
@@ -23,9 +24,9 @@ void Wifi_able(){
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
   Serial.print("ESP Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
-  unsigned long countdown= millis();
+  unsigned long millisCountdown= millis();
   isConnect =false; 
-  while(millis()-countdown < 5000){
+  while(millis()-millisCountdown < 5000){
     if (WiFi.status() != WL_CONNECTED){
       Serial.print(".");
       delay(300);
@@ -50,13 +51,12 @@ void Wifi_disable(){
   Serial.print("Wifi status:");Serial.println(WiFi.status());
 }
 
-unsigned long previousMillis =0;
 void Wifi_reconnect(){
   if(isWifi == true){
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  
-    unsigned long countdown= millis();
+    unsigned long millisCountdown= millis();
     isConnect =false; 
-    while(millis()-countdown < 5000){
+    while(millis()-millisCountdown < 5000){
       if (WiFi.status() != WL_CONNECTED){
         Serial.print(".");
         delay(300);
