@@ -1,8 +1,11 @@
 #include "History_Data.h"
 #include "SPIFFS.h"
 extern String profileNumber;
-double previous_data[10] = {0};
+double recorded_gas_sample[10] = {0};
 String file_dir = "0";
+
+void retrieve_record();                                     //  retreieve data array 
+void store_result(float ratio_co2,float ratio_acetone);     //  store maximum 10 gas sample results
 
 void store_result(float ratio_co2,float ratio_acetone){
     if(profileNumber == NULL){
@@ -12,7 +15,6 @@ void store_result(float ratio_co2,float ratio_acetone){
         file_dir.concat(profileNumber);
         File file = SPIFFS.open(file_dir,FILE_APPEND);
         Serial.print("Saved directory");Serial.println(file_dir);
-        // file_print(ratio_co2);file.print(",");  //store CO2
         file.print(ratio_acetone);file.write('\n');
         file.close();   
 
@@ -24,16 +26,16 @@ void store_result(float ratio_co2,float ratio_acetone){
     }
 }
 
-void retrieve_result(){
+void retrieve_record(){
     file_dir = "/History_data_";
     file_dir.concat(profileNumber);
     Serial.print("Retrieved directory");Serial.println(file_dir);
     File file = SPIFFS.open(file_dir,FILE_READ);
-    String buffer;
+    String buffer_ratio;
     for(int i = 0; i<10;i++){
-        buffer = file.readStringUntil('\n');
-        previous_data[i] = buffer.toDouble();
-        Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(previous_data[i]);
+        buffer_ratio = file.readStringUntil('\n');
+        recorded_gas_sample[i] = buffer_ratio.toDouble();
+        Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(recorded_gas_sample[i]);
     }
     return; //the array
 }

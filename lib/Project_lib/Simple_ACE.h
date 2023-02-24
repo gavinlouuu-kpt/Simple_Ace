@@ -1,10 +1,6 @@
 #ifndef Simple_ACE_h 
 #define Simple_ACE_h
 
-#define BLACK				0x0000
-#define baseline_window  50
-
-
 //Wrover 2.8" display///////////////////////////////////////////////      
 #define colPin_1            26
 #define colPin_2            13
@@ -29,38 +25,34 @@
 // #define Off_s               26
 // #define senH                25
 
-#define Heater_channel  		2 //raw adc
-#define Sensor_channel  		1 //raw adc
-#define Offset_channel  		0 //raw adc
-#define NTCC_channel  		    3 //raw adc
-#define EEP_add 			0
-#define EEP_add_1           1
-
-#define store_size 			2048 //Number of data collect within sample time //
+#define baseline_window     50
+#define Offset_channel  	0 //raw adc
+#define Sensor_channel  	1 //raw adc
+#define Heater_channel  	2 //raw adc
+#define NTCC_channel        3 //raw adc
 
 #define pumpChannel_1 		0
 #define pumpChannel_2 		1
 #define colChannel_1 		2
 #define colChannel_2 		3
 
+#define EEP_add 			0
+#define EEP_add_1           1
+#define store_size 			2048 //Number of data collect within sample time //
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 20000;
 const int resolution = 8;
 const double LSB = 0.125 / 1000;
-// const int temperate = 55; 
 const int sampletime = 45000;       //60000
 
+double baselineRead(int channel);
+int restore_baseline();
 void checkSetup(void);
-void pinSetup(void);
 void output_result();
+void pinSetup(void);
 void pump_control(bool control);
 void sample_collection();
 void storing_data();
 // void power_saving(unsigned long last_time);
-
-double baselineRead(int channel);
-int restore_baseline();
-// double ads_convert(int value, bool resist);
-
 #endif 

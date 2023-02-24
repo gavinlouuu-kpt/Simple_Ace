@@ -11,14 +11,14 @@
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
 extern short Sensor_arr[store_size];
-
 int peak_position[10] = {0};
 int ref_position[2];
 
-void find_peak();
-void store_calibiration_data();
-void update_parameters(int unit);
-void calibration();
+void calibration();                     //  record calibrating gas sample
+void EEPROM_setup();                    //  initialize EEPROM
+void find_peak();                       //  locate the local maxima of the gas data
+void store_calibiration_data();         //  store calibration gas sample into SPIFFS
+void update_parameters(int unit);       //  store gas maxima positions into EEPROM
 
 void EEPROM_setup(){
   if(!EEPROM.begin(20)){

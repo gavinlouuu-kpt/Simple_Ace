@@ -22,6 +22,17 @@
 #define filenumber 8
 #define filesize  256
 
+unsigned long getTime();                      //get unix time on wifi
+String UnixConvert(unsigned long t);          //convert unix time into readable time
+void check_sensor_life();                     // check if current time exceed sensor life
+void firebase_setup();                        //initialize firebase 
+void store_personalinfo(String namee, String sx, int height, int weight);     //store profile information
+void store_default(unsigned long tim);        //store device default setting
+void store_data();                            //store gas data, either SPIFFS or Cloud
+void upload_data(String namee,unsigned long tim ,int number);                 // upload array data to firebase
+void update_sensor();                         //restart sensor life count
+void update_check_time();                     //print unix time of sensor change
+
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
@@ -46,6 +57,7 @@ String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
 String sensor_dir = "/Sensor_update";
+unsigned long millisPreviousUpdate = 0;
 
 unsigned long getTime() {
   time_t now;
@@ -90,8 +102,7 @@ void firebase_setup(){
   config.timeout.wifiReconnect = 10 * 1000;
 }
 
-String UnixConvert(unsigned long t)
-{
+String UnixConvert(unsigned long t){
   // time_t t = 1675827391; //unix timestamp
   setTime(t);
   String sampletime = "";
@@ -110,7 +121,7 @@ String UnixConvert(unsigned long t)
   return sampletime;
 }
 
-void storeinfo(String namee, String sx, int height, int weight){
+void store_personalinfo(String namee, String sx, int height, int weight){
   personal_information.set("/Name", namee);
   personal_information.set("/Sex", sx);
   personal_information.set("/Height", String(height));
@@ -125,7 +136,6 @@ void storeinfo(String namee, String sx, int height, int weight){
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &personal_information);
   // delay(1000);
 }
-
 
 void upload_data(String namee,unsigned long tim ,int number){
   String data_dir = "/Simple_Ace/";
@@ -165,16 +175,16 @@ void store_default(unsigned long tim){
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
 }
 
-unsigned long millisUnixTime =0;
 void store_data(){
+  unsigned long millisUnixTime =0;  
+  extern short Sensor_arr[store_size];
   if(isWifi == true){
-    checkstatus();
+    checkWifiStatus();
   }
 
-  extern short Sensor_arr[store_size];
   if(isConnect){
     if((millis() - millisPreviousTime) > 100 || millisPreviousTime == 0){
-      storeinfo(name,sex,h,w);        
+      store_personalinfo(name,sex,h,w);        
       millisPreviousTime = millis();
       //Check first file
       for(int i = 0; i <20 ;i++){
@@ -268,7 +278,6 @@ void update_sensor(){
   delay(500);
   WiFi.disconnect();
 }
-unsigned long millisPreviousUpdate = 0;
 
 void update_check_time(){
   File file = SPIFFS.open(sensor_dir,FILE_READ);

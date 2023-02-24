@@ -31,31 +31,6 @@
 #define setting_x 180
 #define setting_y 260
 
-TFT_eSPI tft = TFT_eSPI();
-TFT_eSprite graph1 = TFT_eSprite(&tft);
-extern Adafruit_ADS1115 ads;
-extern uFire_SHT20 sht20;
-extern float ref_position[2];
-extern double previous_data[10];
-String profileNumber = "1";
-
-extern const char* ntpServer;
-
-int stage = 0;
-// uint16_t beige = tft.color565(239, 227, 214);
-uint16_t touch_x = 0, touch_y = 0;
-
-extern int dutyCycle_pump;
-extern double PID_Setpoint;
-extern bool isWifi;
-extern bool isConnect;
-
-bool isSensor =true;
-bool isPlotrangeChange = false;
-// const int offset = 10;
-
-int SetupNumber = 1;
-
 // stages reference:
 // stage 0:   HomeScreen
 // stage 1:   Menu
@@ -73,6 +48,58 @@ int SetupNumber = 1;
 // stage 16:  PID setting
 // stage 17:  print Gas sample
 // stage 99:  chagne sensor
+
+void tft_setup();                         //initialize TFT screen
+void draw_result(double co2, double ace);
+void draw_result_bar(double bar_1, double bar_2);
+void draw_sample_progress(float bar_length, float bar_percentage);
+void draw_sensor(double sensor_value)
+void display_assets();
+void display_bluetooth();
+void display_control_wifi();
+void display_calibration();
+void display_developer_menu();
+void display_device_setting();
+void display_enable_sampling();
+void display_live_plot();
+void display_load_SPIFFS();
+void display_load_data();
+void display_loading(int count);
+void display_menu();
+void display_OTA_control();
+void display_PID_selectSetpoint(); 
+void display_profile_filenumber();
+void display_pump_selectDutycycle();
+void display_start_button();
+void display_setup_profile_select();
+void display_setup_pump();
+void display_setup_PID();
+void display_Wifi();
+void HomeScreen();                        // display brand, assets and setting figure
+void Navigation();                        // touch screen navigation logic
+void Reset_coordinate();
+void Warmup_Screen();
+void write_analyzing(void);
+
+extern Adafruit_ADS1115 ads;
+extern uFire_SHT20 sht20;
+extern float ref_position[2];
+extern double recorded_gas_sample[10];
+extern int dutyCycle_pump;
+extern double PID_Setpoint;
+extern bool isWifi;
+extern bool isConnect;
+extern const char* ntpServer;
+
+TFT_eSPI tft = TFT_eSPI();
+TFT_eSprite graph1 = TFT_eSprite(&tft);
+
+bool isSensor =true;
+bool isPlotrangeChange = false;
+int stage = 0;
+int SetupNumber = 1;
+String profileNumber = "1";
+uint16_t touch_x = 0, touch_y = 0;
 
 void tft_setup(){
   tft.init();
@@ -114,7 +141,7 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   tft.fillRoundRect(15, 210, 200 * (bar_length / 45000), 5,2,TFT_NEIGHBOUR_BEIGE); // bar
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
-    tft.fillRect(75, 230, 60, 25, TFT_NEIGHBOUR_GREEN); // cover previous_data number
+    tft.fillRect(75, 230, 60, 25, TFT_NEIGHBOUR_GREEN); // cover recorded_gas_sample number
     tft.drawFloat(bar_percentage, 0, 120, 230, 4);
   }
   tft.drawString("%", 155, 230, 4);
@@ -129,6 +156,7 @@ void write_analyzing(void){
   tft.fillRect(0, 200, 240, 33, TFT_NEIGHBOUR_GREEN); // cover bubbles
 }
 
+bool isbufferfull = false;
 float temporal_maximum;
 float temporal_minimum;
 float Plot_buffer[210];
@@ -136,7 +164,6 @@ float plot_lower_bound;
 float plot_upper_bound;
 int array_index = 0;
 int as_counter = 0;
-bool isbufferfull = false;
 int position_temp_max = -1;
 int position_temp_min = -1;
 
@@ -291,7 +318,6 @@ void draw_result(double co2, double ace){
     tft.drawString("Deep Ketosis",120,40,4);
   } 
 }
-// extern unsigned long millisPreviousUpdate;
 
 void Warmup_Screen(){
   extern double PID_Setpoint;
@@ -887,23 +913,23 @@ void Navigation()
         Reset_coordinate();
         tft.drawFastVLine(20, 60, 120, TFT_NEIGHBOUR_BEIGE);
         tft.drawFastHLine(20, 180, 200, TFT_NEIGHBOUR_BEIGE);
-        retrieve_result();
+        retrieve_record();
         for (int i = 0; i < 10; i++)
         {
-          if (previous_data[i] > 0.5) // what is 0.5
+          if (recorded_gas_sample[i] > 0.5) // what is 0.5
           {
-            Serial.print("plotting: "); Serial.println(previous_data[i]);
-            tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_YELLOW);
+            Serial.print("plotting: "); Serial.println(recorded_gas_sample[i]);
+            tft.fillCircle((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, 2, TFT_YELLOW);
             tft.setTextColor(TFT_YELLOW, TFT_NEIGHBOUR_GREEN);
             // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
             if (i %2 ==0)
             {
-              tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 40, 1);
+              tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 40, 1);
             }
             // if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
             else
             {
-              tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 20, 1);
+              tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 20, 1);
             }
             DataCounter++;
           }
@@ -912,7 +938,7 @@ void Navigation()
         {
           for (int i = 0; i < DataCounter - 1; i++)
           {
-            tft.drawLine((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((previous_data[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
+            tft.drawLine((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((recorded_gas_sample[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
           }
         }
 

@@ -14,6 +14,16 @@
 #include <math.h>
 #include <TFT_eSPI.h>
 
+double baselineRead(int channel); //average out baseline candidate
+int restore_baseline();           //define sensor baseline for new set of gas data        
+void breath_check();              //  check if sensor value exceed threshold
+void checkSetup(void);            //  initialize I2C protocol,EEPROM and SPIFFS memory, PID control
+void output_result();             //  return sensor response in ratio
+void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
+void pump_control(bool control);  //  functions conrol high and low of the pump
+void sample_collection();         //  integrate function to analysis one gas sample
+void storing_data();              //  background storage of gas data into Firebase/ local SPIFFS
+
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
 uFire_SHT20 sht20;
@@ -22,22 +32,10 @@ short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
 bool isStore = false;
 
-int dutyCycle_pump = 120;         //pump power
+int dutyCycle_pump = 120;         
 int baseline = 0;
 int fail_count = 0;
 int millisUnitTime = 0;
-
-double baselineRead(int channel); //average out baseline candidate
-int restore_baseline();           //define sensor baseline for new set of gas data
-
-// void analogSetup(void);           
-void breath_check();              //  check if sensor value exceed threshold
-void checkSetup(void);            //  initialize I2C protocol,EEPROM and SPIFFS memory, PID control
-void output_result();             //  return sensor response in ratio
-void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
-void pump_control(bool control);  //  functions conrol high and low of the pump
-void sample_collection();         //  integrate function to analysis one gas sample
-void storing_data();              //  background storage of gas data into Firebase/ local SPIFFS
 
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
@@ -78,7 +76,6 @@ void checkSetup(){
   PID_setup();
   Serial.println("Setup Complete."); 
 }
-
 
 void pump_control(bool control){
   if(control == true){

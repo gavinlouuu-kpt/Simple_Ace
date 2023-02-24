@@ -1,13 +1,16 @@
 #include <WiFi.h>
 #include "Wifi_connection.h"
-#include "Cloud_storage.h"
-#include "Screen.h"
 
 bool isWifi=false;
 bool isConnect =false; 
 unsigned long previousMillis =0;
 
-void checkstatus(){
+void checkWifiStatus();     //  Check Wifi connection state on device
+void Wifi_able();           //  Attempt Wifi connection from device
+void Wifi_disable();        //  Disable Wifi Connection from device
+void Wifi_reconnect();      //  Attempt to reconnect if Wifi is disabled from the router
+
+void checkWifiStatus(){
   Wifi_reconnect();
   if(WiFi.status() == WL_CONNECTED){
     isConnect = true;

@@ -4,15 +4,17 @@
 #include "PID.h"
 #include "Simple_ACE.h"
 
-extern Adafruit_ADS1115 ads;
+void PID_setup();               // initialize PID
+void PID_control();             // regualte heating element
 
+extern Adafruit_ADS1115 ads;
+double PID_Setpoint = 6000;
+double Input, Output;
+double consKp=4, consKi=0.08, consKd=0.015;
 // double aggKp=4, aggKi=0.2, aggKd=1;
 // double consKp=6, consKi=0.125, consKd=0.25;
 // double consKp=4, consKi=0.3, consKd=0.6;
-double consKp=4, consKi=0.08, consKd=0.015;
 
-double PID_Setpoint = 6000;
-double Input, Output;
 PID myPID(&Input, &Output, &PID_Setpoint, consKp, consKi, consKd, REVERSE);
 
 void PID_setup(){
