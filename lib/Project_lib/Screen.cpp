@@ -15,12 +15,12 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 
-#include "Image_assets/Asset_2.h"
-#include "Image_assets/Asset_7.h"
-#include "Image_assets/Asset_8.h"
-#include "Image_assets/Asset_10.h"
-#include "Image_assets/Asset_13.h"
-#include "Image_assets/Asset_14.h"
+#include "Image_assets/Bubble_1.h"
+#include "Image_assets/Bubble_2.h"
+#include "Image_assets/Bubble_3.h"
+#include "Image_assets/Bubble_4.h"
+#include "Image_assets/Bubble_5.h"
+#include "Image_assets/Bubble_6.h"
 #include "Image_assets/setting.h"
 #include "Image_assets/Beagle.h"
 #include "Image_assets/Wifi_connect.h"
@@ -53,7 +53,7 @@ void tft_setup();                         //initialize TFT screen
 void draw_result(double co2, double ace);
 void draw_result_bar(double bar_1, double bar_2);
 void draw_sample_progress(float bar_length, float bar_percentage);
-void draw_sensor(double sensor_value)
+void draw_sensor(double sensor_value);
 void display_assets();
 void display_bluetooth();
 void display_control_wifi();
@@ -120,12 +120,12 @@ void Reset_coordinate(){
 
 void display_assets(){
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE);
-  tft.pushImage(10, 200, A2_w, A2_h, Asset_2, 0x0000);
-  tft.pushImage(50, 200, A7_w, A7_h, Asset_7, 0x0000);
-  tft.pushImage(90, 200, A8_w, A8_h, Asset_8, 0x0000);
-  tft.pushImage(130, 200, A10_w, A10_h, Asset_10, 0x0000);
-  tft.pushImage(165, 200, A13_w, A13_h, Asset_13, 0x0000);
-  tft.pushImage(201, 200, A14_w, A14_h, Asset_14, 0x0000);
+  tft.pushImage(10, 200, Bubble1_w, Bubble1_h, Bubble_1, 0x0000);
+  tft.pushImage(50, 200, Bubble2_w, Bubble2_h, Bubble_2, 0x0000);
+  tft.pushImage(90, 200, Bubble3_w, Bubble3_h, Bubble_3, 0x0000);
+  tft.pushImage(130, 200, Bubble4_w, Bubble4_h, Bubble_4, 0x0000);
+  tft.pushImage(165, 200, Bubble5_w, Bubble5_h, Bubble_5, 0x0000);
+  tft.pushImage(201, 200, Bubble6_w, Bubble6_h, Bubble_6, 0x0000);
   tft.setTextDatum(TC_DATUM);
   tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
 }
