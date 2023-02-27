@@ -31,23 +31,23 @@
 #define setting_x 180
 #define setting_y 260
 
-// stages reference:
-// stage 0:   HomeScreen
-// stage 1:   Menu
-// stage 2:   Gas Sampling
-// stage 3:   Calibration
-// stage 4:   Wifi and Bluetooth setting
-// stage 5:   Enter developer mode
-// stage 6:   live Plot control
-// stage 7:   device setting
-// stage 9:   Wifi control
-// stage 10:  Print stored data
-// stage 11:  Select user profile
-// stage 13:  Live Plot
-// stage 15:  Pump setting
-// stage 16:  PID setting
-// stage 17:  print Gas sample
-// stage 99:  chagne sensor
+#define homescreen              0
+#define menu                    1
+#define sampling                2
+#define calibration             3  
+#define OTA_setting             4
+#define developer_mode          5
+#define liveplot_control        6
+#define device_setting          7
+#define bluetooth_setting       8
+#define wifi_control            9   
+#define print_stored_data       10
+#define select_user_profile     11
+#define live_plot               13
+#define pump_setting            15
+#define PID_setting             16
+#define print_gas_sample        17
+#define change_sensor           99
 
 void tft_setup();                         //initialize TFT screen
 void draw_result(double co2, double ace);
@@ -96,8 +96,8 @@ TFT_eSprite graph1 = TFT_eSprite(&tft);
 
 bool isSensor =true;
 bool isPlotrangeChange = false;
-int stage = 0;
-int SetupNumber = 1;
+int stage = homescreen;
+int profileNumber_int = 1;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
 
@@ -618,18 +618,18 @@ void display_profile_filenumber()
 {
   if (touch_x > 110 && touch_x <190 && touch_y > 0 && touch_y <145)
   {
-    if (SetupNumber <10)
+    if (profileNumber_int <10)
     {
-      SetupNumber = SetupNumber + 1;
+      profileNumber_int = profileNumber_int + 1;
       Reset_coordinate();
       delay(150);
     }
   }
   else if (touch_x > 110 && touch_x < 190 && touch_y > 160 && touch_y < 300)
   {
-    if (SetupNumber > 1)
+    if (profileNumber_int > 1)
     {
-      SetupNumber = SetupNumber - 1;
+      profileNumber_int = profileNumber_int - 1;
       Reset_coordinate();
       delay(150);
     }
@@ -688,10 +688,10 @@ void Navigation()
     tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
     tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
     tft.drawString("Change sensor", 120, 160, 4);
-    stage =99;
+    stage = change_sensor ;
   }
 
-  while(stage == 99){
+  while(stage == change_sensor ){
     if (tft.getTouch(&touch_x, &touch_y)){
       if(touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305){
         tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
@@ -701,7 +701,7 @@ void Navigation()
         update_sensor();
         update_check_time();
         isSensor = true;
-        stage = 0;
+        stage = homescreen;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         HomeScreen();
         break;
@@ -709,7 +709,7 @@ void Navigation()
     }
   }
 
-  if (stage == 0)
+  if (stage == homescreen)
   {
     if (touch_x > 195 && touch_x < 240 && touch_y > 100 && touch_y < 195)
     {
@@ -718,7 +718,7 @@ void Navigation()
         tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Start", 125, 280, 2);
         display_enable_sampling();
-        stage = 2;
+        stage = sampling;
     }
   }
   
@@ -728,18 +728,18 @@ void Navigation()
     printf("%d\n", touch_y);
 
 
-    if (stage !=1)
+    if (stage !=menu)
     {
       if (touch_x > 195 && touch_x < 235 && touch_y > 5 && touch_y < 75)                 // press
       {
         pump_control(false);
         Serial.println("OFF");
         display_menu();
-        stage = 1;
+        stage = menu;
       }
     }
 
-    if (stage == 1)
+    if (stage == menu)
     {                                                                       // Navigation
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305)                //OTA
       {
@@ -749,7 +749,7 @@ void Navigation()
         tft.drawString("OTA Setting", 120, 35, 4); // OTA Setting
         delay(200);
         display_OTA_control();
-        stage = 4;
+        stage =OTA_setting;
       }
 
       else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)               //Calibration
@@ -760,7 +760,7 @@ void Navigation()
         tft.drawString("Calibration", 120, 100, 4); // Calibration
         delay(200);
         display_calibration();
-        stage = 3;
+        stage = calibration;
       }
       else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305)              //User Set up 
       {
@@ -770,7 +770,7 @@ void Navigation()
         tft.drawString("User Setup", 120, 160, 4);
         delay(200);
         display_setup_profile_select();
-        stage = 11;
+        stage = select_user_profile ;
       }
 
       else if (touch_x > 150 && touch_x < 190 && touch_y > 0 && touch_y < 305)
@@ -781,7 +781,7 @@ void Navigation()
         tft.drawString("Developer Mode", 120, 220, 4); // developer mode
         delay(200);
         display_developer_menu();
-        stage = 5;
+        stage = developer_mode;
       }
       else if (touch_x > 195 && touch_x <235 && touch_y > 0 && touch_y < 305)                    //Return
       {
@@ -791,14 +791,14 @@ void Navigation()
         tft.drawString("Return", 120, 280, 4);
         delay(200); // return button
 
-        stage = 0;
+        stage = homescreen;
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         HomeScreen();
         Reset_coordinate();
       }
     }
 
-    if(stage == 2){                                                          //sample
+    if(stage == sampling){                                                          //sample
       if(touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){
         if(isConnect ==true){
           WiFi.disconnect(true,true);
@@ -815,14 +815,13 @@ void Navigation()
         
       }
 
-    if (stage == 3)
+    if (stage == calibration)
     { // Calibration Start Button
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305)
       {
         restore_baseline();
         tft.setTextDatum(4);
         tft.fillRect(10, 50, 200, 150, TFT_NEIGHBOUR_GREEN);      //
-        // tft.fillRect(0, 100, 240, 40, TFT_NEIGHBOUR_GREEN);       //
         tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
         tft.drawString("Starting in 3", 120, 120, 4);
         delay(1000);
@@ -834,7 +833,7 @@ void Navigation()
         delay(1000);
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
 
-        calibration();
+        Calibration();
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
         EEPROM.begin(20);
         int value, value_1;
@@ -851,21 +850,21 @@ void Navigation()
       }
     }
 
-    if (stage == 4)
+    if (stage == OTA_setting)
     { // OTA setting options
       if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
       { // bluetooth
         display_bluetooth();
-        stage = 8;
+        stage = bluetooth_setting ;
       }
       else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305)
       { // wi-fi
         display_control_wifi();
-        stage = 9;
+        stage = wifi_control  ;
       }
     }
 
-    if (stage == 5)
+    if (stage == developer_mode )
     { // developer mode                                                                     // developer mode choices
       tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305)
@@ -875,7 +874,7 @@ void Navigation()
         tft.drawString("Live Plot", 120, 35, 4);
         delay(200);
         display_live_plot();
-        stage = 6;
+        stage = liveplot_control;
         delay(300);
       }
       else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
@@ -885,7 +884,7 @@ void Navigation()
         tft.drawString("Default Setting", 120, 100, 4);
         delay(200);
         display_device_setting();
-        stage = 7;
+        stage = device_setting;
         delay(300);
       }
 
@@ -899,7 +898,7 @@ void Navigation()
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
         Reset_coordinate();
         display_load_SPIFFS();
-        stage = 10;
+        stage = print_stored_data ;
       }
       else if (touch_x > 150 && touch_x < 190 && touch_y > 0 && touch_y < 305)
       {
@@ -941,26 +940,17 @@ void Navigation()
             tft.drawLine((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((recorded_gas_sample[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
           }
         }
-
-        // display graph
-        //  x_increment = 16
-        //  y_increment  =12;
-        //  map y coord to ratio value;
-        //  for(int m=0; m<sizeofarray; m++){
-        //    tft.drawLine(20+x*m,map arra[i-m],20+2*m, map y, TFT_NEIGHBOUR_BEIGE);
-        //    plot(Array[i-m])
-        //  }
       }
     }
 
-    if (stage == 10)      //print spiffs
+    if (stage == print_stored_data )      //print spiffs
     {
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305){
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
         Reset_coordinate();
         display_load_data();
-        stage = 17;
+        stage = print_gas_sample ;
       }
 
       else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
@@ -976,7 +966,7 @@ void Navigation()
         }
       }
     }
-    if(stage == 17){
+    if(stage == print_gas_sample){
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305)
       {
         for(int i = 0; i< 5; i++){
@@ -1060,33 +1050,33 @@ void Navigation()
       }
     }
 
-    if (stage == 11){     // user_setup
+    if (stage == select_user_profile){     // user_setup
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
       display_profile_filenumber();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover file number
-      tft.drawFloat(SetupNumber, 0, 120, 100, 4);
-      printf("%d\n", SetupNumber);
+      tft.drawFloat(profileNumber_int, 0, 120, 100, 4);
+      printf("%d\n", profileNumber_int);
 
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){    // define file number
-        profileNumber = (String)SetupNumber;
+        profileNumber = (String)profileNumber_int;
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
         tft.fillRoundRect(8, 264, 60, 46, 23, TFT_NEIGHBOUR_BLUE);  //change colour
         delay(200);    
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = 1;
+        stage = menu;
       }
     }
     
-    if (stage == 6){
+    if (stage == liveplot_control){
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305){
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         Reset_coordinate();
         tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
         display_start_button();
-        stage =13;
+        stage = live_plot ;
       }
       else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)               //Calibration
       {
@@ -1098,7 +1088,7 @@ void Navigation()
       }
     }
 
-    if (stage == 7){
+    if (stage == device_setting){
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305){  
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);    //Pump dutycycle
         tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
@@ -1106,7 +1096,7 @@ void Navigation()
         tft.drawString("Pump power", 120, 35, 4);
         delay(200);
         display_setup_pump();
-        stage =15;
+        stage = pump_setting;
       }
       else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305){
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);    //Pump dutycycle
@@ -1115,7 +1105,7 @@ void Navigation()
         tft.drawString("Columm Temp", 120, 100, 4);
         delay(200);
         display_setup_PID();
-        stage =16;
+        stage = PID_setting;
       }
       else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305){
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);    //Pump dutycycle
@@ -1151,11 +1141,8 @@ void Navigation()
           Serial.println("Timer updated");
         }
       }
-        // updat sensor time 
-        // developer_display();
-        // stage = 5;
     }
-    if (stage == 16){
+    if (stage == PID_setting){
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
       display_PID_selectSetpoint();
@@ -1169,10 +1156,10 @@ void Navigation()
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = 1;
+        stage = menu;
       }
     }
-    if (stage == 13)
+    if (stage == live_plot)
     { // developer mode:ADS0 
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
 
@@ -1282,12 +1269,11 @@ void Navigation()
           }
         }
         display_menu();
-        stage = 1;
+        stage = menu;
       }
     }
 
-
-    if (stage == 15){  //select pump duty cycle
+    if (stage == pump_setting){  //select pump duty cycle
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
       display_pump_selectDutycycle();
@@ -1300,11 +1286,11 @@ void Navigation()
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = 1;
+        stage = menu;
       }
     }
     
-    if (stage == 9){
+    if (stage == wifi_control){
       if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)    //WIFI on 
       { // WIFI
         tft.fillScreen(TFT_NEIGHBOUR_GREEN);
@@ -1321,7 +1307,7 @@ void Navigation()
           tft.drawString("Connected", 120, 100, 4);
           delay(2000);
           tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-          stage = 0;    
+          stage = homescreen;    
           HomeScreen();    
           display_Wifi();
         }

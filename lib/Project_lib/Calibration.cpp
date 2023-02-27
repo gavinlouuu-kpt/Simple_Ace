@@ -14,7 +14,7 @@ extern short Sensor_arr[store_size];
 int peak_position[10] = {0};
 int ref_position[2];
 
-void calibration();                     //  record calibrating gas sample
+void Calibration();                     //  record calibrating gas sample
 void EEPROM_setup();                    //  initialize EEPROM
 void find_peak();                       //  locate the local maxima of the gas data
 void store_calibiration_data();         //  store calibration gas sample into SPIFFS
@@ -62,7 +62,7 @@ void update_parameters(int unit){
     delay(500);
 }
 
-void calibration() {
+void Calibration() {
   PID_control();
   int sampling_index = 0;
   int display_index = 0;
