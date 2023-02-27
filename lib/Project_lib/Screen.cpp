@@ -14,12 +14,10 @@
 #include "Cloud_storage.h"
 #include "WiFi.h"
 
-
 #include "Image_assets/Wifi_connect.h"
 #include "Image_assets/Wifi_not_connect.h"
 #include "Image_assets/Wifi_Off.h"
 #include "Image_assets/Loading.h"
-
 
 #include "Image_assets/Homepage2.h"
 #include "Image_assets/FullBattary.h"
@@ -32,9 +30,11 @@
 #include "Image_assets/Breathe.h"
 #include "Image_assets/Beagle.h"
 #include "Image_assets/Started.h"
-
-
-
+#include "Image_assets/SettingBar.h"
+#include "Image_assets/DeveloperMode.h"
+#include "Image_assets/LivePlot.h"
+#include "Image_assets/DefaultSetting.h"
+#include "Image_assets/Spiffs.h"
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
@@ -77,7 +77,7 @@ int WifiButton = 0;
 void tft_setup()
 {
   tft.init();
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  tft.fillScreen(TFT_MilkWhite);
   tft.setSwapBytes(true);
   tft.setRotation(2);
 
@@ -95,21 +95,26 @@ void ResetXY()
 
 void draw_framework()
 {
-  // tft.setTextColor(beige);
-  // tft.pushImage(10, 200, A2_w, A2_h, Asset_2, 0x0000);
-  // tft.pushImage(50, 200, A7_w, A7_h, Asset_7, 0x0000);
-  // tft.pushImage(90, 200, A8_w, A8_h, Asset_8, 0x0000);
-  // tft.pushImage(130, 200, A10_w, A10_h, Asset_10, 0x0000);
-  // tft.pushImage(165, 200, A13_w, A13_h, Asset_13, 0x0000);
-  // tft.pushImage(201, 200, A14_w, A14_h, Asset_14, 0x0000);
-  // tft.setTextDatum(TC_DATUM);
-  // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
+  tft.fillScreen(TFT_MilkWhite);
+  tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
+  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
+  draw_Wifi();
+}
+
+void draw_Settingframework()
+{
+  tft.fillScreen(TFT_MilkWhite);
+  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
+  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
+  draw_Wifi();
 }
 
 void draw_loading(int count)
 {
-  tft.fillRect(90, 250, 70, 70, TFT_NEIGHBOUR_GREEN); //  cover loading logo
-  tft.pushImage(90, 250, LoadingWidth, LoadingHeight, Loading[count % 11]);
+  tft.fillRect(90, 200, 70, 70, TFT_MilkWhite); //  cover loading logo
+  tft.pushImage(90, 200, LoadingWidth, LoadingHeight, Loading[count % 11]);
   delay(100);
 }
 
@@ -306,10 +311,11 @@ void draw_bar(double bar_1, double bar_2)
 
 void draw_start_button()
 {
-  tft.setTextDatum(MC_DATUM);
-  tft.fillRoundRect(10, 263, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  tft.drawString("Start", 40, 287, 2);
+  // tft.setTextDatum(MC_DATUM);
+  // tft.fillRoundRect(10, 200, 60, 46, 23, TFT_NEIGHBOUR_GREEN);
+  // tft.setTextColor(TFT_WHITE);
+  // tft.drawString("Start", 40, 220, 2);
+  tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
 }
 extern bool isStore;
 extern int fail_count;
@@ -319,7 +325,7 @@ void draw_result(double co2, double ace)
   tft.fillRect(0, 20, 240, 170, TFT_NEIGHBOUR_GREEN);  // cover graph
   tft.fillRect(10, 260, 150, 50, TFT_NEIGHBOUR_GREEN); // cover analyzing
   tft.fillRect(0, 200, 240, 50, TFT_NEIGHBOUR_GREEN);
-  draw_framework();
+  // draw_framework();
   tft.fillRect(0, 200, 240, 33, TFT_NEIGHBOUR_GREEN); // cover logo
 
   tft.setTextDatum(4);
@@ -371,11 +377,11 @@ void HomeScreen()
 {
   tft.fillScreen(TFT_MilkWhite);
   // tft.pushImage(0, 0, Homepage2Width, Homepage2Height, Homepage2);
-  tft.pushImage(0,280,BarWidth,BarHeight,Bar);
+  tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
-  tft.pushImage(20,230,BreatheWidth,BreatheHeight,Breathe);
-  tft.pushImage(15,10,BeagleWidth,BeagleHeight,Beagle);
-  tft.pushImage(15,50,StartedWidth,StartedHeight,Started);
+  tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
+  tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
+  tft.pushImage(15, 50, StartedWidth, StartedHeight, Started);
   // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
   // tft.drawString("Let's get started",10,60,4);
 
@@ -404,9 +410,6 @@ void show_menu()
 {
   ResetXY();
   tft.pushImage(0, 0, Setting2Width, Setting2Height, Setting2);
-
-
-  
 
   // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
   // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
@@ -457,13 +460,13 @@ void sampling_display()
   // delay(200);
   // draw_framework();
   // draw_start_button();
-  
+
   // tft.fillRoundRect(90, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
   // tft.drawRoundRect(90, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
   // tft.drawString("END", 110,285,2);
   // drawKeypad();
 
-  tft.pushImage(0,0,BreatheHereWidth,BreatheHereHeight,BreatheHere);
+  tft.pushImage(0, 0, BreatheHereWidth, BreatheHereHeight, BreatheHere);
   delay(300);
 
   printf("stage2 \n");
@@ -472,10 +475,11 @@ void sampling_display()
 void calibration_display()
 {
   ResetXY();
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  draw_Settingframework();
   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  tft.drawString("Calibration", 120, 30, 4);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Calibration", 15, 50, 4);
   draw_start_button();
 }
 
@@ -502,37 +506,43 @@ void OTA_display()
 
 void developer_display()
 {
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Live Plot", 120, 35, 4);
-  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Default Setting", 120, 100, 4);
-  tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Print Spiffs", 120, 160, 4);
-  tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Previous Value", 120, 220, 4);
   ResetXY();
+  draw_Settingframework();
+  tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Developer Mode", 15, 50, 4);
+  // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+  // // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
+  // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Live Plot", 120, 35, 4);
+  // tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Default Setting", 120, 100, 4);
+  // tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Print Spiffs", 120, 160, 4);
+  // tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Previous Value", 120, 220, 4);
 }
 
 void live_plot_display()
 {
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  draw_Settingframework();
   ResetXY();
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Live Plot", 15, 50, 4);
+  tft.pushImage(0, 100, LivePlotWidth, LivePlotHeight, LivePlot);
   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("ADS0", 120, 35, 4);
+  //   tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  //   tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  //   tft.drawString("ADS0", 120, 35, 4);
 
-  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Humidity", 120, 100, 4);
+  //   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  //   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  //   tft.drawString("Humidity", 120, 100, 4);
 }
 
 void bluetooth_display()
@@ -636,39 +646,45 @@ void wifi_display()
 
 void default_setting_display()
 {
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
+  // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
   ResetXY();
+  draw_Settingframework;
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Default Setting", 15, 50, 4);
+  tft.pushImage(0, 100, DefaultSettingWidth, DefaultSettingHeight, DefaultSetting);
   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Pump power", 120, 35, 4);
+  // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Pump power", 120, 35, 4);
 
-  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Column Temp", 120, 100, 4);
+  // tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Column Temp", 120, 100, 4);
 
-  tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Sample Time", 120, 160, 4);
+  // tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Sample Time", 120, 160, 4);
 
-  tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Update sensor", 120, 220, 4);
+  // tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  // tft.drawString("Update sensor", 120, 220, 4);
 }
 
 void Spiffs_display()
 {
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("SPIFFS 1", 120, 35, 4);
-  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("SPIFFS 2", 120, 100, 4);
-  tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-  tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-  tft.drawString("Calibration", 120, 160, 4);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Spiffs", 15, 50, 4);
+  tft.pushImage(0, 100, SpiffsWidth, SpiffsHeight, Spiffs);
+//   tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+//   tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+//   tft.drawString("SPIFFS 1", 80, 35, 4);
+//   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+//   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+//   tft.drawString("SPIFFS 2", 80, 100, 4);
+//   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+//   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+//   tft.drawString("Calibration", 80, 160, 4);
 }
 void selectfilenumber()
 {
@@ -797,6 +813,12 @@ void TouchScreen()
         show_menu();
         stage = 1;
       }
+      if (t_x > 220 && t_x < 240 && t_y > 220 && t_y < 320) // Return
+      {
+        stage = 0;
+        HomeScreen();
+        ResetXY();
+      }
     }
 
     if (stage == 1)
@@ -835,37 +857,38 @@ void TouchScreen()
       //   stage = 11;
       // }
 
-      // else if (t_x > 150 && t_x < 190 && t_y > 0 && t_y < 305)
-      // {
-      //   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-      //   tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawString("Developer Mode", 120, 220, 4); // developer mode
-      //   delay(200);
-      //   developer_display();
-      //   stage = 5;
-      // }
-      // else if (t_x > 195 && t_x <235 && t_y > 0 && t_y < 305)
-      
-      if (t_x > 90 && t_x < 100 && t_y > 10 && t_y < 55 && WifiButton ==0) // WIFI ON
+      if (t_x > 185 && t_x < 200 && t_y > 10 && t_y < 280)
       {
-        tft.pushImage(178,99,WifiButtonOnWidth,WifiButtonOnHeight,WifiButtonOn);
+        // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+        // tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawString("Developer Mode", 120, 220, 4); // developer mode
+        // delay(200);
+        developer_display();
+        stage = 5;
+        delay(300);
+      }
+      // else if (t_x > 195 && t_x <235 && t_y > 0 && t_y < 305)
+
+      if (t_x > 90 && t_x < 100 && t_y > 10 && t_y < 55 && WifiButton == 0) // WIFI ON
+      {
+        tft.pushImage(178, 99, WifiButtonOnWidth, WifiButtonOnHeight, WifiButtonOn);
         WifiButton = 1;
         delay(400);
         ResetXY();
       }
       if (t_x > 90 && t_x < 100 && t_y > 10 && t_y < 55 && WifiButton == 1) // WIFI ON
       {
-        tft.pushImage(178,99,WifiButtonOffWidth,WifiButtonOffHeight,WifiButtonOff);
+        tft.pushImage(178, 99, WifiButtonOffWidth, WifiButtonOffHeight, WifiButtonOff);
         WifiButton = 0;
         delay(400);
         ResetXY();
       }
 
-      if (t_x > 109 && t_x < 129 && t_y > 10 && t_y < 290)             //Calibration
+      if (t_x > 109 && t_x < 129 && t_y > 10 && t_y < 290) // Calibration
       {
-         calibration_display();
-         stage = 3;
+        calibration_display();
+        stage = 3;
       }
       if (t_x > 220 && t_x < 240 && t_y > 220 && t_y < 320) // Return
       {
@@ -883,9 +906,9 @@ void TouchScreen()
     }
 
     if (stage == 2)
-    { // sample
-      // if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
-        if(t_x > 180 && t_x < 200 && t_y > 5 && t_y < 200)
+    {                                                     // sample
+                                                          // if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
+      if (t_x > 180 && t_x < 200 && t_y > 5 && t_y < 200) // press start after breathe
       {
         // if (isConnect == true)
         // {
@@ -901,16 +924,21 @@ void TouchScreen()
         // draw_framework();
 
         // tft.pushImage(0,0,AnalyzingWidth,AnalyzingHeight,Analyzing);
-
+        draw_framework();
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+        tft.drawString("Analyzing", 15, 50, 4);
         sample_collection();
         output_result();
       }
     }
 
     if (stage == 3)
-    { // Calibration Start Button
-      if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
+    {                                                     // Calibration Start Button
+      if (t_x > 180 && t_x < 200 && t_y > 5 && t_y < 200) // press start after breathe
       {
+        draw_Settingframework();
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+        tft.drawString("Analyzing", 15, 50, 4);
         restore_baseline();
         tft.setTextDatum(4);
         tft.fillRect(10, 50, 200, 150, TFT_NEIGHBOUR_GREEN); //
@@ -960,40 +988,41 @@ void TouchScreen()
     if (stage == 5)
     { // developer mode                                                                     // developer mode choices
       tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
+      if (t_x > 85 && t_x < 105 && t_y > 10 && t_y < 285)
       {
-        tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Live Plot", 120, 35, 4);
-        delay(200);
+        // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawString("Live Plot", 120, 35, 4);
+        // delay(200);
         live_plot_display();
         stage = 6;
         delay(300);
       }
-      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)
+      else if (t_x > 120 && t_x < 135 && t_y > 10 && t_y < 285)
       {
-        tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Default Setting", 120, 100, 4);
+        // tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawString("Default Setting", 120, 100, 4);
         delay(200);
         default_setting_display();
         stage = 7;
         delay(300);
       }
 
-      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305)
+      else if (t_x > 150 && t_x < 165 && t_y > 10 && t_y < 285)
       {
-        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        tft.drawString("Print Spiffs", 120, 160, 4);
+        // tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawString("Print Spiffs", 120, 160, 4);
         delay(200);
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.fillScreen(TFT_MilkWhite);
+        tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
         ResetXY();
         Spiffs_display();
         stage = 10;
       }
-      else if (t_x > 150 && t_x < 190 && t_y > 0 && t_y < 305)
+      else if (t_x > 180 && t_x < 195 && t_y > 10 && t_y < 285)
       {
         tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
@@ -1044,11 +1073,24 @@ void TouchScreen()
         //    plot(Array[i-m])
         //  }
       }
+      if (t_x > 220 && t_x < 240 && t_y > 220 && t_y < 320) // Return
+      {
+        // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+        // tft.fillRoundRect(10, 255, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 255, 220, 44, 22, TFT_NEIGHBOUR_BLUE);        //change colour
+        // tft.drawString("Return", 120, 280, 4);
+        // delay(200); // return button
+
+        stage = 0;
+        // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        HomeScreen();
+        ResetXY();
+      }
     }
 
     if (stage == 10) // print spiffs
     {
-      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
+      if (t_x > 85 && t_x < 105 && t_y > 10 && t_y < 285)
       {
         if (SPIFFS.exists("/Dataset_1"))
         {
@@ -1060,7 +1102,7 @@ void TouchScreen()
           file.close();
         }
       }
-      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305)
+      else if (t_x > 120 && t_x < 135 && t_y > 10 && t_y < 285)
       {
         if (SPIFFS.exists("/Dataset_2"))
         {
@@ -1073,7 +1115,7 @@ void TouchScreen()
         }
       }
 
-      else if (t_x > 105 && t_x < 145 && t_y > 0 && t_y < 305)
+      else if (t_x > 150 && t_x < 165 && t_y > 10 && t_y < 285)
       {
         if (SPIFFS.exists("/Calibration"))
         {
@@ -1111,20 +1153,21 @@ void TouchScreen()
 
     if (stage == 6)
     {
-      if (t_x > 15 && t_x < 55 && t_y > 0 && t_y < 305)
+      if (t_x > 85 && t_x < 100 && t_y > 10 && t_y < 285)
       {
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        draw_Settingframework();
+        draw_start_button();
         ResetXY();
         // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        draw_start_button();
+        // draw_start_button();
         stage = 13;
       }
-      else if (t_x > 60 && t_x < 100 && t_y > 0 && t_y < 305) // Calibration
+      else if (t_x > 117 && t_x < 132 && t_y > 10 && t_y < 285) // Calibration
       {
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        draw_Settingframework();
         ResetXY();
         // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        draw_start_button();
+        // draw_start_button();
         stage = 14;
       }
     }
@@ -1213,22 +1256,24 @@ void TouchScreen()
     }
     if (stage == 13)
     { // developer mode:ADS0
-      tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+      tft.setTextColor(TFT_NEIGHBOUR_GREEN);
 
-      if (t_x > 195 && t_x < 240 && t_y > 220 && t_y < 305)
+      if (t_x > 180 && t_x < 200 && t_y > 5 && t_y < 200)
       {
+        draw_Settingframework();
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         control = true;
         pump_control(control);
+
         while (1)
         {
           // Serial.print("DUty Cycle");Serial.println(dutyCycle_pump);
           PID_control();
           float ADS0 = ads.readADC_SingleEnded(0);
           // float ADS1 = ads.readADC_SingleEnded(1);
-          tft.drawString("ADS0:", 25, 220, 2);
+          // tft.drawString("ADS0:", 25, 220, 2);
           // tft.drawString("ADS1:", 110, 220, 2);
-          tft.drawString("H:", 200, 220, 2);
+          // tft.drawString("H:", 200, 220, 2);
           // tft.drawFloat(float(ADS1), 0, 150, 220, 2);
           // tft.drawFloat(float(sht20.humidity()), 0, 220, 220, 2);
 
@@ -1294,18 +1339,20 @@ void TouchScreen()
             // printf("%f\n", ((H[i] - LowY) / (HighY - LowY)));
             // printf("%d\n", max1);
             // printf("%f\n", HighY);
-            tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_GREEN);
-            tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_GREEN);
-            tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
+
+            tft.fillRect(0, 28, 50, 10, TFT_MilkWhite);
+            tft.fillRect(0, 195, 240, 40, TFT_MilkWhite);
+            // tft.fillRect(50, 215, 40, 15, TFT_GREEN);
             tft.drawFloat(float(HighY), 0, 15, 30, 1);
             tft.drawFloat(float(LowY), 0, 15, 200, 1);
             tft.drawFloat(float(ADS0), 0, 65, 220, 2);
+            tft.drawString("ADS0:", 25, 220, 2);
 
             if (Change == 0 && i > 0) // draw
             {
               graph1.scroll(-1);
               // printf("%f\n",value);
-              graph1.drawLine(198, 150 - 150 * ((H[i - 1] - LowY) / (HighY - LowY)), 199, 150 - 150 * ((H[i] - LowY) / (HighY - LowY)), TFT_YELLOW);
+              graph1.drawLine(198, 150 - 150 * ((H[i - 1] - LowY) / (HighY - LowY)), 199, 150 - 150 * ((H[i] - LowY) / (HighY - LowY)), TFT_MilkWhite);
               // printf("%d\n",150 - 150 * ((H[i] - LowY) / (HighY - LowY)));
             }
             if (Change == 1 && i > 0) // redraw
@@ -1314,7 +1361,7 @@ void TouchScreen()
               for (int c = 0; c < i; c++)
               {
                 // graph1.drawFastVLine(199 - (i  - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)),1, TFT_YELLOW);
-                graph1.drawLine(199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 199 - (i - 1 - c), 150 - 150 * ((H[c + 1] - LowY) / (HighY - LowY)), TFT_YELLOW);
+                graph1.drawLine(199 - (i - c), 150 - 150 * ((H[c] - LowY) / (HighY - LowY)), 199 - (i - 1 - c), 150 - 150 * ((H[c + 1] - LowY) / (HighY - LowY)), TFT_MilkWhite);
               }
               Change = 0;
             }
@@ -1348,16 +1395,25 @@ void TouchScreen()
           }
           if (tft.getTouch(&t_x, &t_y))
           {
-            if (t_x > 195 && t_x < 235 && t_y > 5 && t_y < 75)
+            if (t_x > 220 && t_x < 240 && t_y > 0 && t_y < 85)
             {
               control = false;
               pump_control(control);
               break;
+              show_menu();
+              stage = 1;
+            }
+            if (t_x > 220 && t_x < 240 && t_y > 220 && t_y < 320) // Return
+            {
+              control = false;
+              pump_control(control);
+              break;
+              stage = 0;
+              HomeScreen();
+              ResetXY();
             }
           }
         }
-        show_menu();
-        stage = 1;
       }
     }
 
