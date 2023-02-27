@@ -1,7 +1,6 @@
 #include "Screen.h"
 #include "SPIFFS.h"
 #include "Calibration.h"
-#include "uFire_SHT20.h"
 #include "Wifi_connection.h"
 #include "Simple_ACE.h"
 #include "PID.h"
@@ -14,6 +13,7 @@
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
+#include <SHTSensor.h>
 
 #include "Image_assets/Bubble_1.h"
 #include "Image_assets/Bubble_2.h"
@@ -81,8 +81,8 @@ void Reset_coordinate();
 void Warmup_Screen();
 void write_analyzing(void);
 
+extern SHTSensor sht;
 extern Adafruit_ADS1115 ads;
-extern uFire_SHT20 sht20;
 extern float ref_position[2];
 extern double recorded_gas_sample[10];
 extern int dutyCycle_pump;
@@ -1268,8 +1268,15 @@ void Navigation()
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
             
             extern double Output;
-            // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
-            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(ads.readADC_SingleEnded(NTCC_channel)); 
+            if(sht.readSample()){
+              Serial.print(sht.getHumidity(), 2);Serial.print(",");
+              Serial.print(sht.getTemperature(), 2);Serial.print(",");
+              Serial.print(ADS0);Serial.print(",");
+              Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");
+              Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");
+              Serial.print(ads.readADC_SingleEnded(NTCC_channel));Serial.print(",");
+              Serial.println(Output); 
+            }
           }
           if (tft.getTouch(&touch_x, &touch_y))
           {

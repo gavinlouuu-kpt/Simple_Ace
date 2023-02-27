@@ -1,5 +1,5 @@
 #include "Simple_ACE.h"
-#include "uFire_SHT20.h"
+// #include "uFire_SHT20.h"
 #include "Screen.h"
 #include "Calibration.h"
 #include "SPIFFS.h"
@@ -13,6 +13,7 @@
 #include <EEPROM.h>
 #include <math.h>
 #include <TFT_eSPI.h>
+#include <SHTSensor.h>
 
 double baselineRead(int channel); //average out baseline candidate
 int restore_baseline();           //define sensor baseline for new set of gas data        
@@ -26,7 +27,8 @@ void storing_data();              //  background storage of gas data into Fireba
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
-uFire_SHT20 sht20;
+// uFire_SHT20 sht20;
+SHTSensor sht(SHTSensor::SHT4X);
 
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
@@ -67,7 +69,13 @@ void checkSetup(){
     return;
   }
   EEPROM_setup();
-  sht20.begin();
+  if (sht.init()) {
+      Serial.print("init(): success\n");
+  } else {
+      Serial.print("init(): failed\n");
+  }
+  sht.setAccuracy(SHTSensor::SHT_ACCURACY_MEDIUM); // only supported by SHT3x
+
   ads.setGain(GAIN_ONE); 
   if (!ads.begin(0x48)) {
     Serial.println("Failed to initialize ADS.");

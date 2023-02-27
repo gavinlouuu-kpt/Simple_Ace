@@ -13,8 +13,7 @@ void setup() {
   pinSetup();
   checkSetup();
   firebase_setup();
-  Warmup_Screen();
-  // Serial.println( "Setup done" );
+  // Warmup_Screen();
   update_check_time();
   HomeScreen();
 }
