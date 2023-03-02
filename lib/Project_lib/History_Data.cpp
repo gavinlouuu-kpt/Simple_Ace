@@ -30,13 +30,26 @@ void retrieve_record(){
     file_dir = "/History_data_";
     file_dir.concat(profileNumber);
     Serial.print("Retrieved directory");Serial.println(file_dir);
-    File file = SPIFFS.open(file_dir,FILE_READ);
-    String buffer_ratio;
-    for(int i = 0; i<10;i++){
-        buffer_ratio = file.readStringUntil('\n');
-        recorded_gas_sample[i] = buffer_ratio.toDouble();
-        Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(recorded_gas_sample[i]);
+    if(SPIFFS.exists(file_dir.c_str())){
+        File file = SPIFFS.open(file_dir,FILE_READ);
+        String buffer_ratio;
+        int length = file.size()/sizeof(double);
+        Serial.print(file.size());Serial.print(",");Serial.println(length);
+        double recorded_sample_buffer[length] ={0};
+        double temp;
+        for(int i = 0 ; i < length; i++){
+            buffer_ratio = file.readStringUntil('\n');
+            recorded_sample_buffer[i] = buffer_ratio.toDouble();
+            // Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(recorded_gas_sample[i]);
+        }
+        for(int q =0; q< 10;q ++){
+            recorded_gas_sample[q] =recorded_sample_buffer[length-10 + q];
+        }
+        file.close();
+        // int length = sizeof(recorded_sample_buffer)/sizeof(recorded_sample_buffer[0]);
+    // for(int i = 0; i<20;i++){
     }
+    Serial.print("Array size is: ");
     return; //the array
 }
 
