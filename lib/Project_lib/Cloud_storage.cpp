@@ -21,6 +21,7 @@
 #define USER_PASSWORD "121688"
 #define filenumber 8
 #define filesize  256
+#define GMT_offset 8
 
 unsigned long getTime();                      //get unix time on wifi
 String UnixConvert(unsigned long t);          //convert unix time into readable time
@@ -46,6 +47,7 @@ extern String profileNumber;
 
 unsigned long millisPreviousTime = 0;
 unsigned long millisSensorLife = 605000;
+const long gmtOffset_sec = 28800;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* ntpServer = "pool.ntp.org";
@@ -59,6 +61,10 @@ String sex = "M";
 String sensor_dir = "/Sensor_update";
 unsigned long millisPreviousUpdate = 0;
 
+void setLocalTime(){
+  setenv("TZ","WET0WEST,M3.5.0/1,M10.5.0",1);
+  tzset();
+}
 unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
@@ -103,16 +109,23 @@ void firebase_setup(){
 }
 
 String UnixConvert(unsigned long t){
+  int time_hour = 0;
   // time_t t = 1675827391; //unix timestamp
   setTime(t);
-  String sampletime = "";
+  String sampletime ="";
   sampletime.concat(day());
   sampletime.concat("-");
   sampletime.concat(month());
   sampletime.concat("-");
   sampletime.concat(year());
   sampletime.concat(" ");
-  sampletime.concat(hour());
+  if(hour() + GMT_offset >= 24){
+     time_hour = hour() +8 -24;
+  }
+  else{
+    time_hour = hour() + GMT_offset;
+  }
+  sampletime.concat(time_hour);
   sampletime.concat(":");
   sampletime.concat(minute());
   sampletime.concat(":");
@@ -187,6 +200,7 @@ void store_data(){
       store_personalinfo(name,sex,h,w);        
       millisPreviousTime = millis();
       //Check first file
+      configTime(gmtOffset_sec, 0, ntpServer);
       for(int i = 0; i <20 ;i++){
         String upload_file_dir = "/Dataset_";
         upload_file_dir.concat((String)(i%20 + 1));
@@ -269,7 +283,7 @@ void store_data(){
 
 void update_sensor(){
   Wifi_able();
-  configTime(0, 0, ntpServer);
+  configTime(gmtOffset_sec, 0, ntpServer);
   unsigned long millisUpdateSensorTime = getTime();
   Serial.println(millisUpdateSensorTime);
   File file = SPIFFS.open(sensor_dir.c_str(),FILE_WRITE);
