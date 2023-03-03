@@ -18,11 +18,11 @@ void store_result(float ratio_co2,float ratio_acetone){
         file.print(ratio_acetone);file.write('\n');
         file.close();   
 
-        file = SPIFFS.open(file_dir,FILE_READ);
-        while(file.available()){
-        Serial.write(file.read());
-        }
-        file.close();
+        // file = SPIFFS.open(file_dir,FILE_READ);
+        // while(file.available()){
+        // Serial.write(file.read());
+        // }
+        // file.close();
     }
 }
 
@@ -34,22 +34,17 @@ void retrieve_record(){
         File file = SPIFFS.open(file_dir,FILE_READ);
         String buffer_ratio;
         int length = file.size()/sizeof(double);
-        Serial.print(file.size());Serial.print(",");Serial.println(length);
+        // Serial.print(file.size());Serial.print(",");Serial.println(length);
         double recorded_sample_buffer[length] ={0};
-        double temp;
         for(int i = 0 ; i < length; i++){
             buffer_ratio = file.readStringUntil('\n');
             recorded_sample_buffer[i] = buffer_ratio.toDouble();
-            // Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(recorded_gas_sample[i]);
         }
         for(int q =0; q< 10;q ++){
             recorded_gas_sample[q] =recorded_sample_buffer[length-10 + q];
         }
         file.close();
-        // int length = sizeof(recorded_sample_buffer)/sizeof(recorded_sample_buffer[0]);
-    // for(int i = 0; i<20;i++){
     }
-    Serial.print("Array size is: ");
-    return; //the array
+    return; 
 }
 
