@@ -9,11 +9,13 @@
 #include "Cloud_storage.h"
 #include "WiFi.h"
 #include "Neighbour_color.h"
+
 #include <TFT_eSPI.h>
 #include <Simple_ACE.h>
 #include <SPI.h>
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
+#include "SHTSensor.h"
 
 #include "Image_assets/Bubble_1.h"
 #include "Image_assets/Bubble_2.h"
@@ -82,7 +84,7 @@ void Warmup_Screen();
 void write_analyzing(void);
 
 extern Adafruit_ADS1115 ads;
-extern uFire_SHT20 sht20;
+extern SHTSensor sht;
 extern float ref_position[2];
 extern double recorded_gas_sample[10];
 extern int dutyCycle_pump;
@@ -657,7 +659,6 @@ void display_pump_selectDutycycle()
     }
   }
 }
-
 void display_PID_selectSetpoint()
 {
   if (touch_x > 110 && touch_x <190 && touch_y > 0 && touch_y <145)
@@ -1169,7 +1170,11 @@ void Navigation()
         pump_control(true);
         while (1){
           PID_control();  
-          float ADS0 = ads.readADC_SingleEnded(Sensor_channel);
+          int ADS0 = ads.readADC_SingleEnded(Sensor_channel);
+          int heater = ads.readADC_SingleEnded(Heater_channel);
+          int offset = ads.readADC_SingleEnded(Offset_channel);
+          int ntcc = ads.readADC_SingleEnded(NTCC_channel);
+
           tft.drawString("ADS0:", 25, 220, 2);
           graph1.pushSprite(20, 40);
 
@@ -1240,8 +1245,6 @@ void Navigation()
               for (int j = 1; j <= 199; j++)
               {
                 Plot_buffer[j - 1] = Plot_buffer[j];
-                // printf("%d\n",H[j]);mnn 
-                // printf("%d\n",j);
               }
               as_counter = 1;
             }
@@ -1255,8 +1258,18 @@ void Navigation()
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
             
             extern double Output;
+            
             // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
-            Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(ads.readADC_SingleEnded(NTCC_channel)); 
+            if (sht.readSample()) {
+              Serial.print(sht.getHumidity(), 2);Serial.print(","); 
+              Serial.print(sht.getTemperature(), 2); Serial.print(","); 
+              Serial.print(ADS0);Serial.print(",");
+              Serial.print(heater);Serial.print(",");
+              Serial.print(offset);Serial.print(",");
+              Serial.print(Output);Serial.print(",");
+              Serial.println(ntcc); 
+              // Serial.println(analogRead(battery_read));
+            }
           }
           if (tft.getTouch(&touch_x, &touch_y))
           {
@@ -1301,7 +1314,7 @@ void Navigation()
         isWifi = true;
 
         Wifi_able();
-        configTime(0, 0, ntpServer);
+        configTime(28800, 0, ntpServer);
         if (isConnect == true)
         {
           tft.drawString("Connected", 120, 100, 4);

@@ -18,11 +18,11 @@ void store_result(float ratio_co2,float ratio_acetone){
         file.print(ratio_acetone);file.write('\n');
         file.close();   
 
-        file = SPIFFS.open(file_dir,FILE_READ);
-        while(file.available()){
-        Serial.write(file.read());
-        }
-        file.close();
+        // file = SPIFFS.open(file_dir,FILE_READ);
+        // while(file.available()){
+        // Serial.write(file.read());
+        // }
+        // file.close();
     }
 }
 
@@ -30,13 +30,21 @@ void retrieve_record(){
     file_dir = "/History_data_";
     file_dir.concat(profileNumber);
     Serial.print("Retrieved directory");Serial.println(file_dir);
-    File file = SPIFFS.open(file_dir,FILE_READ);
-    String buffer_ratio;
-    for(int i = 0; i<10;i++){
-        buffer_ratio = file.readStringUntil('\n');
-        recorded_gas_sample[i] = buffer_ratio.toDouble();
-        Serial.print("Entry_"); Serial.print(i);Serial.print(": ");Serial.println(recorded_gas_sample[i]);
+    if(SPIFFS.exists(file_dir.c_str())){
+        File file = SPIFFS.open(file_dir,FILE_READ);
+        String buffer_ratio;
+        int length = file.size()/sizeof(double);
+        // Serial.print(file.size());Serial.print(",");Serial.println(length);
+        double recorded_sample_buffer[length] ={0};
+        for(int i = 0 ; i < length; i++){
+            buffer_ratio = file.readStringUntil('\n');
+            recorded_sample_buffer[i] = buffer_ratio.toDouble();
+        }
+        for(int q =0; q< 10;q ++){
+            recorded_gas_sample[q] =recorded_sample_buffer[length-10 + q];
+        }
+        file.close();
     }
-    return; //the array
+    return; 
 }
 

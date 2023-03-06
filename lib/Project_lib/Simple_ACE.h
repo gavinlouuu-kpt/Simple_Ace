@@ -12,6 +12,8 @@
 #define btn_1               36
 #define BOOT                0
 #define sensor_h            25
+#define battery_EN          12
+#define battery_read        34
 
 // //Wrover IB///////////////////////////////////////////////////
 // #define pumpPin             32  
