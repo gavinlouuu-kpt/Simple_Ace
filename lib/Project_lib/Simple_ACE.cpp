@@ -1,5 +1,4 @@
 #include "Simple_ACE.h"
-#include "uFire_SHT20.h"
 #include "Screen.h"
 #include "Calibration.h"
 #include "SPIFFS.h"
@@ -7,6 +6,8 @@
 #include "History_Data.h"
 #include "Image_assets/Beagle.h"
 #include "Neighbour_color.h"
+#include "SHTSensor.h"
+
 #include <PID.h>
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
@@ -26,7 +27,7 @@ void storing_data();              //  background storage of gas data into Fireba
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
-uFire_SHT20 sht20;
+SHTSensor sht(SHTSensor::SHT4X);
 
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
@@ -42,10 +43,13 @@ void pinSetup(){
   pinMode(pumpPin_2,OUTPUT);
   pinMode(colPin_1,OUTPUT);
   pinMode(colPin_2,OUTPUT);
-  pinMode(btn_rst, INPUT);
   pinMode(sensor_h,OUTPUT);
+  pinMode(battery_EN, OUTPUT);
+  pinMode(btn_rst, INPUT);
+  pinMode(battery_read,INPUT);
 
-  dacWrite(sensor_h,255);
+  digitalWrite(battery_EN,1);           //  enable battery monitor
+  dacWrite(sensor_h,255);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
   ledcSetup(pumpChannel_1, freq, resolution);
@@ -67,7 +71,12 @@ void checkSetup(){
     return;
   }
   EEPROM_setup();
-  sht20.begin();
+  if (sht.init()) {
+      Serial.print("init(): success\n");
+  } else {
+      Serial.print("init(): failed\n");
+  }
+  sht.setAccuracy(SHTSensor::SHT_ACCURACY_MEDIUM);
   ads.setGain(GAIN_ONE); 
   if (!ads.begin(0x48)) {
     Serial.println("Failed to initialize ADS.");
