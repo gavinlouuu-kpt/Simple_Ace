@@ -2,5 +2,5 @@
 #define Calibration_h
 
 void Calibration();
-void EEPROM_setup();
+void EEPROM_setup(bool factory);
 #endif 

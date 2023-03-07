@@ -7,6 +7,7 @@
 #include "Image_assets/Loading.h"
 #include "PID.h"
 #include "Neighbour_color.h"
+#include "Cloud_storage.h"
 
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
@@ -15,24 +16,38 @@ int peak_position[10] = {0};
 int ref_position[2];
 
 void Calibration();                     //  record calibrating gas sample
-void EEPROM_setup();                    //  initialize EEPROM
+void EEPROM_setup(bool factory);                    //  initialize EEPROM
 void find_peak();                       //  locate the local maxima of the gas data
 void store_calibiration_data();         //  store calibration gas sample into SPIFFS
 void update_parameters(int unit);       //  store gas maxima positions into EEPROM
 
-void EEPROM_setup(){
-  if(!EEPROM.begin(20)){
-      printf("failed to mount EEPROM");
+void EEPROM_setup(bool factory){
+  if(factory == false){
+    if(!EEPROM.begin(20)){
+        printf("failed to mount EEPROM");
+    }
+    else{
+      printf("EEPROM begin\n");
+    }
   }
   else{
-    printf("EEPROM begin\n");
-    }
+    extern byte index_address;
+    Serial.println("Factory setting");
+    EEPROM.begin(20);
+    EEPROM.put(index_address, 0);
+    delay(100); 
+    printf("EEPROM write address: %d, value: %d\n", index_address, 0);
+    EEPROM.commit();
+    delay(500);
+    EEPROM.end();
+    delay(500);
+  }
 }
 
 void update_parameters(int unit){
   EEPROM.begin(20);
   printf("EEPROM begin\n");
-    int past =0; 
+    int past = 0; 
     byte address = 0;
     EEPROM.get(0,past);
     printf("EEPROM write value : %d\n", past);
@@ -43,11 +58,11 @@ void update_parameters(int unit){
    
     EEPROM.put(address, ref_position[0]);  
     delay(100);  
-    // printf("EEPROM address: %d, value: %d\n", address,position[0]);
+    printf("EEPROM address: %d, value: %d\n", address, ref_position[0]);
     address += sizeof(int);
     EEPROM.put(address, ref_position[1]);  
     delay(100); 
-    // printf("EEPROM address: %d, value: %d\n", address, position[1]);
+    printf("EEPROM address: %d, value: %d\n", address,  ref_position[1]);
 
     EEPROM.commit();
     address = 0;

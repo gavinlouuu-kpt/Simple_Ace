@@ -3,6 +3,7 @@
 #include "Wifi_connection.h"
 #include "SPIFFS.h"
 #include <Firebase_ESP_Client.h>
+#include <EEPROM.h>
 #include <addons/TokenHelper.h>
 #include <addons/RTDBHelper.h>
 #include <Simple_ACE.h>
@@ -32,7 +33,8 @@ void store_default(unsigned long tim);        //store device default setting
 void store_data();                            //store gas data, either SPIFFS or Cloud
 void upload_data(String namee,unsigned long tim ,int number);                 // upload array data to firebase
 void update_sensor();                         //restart sensor life count
-void update_check_time();                     //print unix time of sensor change
+void update_check_time();
+byte index_address =  8;                   //print unix time of sensor change
 
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -147,7 +149,6 @@ void store_personalinfo(String namee, String sx, int height, int weight){
   Serial.print("Directory:");Serial.println(info_dir);
   const char *filename = info_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &personal_information);
-  // delay(1000);
 }
 
 void upload_data(String namee,unsigned long tim ,int number){
@@ -252,8 +253,20 @@ void store_data(){
   else{
     // Wifi_disable();
     String file_dir = "/Dataset_";
-    file_dir.concat((String)(file_index%20 + 1));
-    file_index ++;
+    ////Subsequent setting
+    EEPROM.begin(20);
+    EEPROM.get(index_address, file_index);
+    delay(500); 
+    file_index++;
+    EEPROM.put(index_address, file_index);
+    delay(100); 
+    file_dir.concat((String)(file_index%20));
+    Serial.print("file dir: ");Serial.println(file_dir);
+    EEPROM.commit();
+    delay(500);
+    EEPROM.end();
+    delay(500);
+
     if(SPIFFS.exists(file_dir.c_str())){
       SPIFFS.remove(file_dir.c_str());
       printf("removed file: %s\n",file_dir.c_str());
