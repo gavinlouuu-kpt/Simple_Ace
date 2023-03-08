@@ -1,4 +1,9 @@
 # Piccolo
+## About the project
+PIccolo is a device developed for Open-souce Gas Chramtography(OpenGC). OpenGC is designed to separate and analyze the components of complex chemical mixtures. Unlike traditional GC systems that are proprietary and closed, OpenGC is designed to be transparent, customizable, and accessible to the broader scientific community.
+
+OpenGC have the potential to democratize access to advanced chromatography technology, particularly in resource-limited settings or for researchers who may not have access to traditional proprietary systems. They also offer a way to promote collaboration and innovation in the field of analytical chemistry, and to advance the development of new analytical techniques and methods.
+
 ## About Piccolo
 Piccolo is an miniature gas chrmatography device to evaluate sensor sensitivty against mixture of gas. It integrated gas flow control, self-regulating heating element and modular sensor attachment to provide a wide range gas detection. 
 
