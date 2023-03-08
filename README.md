@@ -1,6 +1,6 @@
 # Piccolo
 ## About the project
-PIccolo is a device developed for Open-souce Gas Chramtography(OpenGC). OpenGC is designed to separate and analyze the components of complex chemical mixtures. Unlike traditional GC systems that are proprietary and closed, OpenGC is designed to be transparent, customizable, and accessible to the broader scientific community.
+Piccolo is a device developed for Open-souce Gas Chramtography (OpenGC). OpenGC is designed to separate and analyze the components of complex chemical mixtures. Unlike traditional GC systems that are proprietary and closed, OpenGC is designed to be transparent, customizable, and accessible to the broader scientific community.
 
 OpenGC have the potential to democratize access to advanced chromatography technology, particularly in resource-limited settings or for researchers who may not have access to traditional proprietary systems. They also offer a way to promote collaboration and innovation in the field of analytical chemistry, and to advance the development of new analytical techniques and methods.
 
@@ -47,6 +47,8 @@ The calibration take 45 seconds, please wait patiently until result is prompted 
 Press live plot to start monitoring your sensor behaviour. The moving graph respsents the adc value of the sensor across a 3.3V voltage divider. The interaction with particles would lead to rise of drop of the sensor response (less resistance increase adc value, vice versa). 
 
 ![Live plot](https://user-images.githubusercontent.com/78717679/223623717-679ed078-0bf3-4168-afa9-610c760599b1.jpg)
+![Liveplot](https://user-images.githubusercontent.com/78717679/223653145-31181973-6d11-4407-836a-fa1e5864021f.jpg)
+
 
 There are several points to be noted about the sensor graph:
 
