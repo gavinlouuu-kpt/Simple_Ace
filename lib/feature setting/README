@@ -1,0 +1,6 @@
+The folder includes codes for fundamental functionlaity of Piccolo
+
+The default setting of column temperature is programmed in PID.cpp
+For self-developed heating column, please optimize the parameters of PID system
+
+The default setting of pump flow rate is programmed in simpleACE.cpp

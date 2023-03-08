@@ -1,0 +1,4 @@
+This folder included codes to store data on cloud database and local SPIFFS environment
+
+Please ensure WIFI function is swithed on before pushing data on firebase, and the api key connect
+to your firebase is set.
