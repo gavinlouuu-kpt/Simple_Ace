@@ -53,7 +53,7 @@ It is highly recommended to install "Serial Plot", a opensource serial monitor s
  
 
 ## About the team
-KingsPhase Technologies 
+King's Phase Technologies is a device manufacturer aimed at democratising gaseous informatics in biochemistry. We minimize laboratory gas chromatography mass spectrometry system to provide light-weight tools for gaseous analysis. 
 
 ## License
 
