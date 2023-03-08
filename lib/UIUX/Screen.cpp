@@ -17,22 +17,23 @@
 #include <Adafruit_ADS1X15.h>
 #include "SHTSensor.h"
 
-#include "Image_assets/Bubble_1.h"
-#include "Image_assets/Bubble_2.h"
-#include "Image_assets/Bubble_3.h"
-#include "Image_assets/Bubble_4.h"
-#include "Image_assets/Bubble_5.h"
-#include "Image_assets/Bubble_6.h"
-#include "Image_assets/setting.h"
-#include "Image_assets/Beagle.h"
-#include "Image_assets/Wifi_connect.h"
-#include "Image_assets/Wifi_not_connect.h"
-#include "Image_assets/Wifi_Off.h"
-#include "Image_assets/Loading.h"
+#include "Bubble_1.h"
+#include "Bubble_2.h"
+#include "Bubble_3.h"
+#include "Bubble_4.h"
+#include "Bubble_5.h"
+#include "Bubble_6.h"
+#include "setting.h"
+#include "Beagle.h"
+#include "Wifi_connect.h"
+#include "Wifi_not_connect.h"
+#include "Wifi_Off.h"
+#include "Loading.h"
 
 #define setting_x 180
 #define setting_y 260
 
+//navigation reference
 #define homescreen              0
 #define menu                    1
 #define sampling                2

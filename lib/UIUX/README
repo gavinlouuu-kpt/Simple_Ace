@@ -1,0 +1,5 @@
+This folder is responsible for customized code for TFT screen navigation
+
+PLease refer to Navigation Reference in .cpp file to read through the network of functions and their purposes
+
+A color code .h file is included to be default color palatte of Piccolo

@@ -1,13 +1,13 @@
 #include "Calibration.h"
 #include "SPIFFS.h"
 #include "Simple_ACE.h"
-#include <EEPROM.h>
-#include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
-#include "Image_assets/Loading.h"
+#include "Loading.h"
 #include "PID.h"
 #include "Neighbour_color.h"
 #include "Cloud_storage.h"
+#include <EEPROM.h>
+#include <Adafruit_ADS1X15.h>
 
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;

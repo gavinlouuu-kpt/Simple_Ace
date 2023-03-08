@@ -1,0 +1,5 @@
+This folder included the algorithm of gas recognition against known
+gas compund
+
+The chromatography profile provide by Piccolo apply the algorithm to
+categorize gas and label their correspoding concentration

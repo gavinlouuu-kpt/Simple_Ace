@@ -4,7 +4,7 @@
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
 #include "History_Data.h"
-#include "Image_assets/Beagle.h"
+#include "Beagle.h"
 #include "Neighbour_color.h"
 #include "SHTSensor.h"
 
