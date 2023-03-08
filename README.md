@@ -27,7 +27,12 @@ Insert sensor PCB board into the bottom slot (You can order on the website or pr
 
 Enter developer mode in setting page, press "default setting" to check the flow rate and column temperature. The default setting is (120) and (6000). !They are customizable based on the concentration and size of the target gas. A faster flow rate has greater dilution effect, result in a weaker signal!. A greater column temperature reduce gas seperation and shorten the time of observation. 
 
+![Settings](https://user-images.githubusercontent.com/78717679/223623694-25d4c44a-1d6f-4687-bf49-55f7ef92d335.jpg)
+![default setting](https://user-images.githubusercontent.com/78717679/223623646-0b8d332c-53ab-4d40-9056-9b5e2709b582.jpg)
+
 Switch on the device and select caliibration in setting page. 
+
+![calibration](https://user-images.githubusercontent.com/78717679/223623664-d43c9aa0-7ff5-499a-855d-edf785c04802.jpg)
 
 Prepare your reference liquid solution. 
 
@@ -35,6 +40,8 @@ Pressing the start button would setup the internal system. After the screen inst
 The calibration take 45 seconds, please wait patiently until result is prompted on the screen.
 
 Press live plot to start monitoring your sensor behaviour. The moving graph respsents the adc value of the sensor across a 3.3V voltage divider. The interaction with particles would lead to rise of drop of the sensor response (less resistance increase adc value, vice versa). 
+
+![Live plot](https://user-images.githubusercontent.com/78717679/223623717-679ed078-0bf3-4168-afa9-610c760599b1.jpg)
 
 There are several points to be noted about the sensor graph:
 
