@@ -41,12 +41,12 @@ void loop() {
     if(dac_power == 255){
       dac_power = 0;
       dacWrite(sensor_h, dac_power);
-      delay(10);
+      delay(5);
     }
     else{
       dac_power = 255;
       dacWrite(sensor_h, dac_power);
-      delay(10);
+      delay(5);
     } 
   }
   

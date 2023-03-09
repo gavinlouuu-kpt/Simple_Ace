@@ -25,5 +25,6 @@
     "fstream": "cpp",
     "sstream": "cpp"
   },
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.errorSquiggles": "disabled",
+  "Codegeex.EnableExtension": false
 }
