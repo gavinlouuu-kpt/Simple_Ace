@@ -1,15 +1,17 @@
 # Piccolo
 ## About the project
-Piccolo is a device developed for Open-souce Gas Chramtography (OpenGC). OpenGC is designed to separate and analyze the components of complex chemical mixtures. Unlike traditional GC systems that are proprietary and closed, OpenGC is designed to be transparent, customizable, and accessible to the broader scientific community.
+This project developed for Open-souce Gas Chramtography (OpenGC). OpenGC is designed to separate and analyze the components of complex chemical mixtures. Unlike traditional GC systems that are proprietary and closed, OpenGC is designed to be transparent, customizable, and accessible to the broader scientific community.
 
 OpenGC have the potential to democratize access to advanced chromatography technology, particularly in resource-limited settings or for researchers who may not have access to traditional proprietary systems. They also offer a way to promote collaboration and innovation in the field of analytical chemistry, and to advance the development of new analytical techniques and methods.
 
 ## About Piccolo
-Piccolo is an miniature gas chrmatography device to evaluate sensor sensitivty against mixture of gas. It integrated gas flow control, self-regulating heating element and modular sensor attachment to provide a wide range gas detection. 
+Piccolo is an miniature gas chrmatography device to evaluate sensor sensitivty. It integrated gas flow control, self-regulating heating element and modular sensor attachment to provide a wide range gas detection. 
 
 ![TAI_8477](https://user-images.githubusercontent.com/78717679/222635831-722b8976-42af-47da-9b0c-7ac461033310.jpg)
 
-Gas samples are highly complex in nature. The tradition way to evaluate sensors sensitivity exposes them in ideal environment with only relative high concenration of pure target gas and non-reactive carrier gas. However, sensors in real-application has **1. much lower concentration compare to laboratory scenario** and **2. much noises contributed by surrounding environment**. Target gas are mixed up with surrounding gas, for example water vapour, CO2, N2,etc. Therefore, in application scenario, observing sensors' response against a certain gas consistuents would expect high intereference from the environment. This could be found in MEMS sensor and PID (Photon Ionization detector) sensor, which have limited selectivity given the nature of architecture. 
+Gas samples are highly complex in nature. The traditional way to evaluate sensors sensitivity exposes them in ideal environment compossed by high concentration target gas and non-reactive carrier gas. However, sensors in real-application has **1. much lower concentration compare to laboratory scenario** and **2. much noises contributed by surrounding environment**. Target gas are mixed up with surrounding gas, for example water vapour, CO2, N2,etc. Therefore, in application scenario, observing sensors' response against a certain gas consistuents would expect high intereference from the environment. This could be found in MEMS sensor and PID (Photon Ionization detector) sensor, which have limited selectivity given the nature of architecture. 
+
+Piccolo is porgrammed with C language, under Arduino framework.  Clone this project into your local repository on visual studio code to customize the system.
 
 ## How it works
 Piccolo seperates gas mixture by ambient air dilution and heated elusion and reveals your sensors' sensitivity toward the target gas. 
@@ -24,13 +26,21 @@ By measuring the rention time of different gas in varying temerpature and flow r
 - USB-C charging, Serial communication, and Compilation protocol 
 - Attachable sesnor testing module 
 - TFT screen navigationpanel
-- 4.2 V Li rechargeable battery
+- 3.7 V Li rechargeable battery
 - Gas channelling mouth piece
+- Gas channelling Sensor cover
+
+## Board information
+The device is installed with ESP32 PICO D4 MCU chip. It supports SPI Flash File System (SPIFFS), I2C communciation protocol and Wifi protocol. X V is required to power the system and control logic. 
 
 ## Get started
+Fix sensor cover onto the board and connect to the outlet of diaphragm pump. Please ensure the sensor cover is the outlet of the gaseous pathway. 
+
 Insert sensor PCB board into the bottom slot (You can order on the website or produce by yourself. The schematics are included).
 
-Enter developer mode in setting page, press "default setting" to check the flow rate and column temperature. The default setting is (120) and (6000). !They are customizable based on the concentration and size of the target gas. A faster flow rate has greater dilution effect, result in a weaker signal!. A greater column temperature reduce gas seperation and shorten the time of observation. 
+Enter developer mode in setting page, press "default setting" to check the flow rate and column temperature. The default setting is 88mL/min and 47<sup>o</sup>C. This parameter is specifed for acetone observation. 
+
+Both parameters are customizable based on the concentration and size of the target gas. Please refer to the elution table for optimized gas sepration.
 
 ![Settings](https://user-images.githubusercontent.com/78717679/223623694-25d4c44a-1d6f-4687-bf49-55f7ef92d335.jpg)
 ![default setting](https://user-images.githubusercontent.com/78717679/223623646-0b8d332c-53ab-4d40-9056-9b5e2709b582.jpg)
