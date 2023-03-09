@@ -1269,13 +1269,15 @@ void Navigation()
             
             extern double Output;
             if(sht.readSample()){
-              Serial.print(sht.getHumidity(), 2);Serial.print(",");
-              Serial.print(sht.getTemperature(), 2);Serial.print(",");
+              // Serial.print(sht.getHumidity(), 2);Serial.print(",");
+              // Serial.print(sht.getTemperature(), 2);Serial.print(",");
               Serial.print(ADS0);Serial.print(",");
-              Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");
-              Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");
-              Serial.print(ads.readADC_SingleEnded(NTCC_channel));Serial.print(",");
-              Serial.println(Output); 
+              Serial.println(47000*(3.3-ads.computeVolts(ADS0))/ads.computeVolts(ADS0)); // Serial.print(",");
+              // Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");
+              // Serial.print(ads.readADC_SingleEnded(Heater_channel));Serial.print(",");
+              // Serial.print(ads.readADC_SingleEnded(Offset_channel));Serial.print(",");
+              // Serial.print(ads.readADC_SingleEnded(NTCC_channel));Serial.print(",");
+              // Serial.println(Output); 
             }
           }
           if (tft.getTouch(&touch_x, &touch_y))
