@@ -1180,6 +1180,7 @@ void Navigation()
       {
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         pump_control(true);
+        dacWrite(sensor_h,255);
         while (1){
           PID_control();  
           float ADS0 = ads.readADC_SingleEnded(Sensor_channel);
