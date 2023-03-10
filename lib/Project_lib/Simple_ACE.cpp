@@ -34,7 +34,7 @@ short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
 bool isStore = false;
 
-int dutyCycle_pump = 85;     //120    
+int dutyCycle_pump = 120;     
 int baseline = 0;
 int fail_count = 0;
 int millisUnitTime = 0;
