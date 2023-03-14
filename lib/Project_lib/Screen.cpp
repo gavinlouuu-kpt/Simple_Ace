@@ -321,50 +321,52 @@ extern int fail_count;
 
 void draw_result(double co2, double ace)
 {
-  tft.fillRect(0, 20, 240, 170, TFT_NEIGHBOUR_GREEN);  // cover graph
-  tft.fillRect(10, 260, 150, 50, TFT_NEIGHBOUR_GREEN); // cover analyzing
-  tft.fillRect(0, 200, 240, 50, TFT_NEIGHBOUR_GREEN);
-  // draw_framework();
-  tft.fillRect(0, 200, 240, 33, TFT_NEIGHBOUR_GREEN); // cover logo
 
-  tft.setTextDatum(4);
+
+  tft.fillScreen(TFT_MilkWhite);
+  draw_framework();
+
+  // tft.setTextDatum(4);
   draw_start_button();
-  if (fail_count != 50)
-  {
-    draw_bar(co2, ace);
-    delay(500);
-    tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-    tft.drawString("Acetone", 170, 205, 2);
-    tft.drawFloat((float)ace, 2, 170, 220, 2);
-    tft.drawString("Metabolic rate", 60, 205, 2);
-    tft.drawFloat((float)co2, 2, 60, 220, 2);
-  }
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-
+  // if (fail_count != 50)
+  // {
+  //   draw_bar(co2, ace);
+  //   delay(500);
+  //   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+  //   tft.drawString("Acetone", 170, 205, 2);
+  //   tft.drawFloat((float)ace, 2, 170, 220, 2);
+  //   tft.drawString("Metabolic rate", 60, 205, 2);
+  //   tft.drawFloat((float)co2, 2, 60, 220, 2);
+  // }
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+  tft.drawString("Ketone:",20,95,2);
+  tft.drawString("Co2:",20,115,2);
+  tft.drawFloat(ace,2,70, 95,2);
+  tft.drawFloat(co2,2,70, 115,2);
   if (ace < 1 || co2 < 1 || isStore == false)
   {
-    tft.drawString("Try Again", 120, 40, 4);
+    tft.drawString("Try Again", 65, 55, 4);
   }
   else if ((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3))
   {
-    tft.drawString("Inactive workout", 120, 40, 4);
+    tft.drawString("Inactive workout", 65, 55, 4);
   }
   else if ((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5))
   {
-    tft.drawString("Moderate burn", 120, 40, 4);
+    tft.drawString("Moderate burn", 65, 55, 4);
   }
   else if ((ace >= 1.2 && ace < 1.3) && (co2 >= 1.3 && co2 < 1.5))
   {
-    tft.drawString("Effective training", 120, 40, 4);
+    tft.drawString("Effective training", 65, 55, 4);
   }
   else if ((ace >= 1.2 && ace < 1.3) && (co2 >= 1.5))
   {
-    tft.drawString("Intensive training", 120, 40, 4);
+    tft.drawString("Intensive training", 65, 55, 4);
   }
 
   else if ((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3))
   {
-    tft.drawString("Moderate Ketosis", 120, 40, 4);
+    tft.drawString("Moderate Ketosis", 65, 55, 4);
   }
   else if (ace >= 1.3 && co2 >= 1)
   {
@@ -374,7 +376,7 @@ void draw_result(double co2, double ace)
 extern unsigned long previous_sensor_time;
 void HomeScreen()
 {
-  //tft.setFreeFont(FMB9);
+  // tft.setFreeFont(FSSB24);
   tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
   tft.fillScreen(TFT_MilkWhite);
   // tft.pushImage(0, 0, Homepage2Width, Homepage2Height, Homepage2);
@@ -383,6 +385,7 @@ void HomeScreen()
   tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
   tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
   tft.drawString("BREATH",97,235,2);
+  delay(1000);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
 
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
@@ -552,8 +555,7 @@ void developer_display()
 {
   ResetXY();
   draw_Settingframework();
-  tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
-
+  // tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
   tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
   tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);
   tft.drawString("Live Plot",30,112,2);
@@ -1024,7 +1026,7 @@ void TouchScreen()
         draw_framework();
         tft.setTextColor(TFT_NEIGHBOUR_GREEN);
         tft.drawString("Analyzing", 15, 50, 4);
-        sample_collection();
+        // sample_collection();
         output_result();
       }
     }

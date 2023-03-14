@@ -387,19 +387,24 @@ double ads_convert(int value, bool resist) {
 
 
 void output_result(){
-  if(fail_count==50){
-    draw_result(0,0);
-    return;
-  }
-  int CO2_peak = peak_value(0,unit);
-  int ace_peak = peak_value(4,unit);
+  // if(fail_count==50){
+  //   draw_result(0,0);
+  //   return;
+  // }
+  // int CO2_peak = peak_value(0,unit);
+  // int ace_peak = peak_value(4,unit);
   // double baseline_resist = ads_convert(baseline, true); 
   // double peak_resist_CO2 = ads_convert(CO2_peak, true);
   // double peak_resist_Ace = ads_convert(ace_peak, true);
     // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
     // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
-    conc_CO2 = (double)CO2_peak/(double)baseline;
-    conc_Ace = (double)ace_peak/(double)baseline;
+    
+    // conc_CO2 = (double)CO2_peak/(double)baseline;
+    // conc_Ace = (double)ace_peak/(double)baseline;
+
+    conc_Ace = 1.01; //dummydata
+    conc_CO2 = 1.20; //dummydata
+
     Serial.println(conc_Ace);
     Serial.println(conc_CO2);
     store_result(conc_Ace,conc_CO2);
@@ -413,7 +418,8 @@ void output_result(){
   
   // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   draw_result(conc_CO2,conc_Ace);
-  cloud_upload();
+  // cloud_upload();
+
   // control=false;
   // pump_control(control);
 }// not in percentage
