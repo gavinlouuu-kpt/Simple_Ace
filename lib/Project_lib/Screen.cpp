@@ -493,17 +493,7 @@ void draw_Wifi()
 void sampling_display()
 {
   ResetXY();
-  // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-  // delay(200);
-  // draw_framework();
-  // draw_start_button();
 
-  // tft.fillRoundRect(90, 270, 60, 46,23 ,TFT_NEIGHBOUR_BLUE);
-  // tft.drawRoundRect(90, 270, 60, 46,23 ,TFT_NEIGHBOUR_BEIGE);
-  // tft.drawString("END", 110,285,2);
-  // drawKeypad();
-
-  //tft.pushImage(0, 0, BreatheHereWidth, BreatheHereHeight, BreatheHere);
   draw_framework();
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
   tft.drawString("Breathe Here", 15, 50, 4);
@@ -1026,7 +1016,7 @@ void TouchScreen()
         draw_framework();
         tft.setTextColor(TFT_NEIGHBOUR_GREEN);
         tft.drawString("Analyzing", 15, 50, 4);
-        // sample_collection();
+        sample_collection();
         output_result();
       }
     }
@@ -1497,7 +1487,7 @@ void TouchScreen()
             Serial.print(",");
             Serial.print(Output);
             Serial.print(",");
-            Serial.println(analogRead(NTCC));
+            Serial.println(analogRead(NTCC_channel));
           }
           if (tft.getTouch(&t_x, &t_y))
           {

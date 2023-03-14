@@ -37,7 +37,7 @@ void PID_control(){
     //     Serial.println(buffer_input);
     // }
     // Input = (double)buffer_input;
-    Input = analogRead(NTCC);
+    Input = analogRead(NTCC_channel);
     //   double gap = abs(Setpoint-Input); //distance away from setpoint
 //   if (gap < 100)
 //   {  //we're close to setpoint, use conservative tuning parameters

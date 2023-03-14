@@ -20,14 +20,30 @@
 // #define NTCC                39
 
 //Wrover 2.8" display///////////////////////////////////////////////      
-#define pumpPin             26  
+#define colPin_1            26
+#define colPin_2            13
+#define pumpPin_1           27
+#define pumpPin_2           32
+ 
 #define buz                 13
-#define colPin              33  
 #define btn_rst             39
 #define btn_1               36
-#define NTCC                34
 #define BOOT                0
 #define sensor_h            25
+#define battery_EN          12
+#define battery_read        34
+
+#define baseline_window     50
+#define Offset_channel  	0 //raw adc
+#define Sensor_channel  	1 //raw adc
+#define Heater_channel  	2 //raw adc
+#define NTCC_channel        3 //raw adc
+
+#define pumpChannel_1 		0
+#define pumpChannel_2 		1
+#define colChannel_1 		2
+#define colChannel_2 		3
+
 
 // //Wrover IB///////////////////////////////////////////////////
 // #define pumpPin             32  
@@ -56,7 +72,7 @@
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 
-const int freq = 8000;
+const int freq = 20000;
 const int resolution = 10;
 const int zone = 5000;
 const int dutyCycle_col = 80;

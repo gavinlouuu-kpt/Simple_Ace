@@ -34,16 +34,29 @@ short Sensor_arr[store_size]={0};
 bool control = true;
 
 void pinSetup(){
-  pinMode(pumpPin, OUTPUT);
-  pinMode(colPin,OUTPUT);
-  pinMode(NTCC,INPUT);
-  pinMode(btn_rst, INPUT);
+  pinMode(pumpPin_1,OUTPUT);
+  pinMode(pumpPin_2,OUTPUT);
+  pinMode(colPin_1,OUTPUT);
+  pinMode(colPin_2,OUTPUT);
   pinMode(sensor_h,OUTPUT);
+  pinMode(battery_EN, OUTPUT);
+  pinMode(btn_rst, INPUT);
+  pinMode(battery_read,INPUT);
+
+  digitalWrite(battery_EN,1);           //  enable battery monitor
+  dacWrite(sensor_h,255);             //  enable senosr heater
+  ledcSetup(colChannel_1, 5000, 8);
+  ledcSetup(colChannel_2, 5000, 8);
+  ledcSetup(pumpChannel_1, freq, resolution);
+  ledcSetup(pumpChannel_2, freq, resolution);
+  ledcAttachPin(pumpPin_1,pumpChannel_1);
+  ledcAttachPin(pumpPin_2,pumpChannel_2);
+  ledcAttachPin(colPin_1,colChannel_1);
+  ledcAttachPin(colPin_2,colChannel_2);
 }
 
 void analogSetup(){
   ledcSetup(colChannel, freq, resolution);
-  ledcAttachPin(colPin, colChannel);
   // ledcWrite(colChannel, dutyCycle_col);
   
   dacWrite(sensor_h, 240);
@@ -56,14 +69,14 @@ void warm_up(){
   extern double Setpoint;
   unsigned long counttime = 0;
   double warm_up_length = 0;
-  double ntcc_bar_base  = (double)analogRead(NTCC) - Setpoint;
+  double ntcc_bar_base  = (double)analogRead(NTCC_channel) - Setpoint;
   int boundary = 10;
   
   tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
-  while(abs(analogRead(NTCC)-(int)Setpoint) > boundary){ 
+  while(abs(analogRead(NTCC_channel)-(int)Setpoint) > boundary){ 
     // Serial.print("difference: "); Serial.println(abs(analogRead(NTCC)-(int)Setpoint));
     PID_control();
-    warm_up_length = abs ((double)analogRead(NTCC)-Setpoint);
+    warm_up_length = abs ((double)analogRead(NTCC_channel)-Setpoint);
     // tft.fillRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 5, TFT_NEIGHBOUR_BEIGE);
     tft.fillRoundRect(15, 210, (int)(200 * (1-(warm_up_length / ntcc_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
     delay(10);
@@ -74,16 +87,14 @@ void warm_up(){
 
 void pump_control(bool control){
   if(control == true){
-  dacWrite(pumpPin, 225);
+  ledcWrite(pumpChannel_1, 255);
   delay(200);
-  dacWrite(pumpPin,150);
+  ledcWrite(pumpChannel_1, 150);
   delay(200);
-  dacWrite(pumpPin,100);
-  delay(200);
-  dacWrite(pumpPin, dutyCycle_pump);
+  ledcWrite(pumpChannel_1, dutyCycle_pump);
   }
   else{
-    dacWrite(pumpPin, 0);
+    ledcWrite(pumpChannel_1, 0);
     delay(100);
   }
 }
@@ -175,14 +186,14 @@ int restore_baseline(){
   ledcWrite(colChannel, 255);
   int counter=0 ;
   unsigned long cleaning_counter = millis();
-  while(millis()-cleaning_counter <10000){
-    // Serial.println("removing residues...");
-    draw_loading(counter);counter ++;
-  }
-  while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
-    PID_control();
-    draw_loading(counter);counter ++;
-  } 
+  // while(millis()-cleaning_counter <10000){
+  //   // Serial.println("removing residues...");
+  //   draw_loading(counter);counter ++;
+  // }
+  // while(abs(analogRead(NTCC)-(int)Setpoint) > 10){
+  //   PID_control();
+  //   draw_loading(counter);counter ++;
+  // } 
 
   unsigned long previous_time= millis();
   double slope =0 ;
@@ -248,9 +259,10 @@ void sample_collection(){
   short adc_CO2;
   restore_humidity();
   baseline = restore_baseline();
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+  draw_framework();
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
   // tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
-  tft.drawString("HUFF now", 120, 245, 4);
+  tft.drawString("HUFF now", 65, 225, 4);
   // set_range(baseline);
   // delay(1);
   breath_check();
@@ -258,7 +270,7 @@ void sample_collection(){
   previous = millis();
   int previous_counter;
   int previous_counter2;
-  draw_wait();
+  // draw_wait();
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
