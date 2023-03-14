@@ -1006,10 +1006,10 @@ void Navigation()
         // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         // tft.drawString("Print Spiffs", 120, 160, 4);
         delay(200);
-       tft.fillScreen(TFT_MilkWhite);
+        tft.fillScreen(TFT_MilkWhite);
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         Reset_coordinate();
-        // display_load_SPIFFS();
+        Spiffs_display();
         stage = print_stored_data ;
       }
       else if (touch_x > 180 && touch_x < 195 && touch_y > 10 && touch_y < 285)
