@@ -80,36 +80,6 @@ unsigned long getTime() {
   return now;
 }
 
-String UnixConvert(unsigned long t)
-{
-  // time_t t = 1675827391; //unix timestamp
-  setTime(t);
-  String sampletime = "";
-  sampletime.concat(day());
-  sampletime.concat("-");
-  sampletime.concat(month());
-  sampletime.concat("-");
-  sampletime.concat(year());
-  sampletime.concat(" ");
-  sampletime.concat(hour());
-  sampletime.concat(":");
-  sampletime.concat(minute());
-  sampletime.concat(":");
-  sampletime.concat(second());
-  Serial.print("Date: ");
-  Serial.print(day());
-  Serial.print("/");
-  Serial.print(month());
-  Serial.print("/");
-  Serial.print(year());
-  Serial.print(" ");
-  Serial.print(hour());
-  Serial.print(":");
-  Serial.print(minute());
-  Serial.print(":");
-  Serial.println(second());
-  return sampletime;
-}
 
 // void UnixToTime(int UnixNum)                                                           self-calculated unix converter
 // {
@@ -241,7 +211,6 @@ void store_data(){
   if(isWifi == true){
     checkWifiStatus();
   }
-
   if(isConnect){
     if((millis() - millisPreviousTime) > 100 || millisPreviousTime == 0){
       store_personalinfo(name,sex,h,w);        
@@ -267,16 +236,13 @@ void store_data(){
               upload_data(name,millisUnixTime,j);
               delay(10);
             }
-            storedata(name, unixtime, j);
-            delay(10);
-          }
           Serial.print("Stored from previous ");
           Serial.println(upload_file_dir.c_str());
           file.close();
           SPIFFS.remove(upload_file_dir.c_str()); // deleted Spiffs file
           delay(1000);
         }
-      }
+      } 
       //Sample realtime
       if(Firebase.ready()){
         millisUnixTime= getTime(); 
@@ -348,7 +314,7 @@ void store_data(){
     // }
     // file.close();
   }
-  WiFi.disconnect();
+  Wifi_disable();
 }
 
 void update_sensor(){
@@ -360,7 +326,7 @@ void update_sensor(){
   file.print(millisUpdateSensorTime);file.write('\n'); 
   file.close();
   delay(500);
-  WiFi.disconnect();
+  Wifi_disable();
 }
 
 void update_check_time(){
