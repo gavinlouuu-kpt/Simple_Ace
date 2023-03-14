@@ -110,7 +110,7 @@ uint16_t touch_x = 0, touch_y = 0;
 
 void tft_setup(){
   tft.init();
-  tft.fillScreen(TFT_MilkWhite);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.setSwapBytes(true);
   tft.setRotation(2);
 
@@ -125,32 +125,18 @@ void Reset_coordinate(){
   touch_y = 0;
 }
 
-// void display_assets(){
-//   tft.setTextColor(TFT_NEIGHBOUR_BEIGE);
-//   tft.pushImage(10, 200, Bubble1_w, Bubble1_h, Bubble_1, 0x0000);
-//   tft.pushImage(50, 200, Bubble2_w, Bubble2_h, Bubble_2, 0x0000);
-//   tft.pushImage(90, 200, Bubble3_w, Bubble3_h, Bubble_3, 0x0000);
-//   tft.pushImage(130, 200, Bubble4_w, Bubble4_h, Bubble_4, 0x0000);
-//   tft.pushImage(165, 200, Bubble5_w, Bubble5_h, Bubble_5, 0x0000);
-//   tft.pushImage(201, 200, Bubble6_w, Bubble6_h, Bubble_6, 0x0000);
-//   tft.setTextDatum(TC_DATUM);
-//   tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-// }
-
-
 void draw_framework()
 {
-  tft.fillScreen(TFT_MilkWhite);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
-
 }
 
 void draw_Settingframework()
 {
-  tft.fillScreen(TFT_MilkWhite);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
@@ -160,7 +146,7 @@ void draw_Settingframework()
 
 void display_loading(int count)
 {
-  tft.fillRect(90, 200, 70, 70, TFT_MilkWhite); //  cover loading logo
+  tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE ); //  cover loading logo
   tft.pushImage(90, 200, LoadingWidth, LoadingHeight, Loading[count % 11]);
   delay(100);
 }
@@ -198,7 +184,6 @@ int position_temp_min = -1;
 
 void draw_sensor(double sensor_value){
   graph1.pushSprite(20, 40);
-
   if (array_index < 201){
     Plot_buffer[array_index] = (int)sensor_value;
     if (position_temp_max < 0){ // relocate maximum point
@@ -312,11 +297,11 @@ void display_start_button(){
 void draw_result(double co2, double ace){
   extern bool isStore;
   extern int fail_count;
-  tft.fillScreen(TFT_MilkWhite);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   draw_framework();
   tft.setTextDatum(4); 
   display_start_button();     
-  // if(fail_count != 50){ 
+  if(fail_count != 50){ 
   //   draw_result_bar(co2,ace);
   //   delay(500);
   //   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
@@ -324,12 +309,12 @@ void draw_result(double co2, double ace){
   //   tft.drawFloat((float)ace, 2, 170, 220, 2);
   //   tft.drawString("Metabolic rate", 60, 205, 2);
   //   tft.drawFloat((float)co2 , 2, 60, 220, 2);
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Ketone:",20,95,2);
   tft.drawString("Co2:",20,115,2);
   tft.drawFloat(ace,2,70, 95,2);
   tft.drawFloat(co2,2,70, 115,2);
-  // }
+  }
 
   if(ace < 1 || co2 < 1||isStore == false){
     tft.drawString("Try Again",120,40,4); 
@@ -371,8 +356,8 @@ void Warmup_Screen(){
 
 void HomeScreen()
 {
-   tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
-  tft.fillScreen(TFT_MilkWhite);
+  tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   // tft.pushImage(0, 0, Homepage2Width, Homepage2Height, Homepage2);
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
@@ -382,57 +367,29 @@ void HomeScreen()
   delay(1000);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
 
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Lets Get Started", 15, 50, 4);
-  // tft.pushImage(15, 50, StartedWidth, StartedHeight, Started);
-
-  // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
-  // tft.drawString("Let's get started",10,60,4);
-
-  // tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
-  // tft.setTextDatum(ML_DATUM);
-  // tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  // tft.drawString("King's Phase ", 10, 270, 2);
-  // tft.drawString("Technologies", 10, 290, 1);
-  // tft.drawString("Phase", 10, 280, 2);
-  // draw_framework();
   display_Wifi();
-
-  // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  // tft.setTextDatum(4);
-  // tft.fillRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
-  // tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
-  // tft.drawString("Start", 125, 280, 2);
-
-  // timeot
-  // press button
-  // write new store time into spiff
-
-  // delay(300);
 }
 
 void display_menu(){
   Reset_coordinate();
-  tft.fillScreen(TFT_MilkWhite);
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
   tft.setTextDatum(0);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Setting", 15, 50, 4);
-  //tft.pushImage(0, 0, Setting2Width, Setting2Height, Setting2);
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
+    tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
   tft.drawString("Wifi",30,107,2);
 
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);
-  tft.drawString("Calibration",30,147,2);
-  tft.fillRoundRect(15,170,210,30,3,TFT_DARKGREY);
-  tft.drawString("User ID",30,177,2);
-  tft.fillRoundRect(15,200,210,30,3,TFT_DARKGREY);
-  tft.drawString("Language",30,207,2);
+  tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,147,2);
+  tft.fillRoundRect(15,170,210,30,3,TFT_DARKGREY);tft.drawString("User ID",30,177,2);
+  tft.fillRoundRect(15,200,210,30,3,TFT_DARKGREY);tft.drawString("Language",30,207,2);
   tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
 
   tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);
@@ -465,7 +422,7 @@ void display_Wifi(){             // draw wifi logo
 void display_enable_sampling(){
   Reset_coordinate();
    draw_framework();
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Breathe Here", 15, 50, 4);
   tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
   tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
@@ -816,7 +773,7 @@ void Navigation()
     { // Navigation
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 300)                //OTA
       {
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
         draw_Settingframework();
         // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
@@ -1006,7 +963,7 @@ void Navigation()
         // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         // tft.drawString("Print Spiffs", 120, 160, 4);
         delay(200);
-        tft.fillScreen(TFT_MilkWhite);
+        tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         Reset_coordinate();
         Spiffs_display();
@@ -1019,9 +976,9 @@ void Navigation()
         // tft.drawString("Previous Value", 120, 220, 4);
         delay(200);
         int DataCounter = 0;
-        tft.fillScreen(TFT_MilkWhite);
+        tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         tft.drawString("Previous Value", 15, 50, 4);
         Reset_coordinate();
@@ -1057,11 +1014,11 @@ void Navigation()
         // }
             Serial.print("plotting: ");
             Serial.println(recorded_gas_sample[i]);
-            tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+            tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
             tft.drawNumber(i+1, 20, 80+10 *(i+1));
             tft.drawFloat(recorded_gas_sample[i],2,40,80+10*(i+1));
             // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
-            // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+            // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
             // // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
             // if (i % 2 == 0)
             // {
@@ -1336,7 +1293,7 @@ void Navigation()
     }
     if (stage == live_plot)
     { // developer mode:ADS0 
-      tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_MilkWhite);
+      tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
 
       if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200)
       {
@@ -1391,8 +1348,8 @@ void Navigation()
               position_temp_min = array_index;
               isPlotrangeChange = true;
             }
-            tft.fillRect(0, 25, 50, 10, TFT_MilkWhite);
-            tft.fillRect(0, 195, 240, 10, TFT_MilkWhite);
+            tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_BEIGE );
+            tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_BEIGE );
             // tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
             tft.drawFloat(float(plot_upper_bound), 0, 15, 30, 1);
             tft.drawFloat(float(plot_lower_bound), 0, 15, 200, 1);
@@ -1403,7 +1360,7 @@ void Navigation()
             {
               graph1.scroll(-1);
               // printf("%f\n",value);
-              graph1.drawLine(198, 150 - 150 * ((Plot_buffer[array_index - 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199, 150 - 150 * ((Plot_buffer[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_MilkWhite);
+              graph1.drawLine(198, 150 - 150 * ((Plot_buffer[array_index - 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199, 150 - 150 * ((Plot_buffer[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
               // printf("%d\n",150 - 150 * ((H[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)));
             }
             if (isPlotrangeChange == true && array_index > 0) // redraw
@@ -1412,7 +1369,7 @@ void Navigation()
               for (int c = 0; c < array_index; c++)
               {
                 // graph1.drawFastVLine(199 - (array_index  - c), 150 - 150 * ((H[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)),1, TFT_YELLOW);
-                graph1.drawLine(199 - (array_index - c), 150 - 150 * ((Plot_buffer[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199 - (array_index - 1 - c), 150 - 150 * ((Plot_buffer[c + 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_MilkWhite);
+                graph1.drawLine(199 - (array_index - c), 150 - 150 * ((Plot_buffer[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199 - (array_index - 1 - c), 150 - 150 * ((Plot_buffer[c + 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
               }
               isPlotrangeChange = false;
             }
@@ -1496,7 +1453,7 @@ void Navigation()
         // tft.fillScreen(TFT_NEIGHBOUR_GREEN);
         extern bool isWifi;
         // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
         tft.drawString("WiFi Setting",50, 50, 4);
         isWifi = true;
 
@@ -1506,7 +1463,7 @@ void Navigation()
         {
           tft.drawString("Connected", 50, 100, 4);
           delay(2000);
-          tft.fillScreen(TFT_MilkWhite);
+          tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
           stage = homescreen;    
           HomeScreen();    
           display_Wifi();
@@ -1525,14 +1482,14 @@ void Navigation()
         Reset_coordinate();
         extern bool isWifi;
         // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_MilkWhite);
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
         tft.drawString("WiFi Setting", 50, 50, 4);
         Wifi_disable();
         if (isWifi == false)
         {
           tft.drawString("OFF", 100, 100, 4);
           delay(2000);
-          tft.fillScreen(TFT_MilkWhite);
+          tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
           stage = homescreen;  
           HomeScreen();
         }
@@ -1540,7 +1497,7 @@ void Navigation()
         {
           tft.drawString("Failed", 50, 100, 4);
           delay(2000);
-          tft.fillScreen(TFT_MilkWhite);
+          tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
           display_control_wifi();
         }
       }
