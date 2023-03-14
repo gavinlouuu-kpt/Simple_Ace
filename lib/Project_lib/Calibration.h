@@ -6,6 +6,9 @@
 
 #define peak_candidate 100
 #define TFT_NEIGHBOUR_GREEN     0x12E8
+#define TFT_MilkWhite  0xEF1A
+#define TFT_PaleYellow 0xFFBC
+#define TFT_PaleWhite  0xFFCC
 
 
 
