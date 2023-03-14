@@ -1093,12 +1093,29 @@ void Navigation()
 
     if (stage == print_stored_data )      //print spiffs
     {
-      if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305){
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-        tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-        Reset_coordinate();
-        display_load_data();
-        stage = print_gas_sample ;
+       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
+      {
+        if (SPIFFS.exists("/Dataset_1"))
+        {
+          File file = SPIFFS.open("/Dataset_1", FILE_READ);
+          while (file.available())
+          {
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+      }
+      else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+      {
+        if (SPIFFS.exists("/Dataset_2"))
+        {
+          File file = SPIFFS.open("/Dataset_2", FILE_READ);
+          while (file.available())
+          {
+            Serial.write(file.read());
+          }
+          file.close();
+        }
       }
 
       // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
