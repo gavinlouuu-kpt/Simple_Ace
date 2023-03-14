@@ -385,6 +385,16 @@ void output_result(){
   Serial.println(conc_Ace);
   Serial.println(conc_CO2);
   store_result(conc_Ace,conc_CO2);
+    
+    // conc_CO2 = (double)CO2_peak/(double)baseline;
+    // conc_Ace = (double)ace_peak/(double)baseline;
+
+    conc_Ace = 1.01; //dummydata
+    conc_CO2 = 1.20; //dummydata
+
+    Serial.println(conc_Ace);
+    Serial.println(conc_CO2);
+    store_result(conc_Ace,conc_CO2);
 
 
 //   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
