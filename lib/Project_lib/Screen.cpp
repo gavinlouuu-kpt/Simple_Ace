@@ -38,6 +38,8 @@
 #include "Image_assets/DefaultSetting.h"
 #include "Image_assets/Spiffs.h"
 #include "Image_assets/Return_arrow.h"
+#include "Image_assets/Return_arrow_flip.h"
+
 
 #define homescreen              0
 #define setting_menu            1
@@ -102,6 +104,7 @@ extern const char* ntpServer;
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
 
+int page_number = 0;
 bool isSensor =true;
 bool isPlotrangeChange = false;
 int stage = homescreen;
@@ -137,7 +140,7 @@ void draw_framework()
 
 void draw_Settingframework()
 {
-  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
@@ -593,34 +596,27 @@ void display_device_setting(){
   tft.pushImage(0, 100, DefaultSettingWidth, DefaultSettingHeight, DefaultSetting);
 }
 
-void Spiffs_display()
+void Spiffs_display(int page)
 {
+  int buffer_y = 5;
+  int buffer_x = 15;
+  int rect_length = 210;
+  int rect_height = 30;
+  int rect_radius = 3;
+  String file_name = "Dataset_";
   Reset_coordinate();
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   draw_Settingframework();
   tft.drawString("Spiffs", 15, 50, 4);
-  //push return_arrow image
-  tft.pushImage(205, 75, Return_arrow_width, Return_arrow_height, Return_arrow);
-
+  tft.pushImage(205, 80, Return_arrow_width, Return_arrow_height, Return_arrow);
+  tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+  tft.setTextDatum(ML_DATUM);
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
-  tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow); tft.drawString("SPIFFS 1",30,112,2);
-  
-  tft.fillRoundRect(15,145,210,30,3,TFT_PaleYellow);tft.drawString("SPIFFS 2",30,152,2);
-
-  tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,185,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,192,2);
-
-  
-  // tft.pushImage(0, 100, SpiffsWidth, SpiffsHeight, Spiffs);
-//   tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-//   tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-//   tft.drawString("SPIFFS 1", 80, 35, 4);
-//   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-//   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-//   tft.drawString("SPIFFS 2", 80, 100, 4);
-//   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-//   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-//   tft.drawString("Calibration", 80, 160, 4);
+  for(int i = 0; i < 5; i++){
+    tft.fillRoundRect(buffer_x,105 +rect_height*i + buffer_y*i,rect_length,rect_height,rect_radius,TFT_PaleYellow);
+    tft.drawString(file_name + String(i+1+page*5),30,120 +35*i,2);
+  }
+  delay(150);
 }
 
 void display_profile_filenumber()
@@ -948,7 +944,8 @@ void Navigation()
         tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         Reset_coordinate();
-        Spiffs_display();
+        page_number = 0;
+        Spiffs_display(page_number);
         stage = print_stored_data ;
       }
       else if (touch_x > 180 && touch_x < 195 && touch_y > 10 && touch_y < 285)
@@ -1029,14 +1026,32 @@ void Navigation()
         Reset_coordinate();
       }
     }
-
     if (stage == print_stored_data )      //print spiffs
     {
-       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
+      
+      String file_name = "/Dataset_";
+      if (touch_x > 65 && touch_x < 78 && touch_y > 20 && touch_y < 30){
+        if(page_number >=3){
+        }else{
+          page_number  += 1;
+          Spiffs_display(page_number);
+        }
+      }
+
+      if (touch_x > 65 && touch_x < 78 && touch_y > 270 && touch_y < 285){
+        if(page_number <=0){
+        }else{
+          page_number  -= 1;
+          Spiffs_display(page_number);
+        }
+      }
+
+      if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
       {
-        if (SPIFFS.exists("/Dataset_1"))
+        file_name.concat(page_number*5 +1);
+        if (SPIFFS.exists(file_name))
         {
-          File file = SPIFFS.open("/Dataset_1", FILE_READ);
+          File file = SPIFFS.open(file_name, FILE_READ);
           while (file.available())
           {
             Serial.write(file.read());
@@ -1046,9 +1061,10 @@ void Navigation()
       }
       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
       {
-        if (SPIFFS.exists("/Dataset_2"))
+        file_name.concat(page_number*5 +2);
+        if (SPIFFS.exists(file_name))
         {
-          File file = SPIFFS.open("/Dataset_2", FILE_READ);
+          File file = SPIFFS.open(file_name, FILE_READ);
           while (file.available())
           {
             Serial.write(file.read());
@@ -1056,6 +1072,46 @@ void Navigation()
           file.close();
         }
       }
+       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+      {
+        file_name.concat(page_number*5 +3);
+        if (SPIFFS.exists(file_name))
+        {
+          File file = SPIFFS.open(file_name, FILE_READ);
+          while (file.available())
+          {
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+      }
+       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+      {
+        file_name.concat(page_number*5 +4);
+        if (SPIFFS.exists(file_name))
+        {
+          File file = SPIFFS.open(file_name, FILE_READ);
+          while (file.available())
+          {
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+      }
+       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+      {
+        file_name.concat(page_number*5 +5);
+        if (SPIFFS.exists(file_name))
+        {
+          File file = SPIFFS.open(file_name, FILE_READ);
+          while (file.available())
+          {
+            Serial.write(file.read());
+          }
+          file.close();
+        }
+      }
+
 
       // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
       // if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
