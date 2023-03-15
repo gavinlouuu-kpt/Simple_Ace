@@ -39,7 +39,7 @@
 #include "Image_assets/Spiffs.h"
 
 #define homescreen              0
-#define menu                    1
+#define setting_menu            1
 #define sampling                2
 #define calibration             3  
 #define OTA_setting             4
@@ -702,7 +702,6 @@ void display_PID_selectSetpoint()
     }
   }
 }
-
 void Navigation()
 {
   if (isSensor != true)
@@ -752,14 +751,14 @@ void Navigation()
     printf("%d\n", touch_y);
 
 
-    if (stage !=menu)
+    if (stage !=setting_menu)
     {
       if (touch_x > 220 && touch_x < 240 && touch_y > 0 && touch_y < 85)                 // press
       {
         pump_control(false);
         Serial.println("OFF");
         display_menu();
-        stage = menu;
+        stage = setting_menu;
       }
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
@@ -769,7 +768,7 @@ void Navigation()
       }
     }
 
-    if (stage == 1)
+    if (stage == setting_menu)
     { // Navigation
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 300)                //OTA
       {
@@ -1190,7 +1189,7 @@ void Navigation()
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = menu;
+        stage = setting_menu;
       }
     }
     
@@ -1288,7 +1287,7 @@ void Navigation()
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = menu;
+        stage = setting_menu;
       }
     }
     if (stage == live_plot)
@@ -1425,7 +1424,7 @@ void Navigation()
           }
         }
         display_menu();
-        stage = menu;
+        stage = setting_menu;
       }
     }
 
@@ -1442,7 +1441,7 @@ void Navigation()
         tft.drawString("Set", 38, 287, 2);
         delay(500);
         display_menu();
-        stage = menu;
+        stage = setting_menu;
       }
     }
     
@@ -1472,7 +1471,7 @@ void Navigation()
         {
           tft.drawString("Not Connected", 50, 100, 4);
           delay(2000);
-          display_control_wifi();
+          stage = setting_menu;
         }
       }
 
