@@ -37,6 +37,7 @@
 #include "Image_assets/LivePlot.h"
 #include "Image_assets/DefaultSetting.h"
 #include "Image_assets/Spiffs.h"
+#include "Image_assets/Return_arrow.h"
 
 #define homescreen              0
 #define setting_menu            1
@@ -382,24 +383,17 @@ void display_menu(){
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Setting", 15, 50, 4);
-    tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
+
+  tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
   tft.drawString("Wifi",30,107,2);
+  tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);
+  tft.drawString("Developer Mode",30,247,2);
 
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
   tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,147,2);
   tft.fillRoundRect(15,170,210,30,3,TFT_DARKGREY);tft.drawString("User ID",30,177,2);
   tft.fillRoundRect(15,200,210,30,3,TFT_DARKGREY);tft.drawString("Language",30,207,2);
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-
-  tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);
-  tft.drawString("Developer Mode",30,247,2);
-
-  tft.drawRoundRect(15,100,210,30,3,TFT_WHITE);
-  tft.drawRoundRect(15,140,210,30,3,TFT_WHITE);
-  tft.drawRoundRect(15,170,210,30,3,TFT_WHITE);
-  tft.drawRoundRect(15,200,210,30,3,TFT_WHITE);
-  tft.drawRoundRect(15,240,210,30,3,TFT_WHITE);
 
   delay(300);
 }
@@ -465,24 +459,17 @@ void display_developer_menu(){
   Reset_coordinate();
   draw_Settingframework();
   // tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-  tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);
-  tft.drawString("Live Plot",30,112,2);
-  
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.drawString("Developer Mode", 15, 50, 4);
+
+  tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
+  tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);tft.drawString("Live Plot",30,112,2);
+  tft.fillRoundRect(15,185,210,30,3,TFT_PaleYellow);tft.drawString("Print Spiffs",30,192,2);
+  tft.fillRoundRect(15,225,210,30,3,TFT_PaleYellow);tft.drawString("Previous Value",30,232,2);
+
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
   tft.fillRoundRect(15,145,210,30,3,TFT_DARKGREY);
   tft.drawString("Default Setting",30,152,2);
-
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-  tft.fillRoundRect(15,185,210,30,3,TFT_PaleYellow);
-  tft.drawString("Print Spiffs",30,192,2);
-
-  tft.fillRoundRect(15,225,210,30,3,TFT_PaleYellow);
-  tft.drawString("Previous Value",30,232,2);
-
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
-  tft.drawString("Developer Mode", 15, 50, 4);
-  
 }
 
 void display_live_plot(){
@@ -491,12 +478,12 @@ void display_live_plot(){
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   tft.drawString("Live Plot", 15, 50, 4);
 
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
+  tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
   tft.drawString("ADS0",30,107,2);
-  tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);
-  tft.drawString("Humidity",30,147,2);
+  // tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
+  // tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);
+  // tft.drawString("Humidity",30,147,2);
 }
 
 void display_bluetooth(){
@@ -612,17 +599,16 @@ void Spiffs_display()
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   draw_Settingframework();
   tft.drawString("Spiffs", 15, 50, 4);
+  //push return_arrow image
+  tft.pushImage(205, 75, Return_arrow_width, Return_arrow_height, Return_arrow);
 
-  tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-  tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);
-  tft.drawString("SPIFFS 1",30,112,2);
+  tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
+  tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow); tft.drawString("SPIFFS 1",30,112,2);
   
-  tft.fillRoundRect(15,145,210,30,3,TFT_PaleYellow);
-  tft.drawString("SPIFFS 2",30,152,2);
+  tft.fillRoundRect(15,145,210,30,3,TFT_PaleYellow);tft.drawString("SPIFFS 2",30,152,2);
 
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,185,210,30,3,TFT_DARKGREY);
-  tft.drawString("Calibration",30,192,2);
+  tft.fillRoundRect(15,185,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,192,2);
 
   
   // tft.pushImage(0, 100, SpiffsWidth, SpiffsHeight, Spiffs);
@@ -777,12 +763,9 @@ void Navigation()
         // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
         tft.drawString("Wifi", 15, 50, 4); // OTA Setting
-        tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-        tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
-        tft.drawString("On",30,107,2);
-        tft.setTextColor(TFT_BLACK,TFT_PaleYellow);
-        tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);
-        tft.drawString("OFF",30,147,2);
+        tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
+        tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("On",30,107,2);
+        tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("OFF",30,147,2);
         
 
         delay(200);
