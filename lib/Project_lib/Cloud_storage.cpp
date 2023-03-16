@@ -260,7 +260,7 @@ void store_data(){
     file_index++;
     EEPROM.put(index_address, file_index);
     delay(100); 
-    file_dir.concat((String)(file_index%20));
+    file_dir.concat((String)(file_index%20+1));
     Serial.print("file dir: ");Serial.println(file_dir);
     EEPROM.commit();
     delay(500);
