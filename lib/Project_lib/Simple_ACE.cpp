@@ -239,9 +239,10 @@ void sample_collection(){
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  tft.fillRect(90,250,70,70,TFT_NEIGHBOUR_GREEN);  //cover loading
-  tft.drawString("HUFF now", 120, 245, 4);
+  tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
+  tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
+  tft.setTextDatum(CC_DATUM);
+  tft.drawString("Huff for 3 seconds", 120, 245, 4);
   breath_check();
   isStore = true;
   int previousDrawLoad = 0;
