@@ -117,7 +117,7 @@ void Calibration() {
     delay(10); display_index++;
 
     if (millis()-millisPreviousTime_1>10){
-      Sensor_arr[sampling_index] = ads.readADC_SingleEnded(0);
+      Sensor_arr[sampling_index] = ads.readADC_SingleEnded(Sensor_channel);
       Serial.println(Sensor_arr[sampling_index]);
       sampling_index += 1;
       //printf("Counter 1: %d\n", sampling_index);
@@ -126,10 +126,16 @@ void Calibration() {
   }
   
   find_peak();//part to be corrected
+  for(int i = 0; i < store_size; i++){
+    Serial.println(Sensor_arr[i]);
+  }
   int millisExposedTime = millis()-millisStartTime;
   Serial.print("exposed time:");Serial.println(millisExposedTime);
   int millisUnitTime = millisExposedTime/sampling_index;
   Serial.print("Unit time:");Serial.println(millisUnitTime);
+  //print the peak position convert to time
+  Serial.print("Peak position:");Serial.println(peak_position[1]*millisUnitTime);
+  //print sensor array
   update_parameters(millisUnitTime);
   store_calibiration_data();
 }
@@ -146,7 +152,7 @@ void find_peak(){
     }
   }
   Serial.println();
-  for(int j = 800; j <1500; j++){ //specified region of sample to look for peaks
+  for(int j = 800; j < sizeof(Sensor_arr)/2; j++){ //specified region of sample to look for peaks
     // Serial.println(Sensor_arr[j]);
     if(Sensor_arr[j]> peak_2){
       peak_2=Sensor_arr[j];

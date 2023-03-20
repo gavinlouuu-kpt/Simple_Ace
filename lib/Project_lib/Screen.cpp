@@ -819,11 +819,12 @@ void display_PID_selectSetpoint()
       //   Reset_coordinate();
       // }
 
-      // if (t_x > 109 && t_x < 129 && touch_y > 10 && touch_y < 290) // Calibration
-      // {
-      //   calibration_display();
-      //   stage = 3;
-      // }
+      if (touch_x > 109 && touch_x < 129 && touch_y > 10 && touch_y < 290) // Calibration
+      {
+        display_calibration();
+        stage = calibration;
+      }
+
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
         // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
