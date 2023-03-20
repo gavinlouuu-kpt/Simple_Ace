@@ -1163,6 +1163,11 @@ void Navigation()
     if (stage == live_plot)
     { // developer mode:ADS0 
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+      double load_resistance = 47000;
+      double input_voltage = 3.3;
+      double sensor_resistance = 0;
+      double sensor_voltage = 0;
+      
 
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305)
       {
@@ -1171,6 +1176,8 @@ void Navigation()
         while (1){
           PID_control();  
           int ADS0 = ads.readADC_SingleEnded(Sensor_channel);
+          sensor_voltage = ads.computeVolts(ADS0);
+          sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
           int heater = ads.readADC_SingleEnded(Heater_channel);
           int offset = ads.readADC_SingleEnded(Offset_channel);
           int ntcc = ads.readADC_SingleEnded(NTCC_channel);
@@ -1264,6 +1271,7 @@ void Navigation()
               Serial.print(sht.getHumidity(), 2);Serial.print(","); 
               Serial.print(sht.getTemperature(), 2); Serial.print(","); 
               Serial.print(ADS0);Serial.print(",");
+              Serial.print(sensor_resistance);Serial.print(",");
               Serial.print(heater);Serial.print(",");
               Serial.print(offset);Serial.print(",");
               Serial.print(Output);Serial.print(",");
