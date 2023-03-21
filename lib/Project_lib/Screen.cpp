@@ -141,7 +141,7 @@ void draw_framework()
 void draw_Settingframework()
 {
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
-  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
+  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar[10]);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
