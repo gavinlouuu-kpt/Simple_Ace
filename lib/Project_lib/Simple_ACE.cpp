@@ -344,27 +344,16 @@ int find_peak_value(int address, int unittime) {
 //   }
 // }
 
-// double ads_convert(int value, bool resist) {
-//   double volt;
-//   const double load_r = 47*1000;
-//   const double V_in = 3.3;
-//   const double off_volt= 2.27272727273;
-//   double sen_r;
-//   volt = value * LSB;      
-//   double Vout = off_volt + volt;
-//   printf("adc value: %d\n",value);
-//   switch (resist) {
-//     case (false):           //voltage of adc reading 
-//       Serial.println(volt);
-//       return volt;
-//       break;
-//     case (true): // resistance of adc reading
-//       sen_r = load_r*(V_in-Vout)/Vout;
-//       printf("Sensor Resistance: %.2f\n",sen_r);
-//       return sen_r;
-//       break;
-//   }
-// }
+double ads_convert(int16_t ads_value) {
+  double load_resistance = 47000;
+  double input_voltage = 3.3;
+  double sensor_resistance = 0;
+  double sensor_voltage = 0;
+      
+  sensor_voltage = ads.computeVolts(ads_value);
+  sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
+  return sensor_resistance;
+}
 
 
 void output_result(){
@@ -376,13 +365,13 @@ void output_result(){
   double conc_CO2 = 0;
   int CO2_peak = find_peak_value(0,millisUnitTime);
   int ace_peak = find_peak_value(4,millisUnitTime);
-  // double baseline_resist = ads_convert(baseline, true); 
-  // double peak_resist_CO2 = ads_convert(CO2_peak, true);
-  // double peak_resist_Ace = ads_convert(ace_peak, true);
+  double baseline_resist = ads_convert(baseline); 
+  double peak_resist_CO2 = ads_convert(CO2_peak);
+  double peak_resist_Ace = ads_convert(ace_peak);
     // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
     // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
-  conc_CO2 = (double)CO2_peak/(double)baseline;
-  conc_Ace = (double)ace_peak/(double)baseline;
+  conc_CO2 = baseline_resist/peak_resist_CO2;
+  conc_Ace = baseline_resist/peak_resist_Ace;
   Serial.println(conc_Ace);
   Serial.println(conc_CO2);
   store_result(conc_Ace,conc_CO2);
