@@ -255,7 +255,7 @@ void sample_collection(){
     Sensor_arr[i]=0;
   }
   tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
-  tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
   tft.setTextDatum(CC_DATUM);
   tft.drawString("Huff for 3 seconds", 120, 245, 4);
   breath_check();
