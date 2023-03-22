@@ -315,10 +315,11 @@ void draw_result(double co2, double ace){
   if(fail_count != 50){ 
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
     tft.setTextDatum(CC_DATUM);
-    tft.drawString("Ketone :",50,145,4);
-    tft.drawString("  CO2  :",50,175,4);
-    tft.drawFloat(ace,2,120, 145,4);
-    tft.drawFloat(co2,2,120, 175,4);
+    tft.drawString("Ketone",80,145,4);tft.drawString(":",120,145,4);
+    tft.drawString("CO2",80,175,4);tft.drawString(":",120,175,4);
+    tft.setTextDatum(TL_DATUM);
+    tft.drawFloat(ace,2,130, 145,4);
+    tft.drawFloat(co2,2,130, 175,4);
   }
 
   tft.setTextDatum(CC_DATUM);
@@ -770,7 +771,6 @@ void Navigation()
         stage = change_sensor;
       }
       else{
-        display_enable_sampling();
         delay(150);
         Reset_coordinate();
         stage = sampling;
@@ -880,7 +880,7 @@ void Navigation()
       }
     }
 
-    if(stage == sampling){                                                          //sample
+    if(stage == sampling){//sample
       if(isConnect ==true){
         WiFi.disconnect(true,true);
         delay(500);
