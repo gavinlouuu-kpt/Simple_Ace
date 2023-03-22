@@ -11,7 +11,7 @@
 #define btn_rst             39
 #define btn_1               36
 #define BOOT                0
-#define sensor_h            25
+#define sensor_heater       25
 #define battery_EN          12
 #define battery_read        34
 
@@ -54,6 +54,7 @@ void checkSetup(void);
 void output_result();
 void pinSetup(void);
 void pump_control(bool control);
+void sensor_heater_control(bool control);
 void sample_collection();
 void storing_data();
 // void power_saving(unsigned long last_time);

@@ -41,24 +41,6 @@
 #include "Image_assets/Return_arrow_flip.h"
 
 
-#define homescreen              0
-#define setting_menu            1
-#define sampling                2
-#define calibration             3  
-#define OTA_setting             4
-#define developer_mode          5
-#define liveplot_control        6
-#define device_setting          7
-#define bluetooth_setting       8
-#define wifi_control            9   
-#define print_stored_data       10
-#define select_user_profile     11
-#define live_plot               13
-#define pump_setting            15
-#define PID_setting             16
-#define print_gas_sample        17
-#define change_sensor           99
-
 void tft_setup();                         //initialize TFT screen
 void draw_result(double co2, double ace);
 void draw_result_bar(double bar_1, double bar_2);
@@ -110,6 +92,7 @@ bool isPlotrangeChange = false;
 int stage = homescreen;
 int profileNumber_int = 1;
 int lifecount = 0;
+unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
 
@@ -295,21 +278,25 @@ void display_start_button(){
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(CC_DATUM);
-  tft.drawString("START",120,245,2);
+  tft.drawString("BREATHE AGAIN",120,245,2);
 }
 
 void display_sensor_lifecount(){
   //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
+
   extern byte lifecount_address; 
-  tft.setTextDatum(TL_DATUM);
-  tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-  tft.drawString("Sensor Life:", 15, 140, 2);
   EEPROM.begin(20);
   lifecount = EEPROM.get(lifecount_address,lifecount);
   delay(500);
-  tft.drawString(String(lifecount), 120, 140, 2);
   EEPROM.end();
   delay(500);
+  tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+  tft.setTextDatum(ML_DATUM);
+  tft.drawString("Sensor Life :", 20, 215, 2);
+  tft.setTextDatum(CC_DATUM);
+  tft.drawString(String(lifecount*10), 120, 215, 2);
+  tft.drawString("%", 140, 215, 2);
+  //  120, 245, 4
 }
 
 void draw_result(double co2, double ace){
@@ -726,6 +713,8 @@ void display_PID_selectSetpoint()
         stage = homescreen;
         tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
         HomeScreen();
+        delay(150);
+        Reset_coordinate();
         break;
       }
     }
@@ -740,14 +729,14 @@ void display_PID_selectSetpoint()
         tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
         tft.setTextDatum(CC_DATUM);
         tft.drawString("Change sensor to continue",120,245,2);
-        Reset_coordinate();
         delay(150);
+        Reset_coordinate();
         stage = change_sensor;
       }
       else{
         display_enable_sampling();
-        Reset_coordinate();
         delay(150);
+        Reset_coordinate();
         stage = sampling;
       }
     }
@@ -884,6 +873,7 @@ void display_PID_selectSetpoint()
         sample_collection();
         output_result();
       }
+      start_activity_check_millis = millis();
     }
 
     if (stage == calibration)
@@ -1267,22 +1257,6 @@ void display_PID_selectSetpoint()
         Reset_coordinate();
         stage = live_plot ;
       }
-      // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)               //Calibration
-      // {
-      //   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-      //   Reset_coordinate();
-      //   tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-      //   display_start_button();
-      //   stage =14;
-      
-      // else if (touch_x > 117 && touch_x < 132 && touch_y > 10 && touch_y < 285) // Calibration
-      // {
-      //   draw_Settingframework();
-      //   Reset_coordinate();
-      //   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-      //   //  display_start_button();
-      //   stage = 14;
-      // }
     }
 
     if (stage == device_setting){
@@ -1366,6 +1340,7 @@ void display_PID_selectSetpoint()
         draw_Settingframework();
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         pump_control(true);
+        sensor_heater_control(true);
         while (1){
           PID_control();  
           int ADS0 = ads.readADC_SingleEnded(Sensor_channel);
@@ -1475,6 +1450,7 @@ void display_PID_selectSetpoint()
             {
               // control = false;
               pump_control(false);
+              sensor_heater_control(false);
               break;
               // display_menu();
               // stage = 1;

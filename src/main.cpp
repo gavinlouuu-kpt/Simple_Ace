@@ -6,7 +6,8 @@
 #include <Wifi_connection.h>
 
 unsigned long millis_previousCheckTime =0;
-
+extern int stage;
+extern unsigned long start_activity_check_millis;
 void setup() {
   Serial.begin(115200);
   tft_setup();
@@ -23,8 +24,8 @@ void loop()
 {
   PID_control();
   Navigation();
-  if(millis()-millis_previousCheckTime > 10000){
-    check_sensor_life();
-    millis_previousCheckTime = millis();
-  }
+  // if(millis()-millis_previousCheckTime > 10000){
+  //   check_sensor_life();
+  //   millis_previousCheckTime = millis();
+  // }
 }
