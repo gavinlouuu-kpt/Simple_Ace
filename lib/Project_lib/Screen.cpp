@@ -145,9 +145,9 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
     tft.fillRect(75, 230, 60, 25, TFT_NEIGHBOUR_BEIGE); // cover recorded_gas_sample number
-    tft.drawFloat(bar_percentage, 0, 120, 230, 4);
+    tft.drawFloat(bar_percentage, 0, 115, 230, 4);
   }
-  tft.drawString("%", 155, 230, 4);
+  tft.drawString("%", 150, 230, 4);
 }
 
 void write_analyzing(void){
@@ -295,7 +295,7 @@ void display_sensor_lifecount(){
   tft.drawString("Sensor Life :", 20, 215, 2);
   tft.setTextDatum(CC_DATUM);
   tft.drawString(String(lifecount*10), 120, 215, 2);
-  tft.drawString("%", 120, 215, 2);
+  tft.drawString("%", 140, 215, 2);
   //  120, 245, 4
 }
 
