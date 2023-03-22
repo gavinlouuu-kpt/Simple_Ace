@@ -23,7 +23,9 @@ void output_result();             //  return sensor response in ratio
 void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
 void pump_control(bool control);  //  functions conrol high and low of the pump
 void sample_collection();         //  integrate function to analysis one gas sample
-void storing_data();              //  background storage of gas data into Firebase/ local SPIFFS
+void storing_data(); 
+
+byte lifecount_address = 12;             //  background storage of gas data into Firebase/ local SPIFFS
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -70,7 +72,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -365,7 +367,20 @@ int find_peak_value(int address, int unittime) {
 //       break;
 //   }
 // }
-
+void update_sensor_lifecount(){
+  EEPROM.begin(20);
+  int address = 12;
+  int lifecount = EEPROM.get(address,lifecount);
+  delay(500);
+  lifecount--;
+  EEPROM.put(address,lifecount);
+  delay(100);
+  EEPROM.commit();
+  delay(500);
+  EEPROM.end();
+  delay(500);
+  return;
+}
 
 void output_result(){
   if(fail_count==50){
@@ -407,6 +422,8 @@ void output_result(){
   // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   draw_result(conc_CO2,conc_Ace);
   store_data();
+
+  update_sensor_lifecount();
 }// not in percentage
 
 

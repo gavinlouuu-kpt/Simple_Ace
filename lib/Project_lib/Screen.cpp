@@ -109,6 +109,7 @@ bool isSensor =true;
 bool isPlotrangeChange = false;
 int stage = homescreen;
 int profileNumber_int = 1;
+int lifecount = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
 
@@ -291,11 +292,24 @@ void draw_result_bar(double bar_1, double bar_2){
 }
 
 void display_start_button(){
-  tft.setTextDatum(MC_DATUM);
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(CC_DATUM);
   tft.drawString("START",120,245,2);
+}
+
+void display_sensor_lifecount(){
+  //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
+  extern byte lifecount_address; 
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+  tft.drawString("Sensor Life:", 15, 140, 2);
+  EEPROM.begin(20);
+  lifecount = EEPROM.get(lifecount_address,lifecount);
+  delay(500);
+  tft.drawString(String(lifecount), 120, 140, 2);
+  EEPROM.end();
+  delay(500);
 }
 
 void draw_result(double co2, double ace){
@@ -372,8 +386,12 @@ void HomeScreen()
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
 
   display_Wifi();
+
+  display_sensor_lifecount();
   delay(150);
 }
+
+
 
 void display_menu(){
   Reset_coordinate();
@@ -695,16 +713,18 @@ void display_PID_selectSetpoint()
 
   while(stage == change_sensor ){
     if (tft.getTouch(&touch_x, &touch_y)){
-      if(touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305){
-        tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-        tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_GREEN);
-        tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
-        tft.drawString("Change sensor", 120, 160, 4);
-        update_sensor();
-        update_check_time();
+      if(touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200){
+        extern byte lifecount_address;
+        EEPROM.begin(20);
+        EEPROM.put(lifecount_address, 10);
+        delay(100);
+        EEPROM.commit();
+        delay(500);
+        // update_sensor();
+        // update_check_time();
         isSensor = true;
         stage = homescreen;
-        tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+        tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
         HomeScreen();
         break;
       }
@@ -715,12 +735,21 @@ void display_PID_selectSetpoint()
   {
     if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y < 200)
     {
-        // tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-        // tft.fillRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
-        // tft.drawRoundRect(95, 257, 60, 46, 23, TFT_NEIGHBOUR_BLUE);
-        // tft.drawString("Start", 125, 280, 2);
+      if(lifecount == 0){
+        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+        tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
+        tft.setTextDatum(CC_DATUM);
+        tft.drawString("Change sensor to continue",120,245,2);
+        Reset_coordinate();
+        delay(150);
+        stage = change_sensor;
+      }
+      else{
         display_enable_sampling();
+        Reset_coordinate();
+        delay(150);
         stage = sampling;
+      }
     }
   }
   

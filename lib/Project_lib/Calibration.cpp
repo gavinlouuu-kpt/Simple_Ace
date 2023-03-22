@@ -32,11 +32,13 @@ void EEPROM_setup(bool factory){
   }
   else{
     extern byte index_address;
+    extern byte lifecount_address;
     Serial.println("Factory setting");
     EEPROM.begin(20);
     EEPROM.put(index_address, 0);
     delay(100); 
     printf("EEPROM write address: %d, value: %d\n", index_address, 0);
+    EEPROM.put(lifecount_address,1);
     EEPROM.commit();
     delay(500);
     EEPROM.end();
