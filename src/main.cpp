@@ -6,8 +6,7 @@
 #include <Wifi_connection.h>
 
 unsigned long millis_previousCheckTime =0;
-extern int stage;
-extern unsigned long start_activity_check_millis;
+
 void setup() {
   Serial.begin(115200);
   tft_setup();

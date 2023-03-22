@@ -125,7 +125,7 @@ void draw_framework()
 void draw_Settingframework()
 {
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
-  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar[10]);
+  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
@@ -295,7 +295,7 @@ void display_sensor_lifecount(){
   tft.drawString("Sensor Life :", 20, 215, 2);
   tft.setTextDatum(CC_DATUM);
   tft.drawString(String(lifecount*10), 120, 215, 2);
-  tft.drawString("%", 140, 215, 2);
+  tft.drawString("%", 120, 215, 2);
   //  120, 245, 4
 }
 
@@ -309,11 +309,11 @@ void draw_result(double co2, double ace){
   display_start_button();     
   if(fail_count != 50){ 
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
-    tft.setTextDatum(TL_DATUM);
-    tft.drawString("Ketone:",20,95,2);
-    tft.drawString("Co2:",20,115,2);
-    tft.drawFloat(ace,2,70, 95,2);
-    tft.drawFloat(co2,2,70, 115,2);
+    tft.setTextDatum(CC_DATUM);
+    tft.drawString("Ketone :",50,145,4);
+    tft.drawString("  CO2  :",50,175,4);
+    tft.drawFloat(ace,2,120, 145,4);
+    tft.drawFloat(co2,2,120, 175,4);
   }
 
   tft.setTextDatum(CC_DATUM);
@@ -885,6 +885,8 @@ void display_PID_selectSetpoint()
         tft.setTextColor(TFT_NEIGHBOUR_GREEN);
         tft.setTextDatum(TL_DATUM);
         tft.drawString("Analyzing", 15, 50, 4);
+        pump_control(true);
+        sensor_heater_control(true);
         restore_baseline();
         tft.setTextDatum(4);
         tft.fillRect(10, 50, 200, 150, TFT_NEIGHBOUR_GREEN);      //
@@ -900,6 +902,8 @@ void display_PID_selectSetpoint()
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
 
         Calibration();
+        pump_control(false);
+        sensor_heater_control(false);
         tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
         EEPROM.begin(20);
         int value, value_1;
@@ -1232,8 +1236,8 @@ void display_PID_selectSetpoint()
     }
 
     if (stage == select_user_profile){     // user_setup
-      tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
+      tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       display_profile_filenumber();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover file number
       tft.drawFloat(profileNumber_int, 0, 120, 100, 4);
@@ -1349,7 +1353,6 @@ void display_PID_selectSetpoint()
           int offset = ads.readADC_SingleEnded(Offset_channel);
           int ntcc = ads.readADC_SingleEnded(NTCC_channel);
 
-          tft.drawString("ADS0:", 25, 220, 2);
           graph1.pushSprite(20, 40);
 
           if (array_index < 201){
@@ -1392,10 +1395,12 @@ void display_PID_selectSetpoint()
             }
             tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_BEIGE );
             tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_BEIGE );
-            // tft.fillRect(45, 215, 40, 15, TFT_NEIGHBOUR_GREEN);
-            tft.drawFloat(float(plot_upper_bound), 0, 15, 30, 1);
-            tft.drawFloat(float(plot_lower_bound), 0, 15, 200, 1);
+            tft.setTextDatum(CC_DATUM);
+            tft.drawFloat(float(plot_upper_bound), 0, 20, 30, 1);
+            tft.drawFloat(float(plot_lower_bound), 0, 20, 200, 1);
+            tft.setTextDatum(TL_DATUM);
             tft.drawFloat(float(ADS0), 0, 65, 220, 2);
+            // tft.fillRect(65, 215, 40, 15, TFT_NEIGHBOUR_BEIGE);
             tft.drawString("ADS0:", 25, 220, 2);
 
             if (isPlotrangeChange == false && array_index > 0) // draw
