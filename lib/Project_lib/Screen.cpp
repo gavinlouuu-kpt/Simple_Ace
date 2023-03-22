@@ -52,7 +52,7 @@ void display_control_wifi();
 void display_calibration();
 void display_developer_menu();
 void display_device_setting();
-void display_enable_sampling();
+// void display_enable_sampling();
 void display_live_plot();
 // void display_load_SPIFFS();
 void display_load_data();
@@ -315,9 +315,9 @@ void draw_result(double co2, double ace){
   if(fail_count != 50){ 
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
     tft.setTextDatum(CC_DATUM);
-    tft.drawString("Ketone",80,145,4);tft.drawString(":",120,145,4);
-    tft.drawString("CO2",80,175,4);tft.drawString(":",120,175,4);
-    tft.setTextDatum(TL_DATUM);
+    tft.drawString("Ketone",80,145,4);tft.drawString(":",125,145,4);
+    tft.drawString("CO2",80,175,4);tft.drawString(":",125,175,4);
+    tft.setTextDatum(ML_DATUM);
     tft.drawFloat(ace,2,130, 145,4);
     tft.drawFloat(co2,2,130, 175,4);
   }
@@ -452,15 +452,15 @@ void display_Wifi(){             // draw wifi logo
   }
 }
 
-void display_enable_sampling(){
-  Reset_coordinate();
-  draw_framework();
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-  tft.setTextDatum(TL_DATUM);
-  tft.drawString("Breathe Here", 15, 50, 4);
-  display_start_button();
-  delay(300);
-}
+// void display_enable_sampling(){
+//   Reset_coordinate();
+//   draw_framework();
+//   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
+//   tft.setTextDatum(TL_DATUM);
+//   tft.drawString("Breathe Here", 15, 50, 4);
+//   display_start_button();
+//   delay(300);
+// }
 
 void display_calibration(){
   Reset_coordinate();
@@ -1297,8 +1297,8 @@ void Navigation()
       }
 
       if (touch_x > 85 && touch_x < 100 && touch_y > 10 && touch_y < 285){
-        draw_Settingframework();
-        display_start_button();
+        // draw_Settingframework();
+        // display_start_button();
         Reset_coordinate();
         stage = live_plot ;
       }
@@ -1379,9 +1379,6 @@ void Navigation()
     if (stage == live_plot)
     { // developer mode:ADS0 
       tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-
-      if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200)
-      {
         draw_Settingframework();
         graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
         pump_control(true);
@@ -1516,7 +1513,6 @@ void Navigation()
         }
         display_menu();
         stage = setting_menu;
-      }
     }
 
     if (stage == pump_setting){  //select pump duty cycle
