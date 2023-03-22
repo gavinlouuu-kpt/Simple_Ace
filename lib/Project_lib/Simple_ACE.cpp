@@ -239,6 +239,7 @@ void sample_collection(){
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
+  tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);
   tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
   tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
   tft.setTextDatum(CC_DATUM);
