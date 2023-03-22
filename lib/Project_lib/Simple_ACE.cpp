@@ -23,7 +23,10 @@ void output_result();             //  return sensor response in ratio
 void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
 void pump_control(bool control);  //  functions conrol high and low of the pump
 void sample_collection();         //  integrate function to analysis one gas sample
-void storing_data();              //  background storage of gas data into Firebase/ local SPIFFS
+void storing_data(); 
+void sensor_heater_control(bool control); //  control sensor heater power
+
+byte lifecount_address = 12;             //  background storage of gas data into Firebase/ local SPIFFS
 
 extern TFT_eSPI tft; 
 Adafruit_ADS1115 ads;
@@ -38,18 +41,19 @@ int baseline = 0;
 int fail_count = 0;
 int millisUnitTime = 0;
 
+
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
   pinMode(pumpPin_2,OUTPUT);
   pinMode(colPin_1,OUTPUT);
   pinMode(colPin_2,OUTPUT);
-  pinMode(sensor_h,OUTPUT);
+  pinMode(sensor_heater,OUTPUT);
   pinMode(battery_EN, OUTPUT);
   pinMode(btn_rst, INPUT);
   pinMode(battery_read,INPUT);
 
   digitalWrite(battery_EN,1);           //  enable battery monitor
-  dacWrite(sensor_h,255);             //  enable senosr heater
+  dacWrite(sensor_heater,255);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
   ledcSetup(pumpChannel_1, freq, resolution);
@@ -70,7 +74,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -88,15 +92,26 @@ void checkSetup(){
 
 void pump_control(bool control){
   if(control == true){
-  dacWrite(pumpChannel_1,150);
+  ledcWrite(pumpChannel_1,150);
   delay(200);
-  dacWrite(pumpChannel_1,100);
+  ledcWrite(pumpChannel_1,100);
   delay(200);
   ledcWrite(pumpChannel_1, dutyCycle_pump);
   }
   else{
     ledcWrite(pumpChannel_1, 0);
     delay(100);
+  }
+}
+
+void sensor_heater_control(bool control){
+  if(control == true){
+    dacWrite(sensor_heater,255);
+    Serial.println("Sensor Heater On");
+  }
+  else{
+    dacWrite(sensor_heater,0);
+    Serial.println("Sensor Heater Off");
   }
 }
 
@@ -169,8 +184,6 @@ int restore_baseline(){
   extern double PID_Setpoint;
   double temporal_read = 0;
   double reference_read = 0;
-  Serial.print("Duty Cycle");Serial.println(dutyCycle_pump);
-  pump_control(true);
   int loading_index=0 ;
   unsigned long millisCleanStart = millis();
   while(millis()-millisCleanStart < 10000){
@@ -235,6 +248,8 @@ void sample_collection(){
   int data_size = 0;
   short adc_CO2;
   // restore_humidity();
+  pump_control(true);
+  sensor_heater_control(true);
   baseline = restore_baseline();   //reduncding value
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
@@ -281,6 +296,9 @@ void sample_collection(){
   int expose = millis() - millisStartSample;
   Serial.print("Exposed time");Serial.println(expose);
   millisUnitTime= expose/data_size;
+
+  pump_control(false);
+  sensor_heater_control(false);
 }
 
 int find_peak_value(int address, int unittime) {
@@ -355,6 +373,20 @@ double ads_convert(int16_t ads_value) {
   return sensor_resistance;
 }
 
+void update_sensor_lifecount(){
+  EEPROM.begin(20);
+  int address = 12;
+  int lifecount = EEPROM.get(address,lifecount);
+  delay(500);
+  lifecount--;
+  EEPROM.put(address,lifecount);
+  delay(100);
+  EEPROM.commit();
+  delay(500);
+  EEPROM.end();
+  delay(500);
+  return;
+}
 
 void output_result(){
   if(fail_count==50){
@@ -379,23 +411,17 @@ void output_result(){
     // conc_CO2 = (double)CO2_peak/(double)baseline;
     // conc_Ace = (double)ace_peak/(double)baseline;
 
-    conc_Ace = 1.01; //dummydata
-    conc_CO2 = 1.20; //dummydata
+    // conc_Ace = 1.01; //dummydata
+    // conc_CO2 = 1.20; //dummydata
 
-    Serial.println(conc_Ace);
-    Serial.println(conc_CO2);
-    store_result(conc_Ace,conc_CO2);
+  Serial.println(conc_Ace);
+  Serial.println(conc_CO2);
+  store_result(conc_Ace,conc_CO2);
 
-
-//   data_logging(peak, baseline, ratio_CO2[i], 0 , 3 );
-//   data_logging(bottom_O2, baseline_O2, ratio_O2[i] , 0  , 4 );
-  // printf("Breath Analysis Result:\n");
-  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, CO2(%): %.6f\n", peak_resist_CO2 , baseline_resist , conc_CO2);
-  // printf("peal_value: %.6f, Baseline Resistance (Ohm): %.6f, Ratio_Acetone: %.6f\n", peak_resist_Ace , baseline_resist , conc_Ace);
-  
-  // Serial.print("peal_value: "); Serial.println(peak_resist_Ace, 6); Serial.print("Baseline Resistance (Ohm): "); Serial.println(baseline_resist_Ace, 6); Serial.print("Ratio_Acetone: "); Serial.println(ratio_Ace, 6);
   draw_result(conc_CO2,conc_Ace);
   store_data();
+
+  update_sensor_lifecount();
 }// not in percentage
 
 
