@@ -85,6 +85,7 @@ extern const char* ntpServer;
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
+TFT_eSprite Warmup_Graph = TFT_eSprite(&tft);
 
 int page_number = 0;
 bool isSensor =true;
@@ -106,6 +107,9 @@ void tft_setup(){
   graph1.createSprite(200, 150);
   graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
   graph1.setScrollRect(0, 0, 200, 150, TFT_NEIGHBOUR_GREEN);
+
+  
+  // Warmup_Graph.createSprite(Bubbles_w,Bubblesh);
 }
 
 void Reset_coordinate(){
@@ -140,14 +144,14 @@ void display_loading(int count)
 
 void draw_sample_progress(float bar_length, float bar_percentage){
   tft.setTextDatum(1);
-  tft.fillRoundRect(15, 210, 200 * (bar_length / 45000), 5, 2, TFT_TextBrown); // bar
+  tft.fillRoundRect(15, 220, 200 * (bar_length / 45000), 5, 2, TFT_TextBrown); // bar
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
-    tft.fillRect(75, 230, 60, 25, TFT_NEIGHBOUR_BEIGE); // cover recorded_gas_sample number
-    tft.drawFloat(bar_percentage, 0, 115, 230, 4);
+    tft.fillRect(75, 240, 60, 25, TFT_NEIGHBOUR_BEIGE); // cover recorded_gas_sample number
+    tft.drawFloat(bar_percentage, 0, 115, 240, 4);
   }
-  tft.drawString("%", 150, 230, 4);
+  tft.drawString("%", 150, 240, 4);
 }
 
 void write_analyzing(void){
@@ -170,7 +174,8 @@ int position_temp_max = -1;
 int position_temp_min = -1;
 
 void draw_sensor(double sensor_value){
-  graph1.pushSprite(20, 40);
+  
+  graph1.pushSprite(20, 60);
   if (array_index < 201){
     Plot_buffer[array_index] = (int)sensor_value;
     if (position_temp_max < 0){ // relocate maximum point
@@ -342,19 +347,44 @@ void Warmup_Screen(){
   double display_warmup = 0;
   double warmup_bar_base  = (double)ads.readADC_SingleEnded(NTCC_channel) - PID_Setpoint;
   int temperature_range = 10;
-  tft.pushImage(20, 80, BeagleWidth, BeagleHeight, Beagle);
-  tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
-  while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)PID_Setpoint) > temperature_range){ 
-    PID_control();
-    if(ads.readADC_SingleEnded(NTCC_channel) < (int)PID_Setpoint){
-       tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
-    }else{
-      display_warmup = abs ((double)ads.readADC_SingleEnded(NTCC_channel)-PID_Setpoint);
-      tft.fillRoundRect(15, 210, (int)(200 * (1-(display_warmup / warmup_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
-    }
+  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  // tft.pushImage(40, 80, BeagleWarmupWidth, BeagleWarmupHeight, BeagleWarmup);
+  // tft.pushImage(35, 200, Bubble1_w,Bubble1_h,Bubble_1);
+  // tft.pushImage(65, 200, Bubble2_w,Bubble2_h,Bubble_2);
+  // tft.pushImage(95, 200, Bubble3_w,Bubble3_h,Bubble_3);
+  // tft.pushImage(125, 200, Bubble4_w,Bubble4_h,Bubble_4);
+  // tft.pushImage(155, 200, Bubble5_w,Bubble5_h,Bubble_5);
+  // tft.pushImage(185, 200, Bubble6_w,Bubble6_h,Bubble_6);
+  // Warmup_Graph.fillSprite(TFT_NEIGHBOUR_GREEN);
+  // Warmup_Graph.pushImage(0,150,Bubbles_w,Bubblesh,Bubbles);
+  
+  // Warmup_Graph.setWindow(0, 0, 50, 100);
+  delay(4000);
+
+// move the window from left to right
+  for(int i=0; i<150; i+=2){
+    Warmup_Graph.scroll(-2, 0); // scroll the window to the left by 2 pixels
     delay(10);
   }
-  tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
+  //Warmup_Graph.pushSprite(20,150);
+  
+
+  
+  // tft.drawRoundRect(15,210, 200,15,7,TFT_NEIGHBOUR_BEIGE);
+  // while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)PID_Setpoint) > temperature_range){ 
+  //    PID_control();
+  //    if(ads.readADC_SingleEnded(NTCC_channel) < (int)PID_Setpoint){
+  //       tft.fillRoundRect(15, 210, 190, 15, 7, TFT_NEIGHBOUR_BEIGE);
+  //   }else{
+  //      display_warmup = abs ((double)ads.readADC_SingleEnded(NTCC_channel)-PID_Setpoint);
+       
+  //      Warmup_Graph.pushSprite((int)(200*(1-(display_warmup / warmup_bar_base))),150);
+  //      Serial.println((int)(200*(1-(display_warmup / warmup_bar_base))));
+  // //     tft.fillRoundRect(15, 210, (int)(200 * (1-(display_warmup / warmup_bar_base))), 15, 7, TFT_NEIGHBOUR_BEIGE);
+  //    }
+  //    delay(10);
+  // }
+  // tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
 }
 
 void HomeScreen()
@@ -369,7 +399,8 @@ void HomeScreen()
 
   tft.setTextDatum(CC_DATUM);
   tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
-  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);tft.drawString("BREATH",120, 245,2);
+  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
+  tft.drawString("BREATHE",120, 245,2);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
 
   display_Wifi();
@@ -408,15 +439,15 @@ void display_menu(){
 void display_Wifi(){             // draw wifi logo
   if (isWifi == true && isConnect == true)
   {
-    tft.pushImage(170, 8, Wifi_true_w, Wifi_true_h, Wifi_true);
+    tft.pushImage(180, 8, Wifi_true_w, Wifi_true_h, Wifi_true);
   }
   else if (isWifi == true && isConnect == false)
   {
-    tft.pushImage(170, 8, Wifi_nc_w, Wifi_nc_h, Wifi_nc);
+    tft.pushImage(180, 8, Wifi_nc_w, Wifi_nc_h, Wifi_nc);
   }
   else
   {
-    tft.pushImage(170, 8, Wifi_false_w, Wifi_false_h, Wifi_false);
+    tft.pushImage(180, 8, Wifi_false_w, Wifi_false_h, Wifi_false);
   }
 }
 
@@ -463,10 +494,12 @@ void display_OTA_control(){
 
 void display_developer_menu(){
   Reset_coordinate();
+  tft.setTextDatum(TL_DATUM);
   draw_Settingframework();
   // tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   tft.drawString("Developer Mode", 15, 50, 4);
+  tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);tft.drawString("Live Plot",30,112,2);
@@ -490,6 +523,7 @@ void display_live_plot(){
   // tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
   // tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);
   // tft.drawString("Humidity",30,147,2);
+  tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 }
 
 void display_bluetooth(){
@@ -608,6 +642,7 @@ void Spiffs_display(int page)
   int rect_radius = 3;
   String file_name = "Dataset_";
   Reset_coordinate();
+  tft.setTextDatum(0);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   draw_Settingframework();
   tft.drawString("Spiffs", 15, 50, 4);
@@ -686,7 +721,8 @@ void display_PID_selectSetpoint()
       delay(150);
     }
   }
-}void Navigation()
+}
+void Navigation()
 {
   if (isSensor != true)
   {
@@ -757,6 +793,8 @@ void display_PID_selectSetpoint()
         display_menu();
         stage = setting_menu;
       }
+    }
+    if(stage != homescreen){
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
         stage = 0;
@@ -777,7 +815,7 @@ void display_PID_selectSetpoint()
         tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
         tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("On",30,107,2);
         tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("OFF",30,147,2);
-        
+        tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 
         delay(200);
         Reset_coordinate();
@@ -820,22 +858,6 @@ void display_PID_selectSetpoint()
         stage = 5;
         delay(300);
       }
-      // else if (t_x > 195 && t_x <235 && touch_y > 0 && touch_y < 305)
-
-      // if (t_x > 90 && t_x < 100 && touch_y > 10 && touch_y < 55 && WifiButton == 0) // WIFI ON
-      // {
-      //   tft.pushImage(178, 99, WifiButtonOnWidth, WifiButtonOnHeight, WifiButtonOn);
-      //   WifiButton = 1;
-      //   delay(400);
-      //   Reset_coordinate();
-      // }
-      // if (t_x > 90 && t_x < 100 && touch_y > 10 && touch_y < 55 && WifiButton == 1) // WIFI ON
-      // {
-      //   tft.pushImage(178, 99, WifiButtonOffWidth, WifiButtonOffHeight, WifiButtonOff);
-      //   WifiButton = 0;
-      //   delay(400);
-      //   Reset_coordinate();
-      // }
 
       if (touch_x > 109 && touch_x < 129 && touch_y > 10 && touch_y < 290) // Calibration
       {
@@ -859,21 +881,19 @@ void display_PID_selectSetpoint()
     }
 
     if(stage == sampling){                                                          //sample
-      if(touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y < 200){
-        if(isConnect ==true){
-          WiFi.disconnect(true,true);
-          delay(500);
-          isConnect = false;
-          Serial.println("Disconnected");
-          Serial.print("Wifi status:");Serial.println(WiFi.status());
-        }
-        draw_framework();
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN);
-        tft.setTextDatum(TL_DATUM);
-        tft.drawString("Initializing", 15, 50, 4);
-        sample_collection();
-        output_result();
+      if(isConnect ==true){
+        WiFi.disconnect(true,true);
+        delay(500);
+        isConnect = false;
+        Serial.println("Disconnected");
+        Serial.print("Wifi status:");Serial.println(WiFi.status());
       }
+      draw_framework();
+      tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+      tft.setTextDatum(TL_DATUM);
+      tft.drawString("Initializing", 15, 50, 4);
+      sample_collection();
+      output_result();
       start_activity_check_millis = millis();
     }
 
@@ -937,6 +957,10 @@ void display_PID_selectSetpoint()
     if (stage == developer_mode )
     { // developer mode                                                                     // developer mode choices
       tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+        display_menu();
+        stage = setting_menu;
+      }
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
       {
         // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
@@ -945,7 +969,7 @@ void display_PID_selectSetpoint()
         // delay(200);
         display_live_plot();
         stage = liveplot_control;
-        delay(300);
+        delay(400);
       }
       // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
       // {
@@ -982,6 +1006,12 @@ void display_PID_selectSetpoint()
         tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
         tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
+        tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+        if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+          display_developer_menu();
+          stage = developer_mode;
+          delay(400);
+        }
         tft.drawString("Previous Value", 15, 50, 4);
         Reset_coordinate();
         // tft.drawFastVLine(20, 60, 120, TFT_NEIGHBOUR_BEIGE);
@@ -1017,8 +1047,8 @@ void display_PID_selectSetpoint()
             Serial.print("plotting: ");
             Serial.println(recorded_gas_sample[i]);
             tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-            tft.drawNumber(i+1, 20, 80+10 *(i+1));
-            tft.drawFloat(recorded_gas_sample[i],2,40,80+10*(i+1));
+            tft.drawNumber(i+1, 20, 100+10 *(i+1));
+            tft.drawFloat(recorded_gas_sample[i],2,40,100+10*(i+1));
             // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
             // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
             // // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
@@ -1053,7 +1083,7 @@ void display_PID_selectSetpoint()
     {
       
       String file_name = "/Dataset_";
-      if (touch_x > 65 && touch_x < 78 && touch_y > 20 && touch_y < 30){
+      if (touch_x > 65 && touch_x < 80 && touch_y > 10 && touch_y < 40){
         if(page_number >=3){
         }else{
           page_number  += 1;
@@ -1061,15 +1091,19 @@ void display_PID_selectSetpoint()
         }
       }
 
-      if (touch_x > 65 && touch_x < 78 && touch_y > 270 && touch_y < 285){
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
         if(page_number <=0){
+          display_developer_menu();
+          stage = developer_mode;
+          delay(400);
+        
         }else{
           page_number  -= 1;
           Spiffs_display(page_number);
         }
       }
 
-      if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
+      if (touch_x > 85 && touch_x < 115 && touch_y > 10 && touch_y < 285)
       {
         file_name.concat(page_number*5 +1);
         if (SPIFFS.exists(file_name))
@@ -1082,7 +1116,7 @@ void display_PID_selectSetpoint()
           file.close();
         }
       }
-      else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+      else if (touch_x> 115 && touch_x < 140 && touch_y > 10 && touch_y < 285)
       {
         file_name.concat(page_number*5 +2);
         if (SPIFFS.exists(file_name))
@@ -1095,7 +1129,7 @@ void display_PID_selectSetpoint()
           file.close();
         }
       }
-       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+       else if (touch_x> 140 && touch_x < 165 && touch_y > 10 && touch_y < 285)
       {
         file_name.concat(page_number*5 +3);
         if (SPIFFS.exists(file_name))
@@ -1108,7 +1142,7 @@ void display_PID_selectSetpoint()
           file.close();
         }
       }
-       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+       else if (touch_x> 165 && touch_x < 190 && touch_y > 10 && touch_y < 285)
       {
         file_name.concat(page_number*5 +4);
         if (SPIFFS.exists(file_name))
@@ -1121,7 +1155,7 @@ void display_PID_selectSetpoint()
           file.close();
         }
       }
-       else if (touch_x> 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
+       else if (touch_x> 190 && touch_x < 220 && touch_y > 10 && touch_y < 285)
       {
         file_name.concat(page_number*5 +5);
         if (SPIFFS.exists(file_name))
@@ -1256,6 +1290,12 @@ void display_PID_selectSetpoint()
     }
     
     if (stage == liveplot_control){
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+        display_developer_menu();
+        stage = developer_mode;
+        delay(400);
+      }
+
       if (touch_x > 85 && touch_x < 100 && touch_y > 10 && touch_y < 285){
         draw_Settingframework();
         display_start_button();
@@ -1353,7 +1393,8 @@ void display_PID_selectSetpoint()
           int offset = ads.readADC_SingleEnded(Offset_channel);
           int ntcc = ads.readADC_SingleEnded(NTCC_channel);
 
-          graph1.pushSprite(20, 40);
+          graph1.pushSprite(20, 60);
+
 
           if (array_index < 201){
             Plot_buffer[array_index] = ads.readADC_SingleEnded(Sensor_channel);
@@ -1393,15 +1434,16 @@ void display_PID_selectSetpoint()
               position_temp_min = array_index;
               isPlotrangeChange = true;
             }
-            tft.fillRect(0, 25, 50, 10, TFT_NEIGHBOUR_BEIGE );
-            tft.fillRect(0, 195, 240, 10, TFT_NEIGHBOUR_BEIGE );
+
+            tft.fillRect(0, 45, 50, 10, TFT_NEIGHBOUR_BEIGE );
+            tft.fillRect(0, 215, 240, 10, TFT_NEIGHBOUR_BEIGE );
             tft.setTextDatum(CC_DATUM);
-            tft.drawFloat(float(plot_upper_bound), 0, 20, 30, 1);
-            tft.drawFloat(float(plot_lower_bound), 0, 20, 200, 1);
+            tft.drawFloat(float(plot_upper_bound), 0, 15, 50, 1);
+            tft.drawFloat(float(plot_lower_bound), 0, 15, 220, 1);
             tft.setTextDatum(TL_DATUM);
-            tft.drawFloat(float(ADS0), 0, 65, 220, 2);
-            // tft.fillRect(65, 215, 40, 15, TFT_NEIGHBOUR_BEIGE);
-            tft.drawString("ADS0:", 25, 220, 2);
+            tft.drawFloat(float(ADS0), 0, 65, 240, 2);
+            tft.drawString("ADS0:", 25, 240, 2);
+
 
             if (isPlotrangeChange == false && array_index > 0) // draw
             {
@@ -1495,6 +1537,11 @@ void display_PID_selectSetpoint()
     }
     
     if (stage == wifi_control){
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+        display_menu();
+        stage = setting_menu;
+      }
+
       if (touch_x > 90 && touch_x < 105 && touch_y > 0 && touch_y < 285)    //WIFI on 
       { // WIFI
         draw_Settingframework(); 
@@ -1519,7 +1566,21 @@ void display_PID_selectSetpoint()
         {
           tft.drawString("Not Connected", 120, 100, 4);
           delay(2000);
-          stage = setting_menu;
+          tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
+          draw_Settingframework();
+          tft.setTextDatum(0);
+          // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+          // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+          tft.drawString("Wifi", 15, 50, 4); // OTA Setting
+          tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
+          tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("On",30,107,2);
+          tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("OFF",30,147,2);
+          tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+
+          delay(200);
+          Reset_coordinate();
+          // OTA_display();
+          stage = wifi_control;
         }
       }
 
@@ -1528,13 +1589,13 @@ void display_PID_selectSetpoint()
         draw_Settingframework();
         Reset_coordinate();
         extern bool isWifi;
-        tft.setTextDatum(CC_DATUM);
+        tft.setTextDatum(TL_DATUM);
         tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
         tft.drawString("WiFi Setting", 50, 50, 4);
         Wifi_disable();
         if (isWifi == false)
         {
-          tft.drawString("OFF", 120, 100, 4);
+          tft.drawString("OFF", 95, 100, 4);
           delay(2000);
           tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
           stage = homescreen;  
@@ -1542,7 +1603,7 @@ void display_PID_selectSetpoint()
         }
         else
         {
-          tft.drawString("Failed", 120, 100, 4);
+          tft.drawString("Failed", 95, 100, 4);
           delay(2000);
           tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
           display_control_wifi();
