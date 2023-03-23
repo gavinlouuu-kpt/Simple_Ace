@@ -29,6 +29,7 @@ void sensor_heater_control(bool control); //  control sensor heater power
 byte lifecount_address = 12;             //  background storage of gas data into Firebase/ local SPIFFS
 
 extern TFT_eSPI tft; 
+extern bool leave;
 Adafruit_ADS1115 ads;
 SHTSensor sht(SHTSensor::SHT4X);
 
@@ -190,7 +191,11 @@ void restore_baseline(){
   int flat_count = 0;
 
   while (1) {
-    // return_button();
+    leave_sample();
+    if(leave == true){
+      Serial.println("escape");
+      break;
+    }
     PID_control();
     display_loading(loading_index);loading_index ++;
     Serial.print("starttime: ");Serial.println(millis());
@@ -243,56 +248,61 @@ void sample_collection(){
   // restore_humidity();
   pump_control(true);
   sensor_heater_control(true);
-  restore_baseline();  
-  for(int i =0; i<store_size; i++){
-    Sensor_arr[i]=0;
-  }
-  tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);
-  tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
-  tft.setTextDatum(CC_DATUM);
-  tft.drawString("Huff for 3 seconds", 120, 245, 4);
-  baseline = breath_check();
-  isStore = true;
-  int previousDrawLoad = 0;
-  tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
-  long millisStartSample = millis();
-  while (millis() - millisStartSample <= sampletime + 1) {
-    int time =0 ;
-    bar_time = millis() - (float)millisStartSample;
-    bar_percentage = (bar_time/sampletime)*100;
-    draw_sample_progress(bar_time,bar_percentage);
 
-    if (millis()-previousDrawLoad >10){ 
-      Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
-      draw_sensor(Sensor_arr[data_size]); 
-      data_size ++;
-      previousDrawLoad = millis();      
+  leave = false;
+  restore_baseline();
+  if(leave == true){}
+  else{
+    for(int i =0; i<store_size; i++){
+      Sensor_arr[i]=0;
     }
-    PID_control();
-  
-    // if (isStore == false) {
-    //   fail_count += 1 ;
-    //   if (fail_count== 50){
-    //    break;
-    //   }
-    //   if (read_humidity() > 40) {
-    //     isStore = true;
-    //     fail_count= 0;
-    //     // Serial.println("Certain a breathe. Recording...");
-    //   }
-    // }
-  }
-  if(fail_count==50){
-    return;
-  }
-  Serial.print("Number of sample:");Serial.println(data_size);
-  int expose = millis() - millisStartSample;
-  Serial.print("Exposed time");Serial.println(expose);
-  millisUnitTime= expose/data_size;
+    tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);
+    tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
+    tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
+    tft.setTextDatum(CC_DATUM);
+    tft.drawString("Huff for 3 seconds", 120, 245, 4);
+    baseline = breath_check();
+    isStore = true;
+    int previousDrawLoad = 0;
+    tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
+    long millisStartSample = millis();
+    while (millis() - millisStartSample <= sampletime + 1) {
+      int time =0 ;
+      bar_time = millis() - (float)millisStartSample;
+      bar_percentage = (bar_time/sampletime)*100;
+      draw_sample_progress(bar_time,bar_percentage);
 
-  pump_control(false);
-  sensor_heater_control(false);
+      if (millis()-previousDrawLoad >10){ 
+        Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
+        draw_sensor(Sensor_arr[data_size]); 
+        data_size ++;
+        previousDrawLoad = millis();      
+      }
+      PID_control();
+    
+      // if (isStore == false) {
+      //   fail_count += 1 ;
+      //   if (fail_count== 50){
+      //    break;
+      //   }
+      //   if (read_humidity() > 40) {
+      //     isStore = true;
+      //     fail_count= 0;
+      //     // Serial.println("Certain a breathe. Recording...");
+      //   }
+      // }
+    }
+    if(fail_count==50){
+      return;
+    }
+    Serial.print("Number of sample:");Serial.println(data_size);
+    int expose = millis() - millisStartSample;
+    Serial.print("Exposed time");Serial.println(expose);
+    millisUnitTime= expose/data_size;
+
+    pump_control(false);
+    sensor_heater_control(false);
+  }
 }
 
 int find_peak_value(int address, int unittime) {

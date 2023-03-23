@@ -154,6 +154,23 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   }
   tft.drawString("%", 150, 240, 4);
 }
+bool leave = false;
+void leave_sample(){ 
+  if (tft.getTouch(&touch_x, &touch_y))
+  {
+    printf("%d\n", touch_x);
+    printf("%d\n", touch_y);
+    if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+      stage = homescreen; 
+      pump_control(false);
+      sensor_heater_control(false);
+      stage = homescreen;
+      HomeScreen();
+      leave = true;
+      return;
+    }
+  }
+}
 
 
 bool isbufferfull = false;
@@ -865,11 +882,11 @@ void Navigation()
       tft.setTextDatum(TL_DATUM);
       tft.drawString("Initializing", 15, 50, 4);
       sample_collection();
-      output_result();
-      update_sensor_lifecount(false);
-      stage = homescreen;
-      Serial.print("stage:");Serial.println(stage);
-      Serial.print("lifecount:");Serial.println(lifecount);
+      if(leave != true){
+        output_result();
+        update_sensor_lifecount(false);
+        stage = homescreen;
+      }
     }
 
     if (stage == calibration)

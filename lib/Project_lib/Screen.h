@@ -31,6 +31,8 @@ void Navigation();
 void HomeScreen();
 void Warmup_Screen();
 void write_analyzing(void);
+
+void leave_sample();
 #endif
 
 
