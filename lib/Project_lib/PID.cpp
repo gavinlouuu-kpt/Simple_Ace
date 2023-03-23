@@ -8,7 +8,7 @@ void PID_setup();               // initialize PID
 void PID_control();             // regualte heating element
 
 extern Adafruit_ADS1115 ads;
-double PID_Setpoint = 8000;
+double PID_Setpoint = 6000;
 double Input, Output;
 double consKp=64, consKi= 2, consKd= 8;
 // double aggKp=4, aggKi=0.2, aggKd=1;

@@ -294,7 +294,7 @@ void store_data(){
     File file = SPIFFS.open(file_dir.c_str(), FILE_WRITE);
     file.print(',');
     file.write('\n');
-    for (int i = 0; i < 2048; i++)
+    for (int i = 0; i < store_size; i++)
     {
       if (Sensor_arr[i] != 0)
       {
