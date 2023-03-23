@@ -16,8 +16,8 @@
 #include <TFT_eSPI.h>
 
 double baselineRead(int channel); //average out baseline candidate
-int restore_baseline();           //define sensor baseline for new set of gas data        
-void breath_check();              //  check if sensor value exceed threshold
+void restore_baseline();           //define sensor baseline for new set of gas data        
+int breath_check();              //  check if sensor value exceed threshold
 void checkSetup(void);            //  initialize I2C protocol,EEPROM and SPIFFS memory, PID control
 void output_result();             //  return sensor response in ratio
 void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
@@ -133,7 +133,7 @@ void sensor_heater_control(bool control){
 //   value = sht20.humidity();
 //   return value;
 // }
-void breath_check(){
+int breath_check(){
   long previoustime = millis();
   while (true) {
     PID_control();
@@ -146,23 +146,16 @@ void breath_check(){
     //   arr[i] = sht20.humidity();
     //   previous= millis();
     // }
-    if(millis() - previoustime > 1000){
-      // if(buffer == 0){
-      //   buffer = ads.readADC_SingleEnded(0);
-      //   Serial.print("update");Serial.println(buffer);
-      // }
-      if(abs(ads.readADC_SingleEnded(Sensor_channel) - temporal_baseline) > 200){
+    if(millis() - previoustime > 500){
+      if(ads.readADC_SingleEnded(Sensor_channel) - temporal_baseline > 200){
         Serial.println("Start recording");
-        break;
+        Serial.print("Baseline: ");Serial.println(temporal_baseline);
+        return temporal_baseline;
       }
       temporal_baseline = ads.readADC_SingleEnded(Sensor_channel);
       previoustime =millis();
     }
     draw_sensor(ads.readADC_SingleEnded(Sensor_channel));
-    // if (gradient > 1) {
-    //   printf("breath real...");
-    //   break;
-    // }
   }
 }
 
@@ -180,22 +173,12 @@ double baselineRead(int channel) {
   return mean;
 }
 
-int restore_baseline(){
+void restore_baseline(){
   extern double PID_Setpoint;
   double temporal_read = 0;
   double reference_read = 0;
   int loading_index=0 ;
   unsigned long millisCleanStart = millis();
-  while(millis()-millisCleanStart < 10000){
-    PID_control();
-    display_loading(loading_index);loading_index ++;
-  }
-  // while(abs(ads.readADC_SingleEnded(NTCC_channel)-(int)PID_Setpoint) > 10){
-  //   PID_control();
-  //   Serial.println(ads.readADC_SingleEnded(NTCC_channel));
-  //   draw_loading(counter);counter ++;
-  // } 
-
   double slope = 0 ;
   double flat_slope[5]= {0};
   int flat_count = 0;
@@ -213,9 +196,9 @@ int restore_baseline(){
       flat_count ++; 
       if(flat_count > 4){
         temporal_baseline = reference_read; //update sensor_baseline
-        Serial.print("Found Baseline:");Serial.println(temporal_read);
+        // Serial.print("Found Baseline:");Serial.println(temporal_read);
         Serial.println("Start forecasting...");
-        return (int)reference_read;
+        return;
       }
     }
     else{
@@ -250,7 +233,7 @@ void sample_collection(){
   // restore_humidity();
   pump_control(true);
   sensor_heater_control(true);
-  baseline = restore_baseline();   //reduncding value
+  restore_baseline();  
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
@@ -259,15 +242,15 @@ void sample_collection(){
   tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
   tft.setTextDatum(CC_DATUM);
   tft.drawString("Huff for 3 seconds", 120, 245, 4);
-  breath_check();
+  baseline = breath_check();
   isStore = true;
   int previousDrawLoad = 0;
-  write_analyzing();
+  tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
   long millisStartSample = millis();
   while (millis() - millisStartSample <= sampletime + 1) {
     int time =0 ;
     bar_time = millis() - (float)millisStartSample;
-    bar_percentage = (bar_time/45000)*100;
+    bar_percentage = (bar_time/sampletime)*100;
     draw_sample_progress(bar_time,bar_percentage);
 
     if (millis()-previousDrawLoad >10){ 
@@ -307,12 +290,10 @@ int find_peak_value(int address, int unittime) {
   int peak_position = 0;
   int peak_time = 0;
   EEPROM.begin(20);
-  // int check_peak_start = EEPROM.get(address,peak_position)-200;
   peak_position =  EEPROM.get(address, peak_time)/unittime;
   int check_peak_start = peak_position - 200;
   delay(100); 
   if(check_peak_start < 0){check_peak_start = 0;}
-  // int check_peak_end =  EEPROM.get(address,peak_position) + 200;
   int check_peak_end = peak_position + 200;
   delay(100);
   EEPROM.end();
@@ -405,18 +386,9 @@ void output_result(){
     // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
   conc_CO2 = baseline_resist/peak_resist_CO2;
   conc_Ace = baseline_resist/peak_resist_Ace;
-  Serial.println(conc_Ace);
-  Serial.println(conc_CO2);
-  store_result(conc_Ace,conc_CO2);
-    
-    // conc_CO2 = (double)CO2_peak/(double)baseline;
-    // conc_Ace = (double)ace_peak/(double)baseline;
-
-    // conc_Ace = 1.01; //dummydata
-    // conc_CO2 = 1.20; //dummydata
-
-  Serial.println(conc_Ace);
-  Serial.println(conc_CO2);
+  Serial.print("Resistance: ");Serial.print(baseline_resist);Serial.print(",");Serial.print(peak_resist_CO2);Serial.print(",");Serial.println(peak_resist_Ace);
+  Serial.print("ADC: ");Serial.print(baseline);Serial.print(",");Serial.print(CO2_peak);Serial.print(",");Serial.println(ace_peak);
+  Serial.print("Ratio: ");Serial.print(conc_CO2);Serial.print(",");Serial.println(conc_Ace);
   store_result(conc_Ace,conc_CO2);
 
   draw_result(conc_CO2,conc_Ace);

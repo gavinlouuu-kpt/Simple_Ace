@@ -49,7 +49,7 @@ const double LSB = 0.125 / 1000;
 const int sampletime = 80000;       //60000
 
 double baselineRead(int channel);
-int restore_baseline();
+void restore_baseline();
 void checkSetup(void);
 void output_result();
 void pinSetup(void);
