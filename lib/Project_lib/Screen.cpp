@@ -144,7 +144,7 @@ void display_loading(int count)
 
 void draw_sample_progress(float bar_length, float bar_percentage){
   tft.setTextDatum(1);
-  tft.fillRoundRect(15, 220, 200 * (bar_length / 45000), 5, 2, TFT_TextBrown); // bar
+  tft.fillRoundRect(15, 220, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
@@ -315,11 +315,11 @@ void draw_result(double co2, double ace){
   if(fail_count != 50){ 
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
     tft.setTextDatum(CC_DATUM);
-    tft.drawString("Ketone",80,145,4);tft.drawString(":",125,145,4);
-    tft.drawString("CO2",80,175,4);tft.drawString(":",125,175,4);
+    tft.drawString("Ketone",85,145,4);tft.drawString(":",130,145,4);
+    tft.drawString("CO2",85,175,4);tft.drawString(":",130,175,4);
     tft.setTextDatum(ML_DATUM);
-    tft.drawFloat(ace,2,130, 145,4);
-    tft.drawFloat(co2,2,130, 175,4);
+    tft.drawFloat(ace,2,140, 145,4);
+    tft.drawFloat(co2,2,140, 175,4);
   }
 
   tft.setTextDatum(CC_DATUM);
