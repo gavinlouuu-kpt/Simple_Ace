@@ -39,8 +39,8 @@ bool isStore = false;
 int dutyCycle_pump = 120;         
 int baseline = 0;
 int fail_count = 0;
-int millisUnitTime = 0;
-
+int millisUnitTime = 0;  
+int loading_index=0 ;
 
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
@@ -135,27 +135,34 @@ void sensor_heater_control(bool control){
 // }
 int breath_check(){
   long previoustime = millis();
+  int array_index= 0;
   while (true) {
     PID_control();
-    // float arr[3];
-    // float humd;
-    // double gradient;
-    // long previous; 
-   
-    // for (int i = 0; i < 3; i++) {
-    //   arr[i] = sht20.humidity();
-    //   previous= millis();
-    // }
-    if(millis() - previoustime > 500){
-      if(ads.readADC_SingleEnded(Sensor_channel) - temporal_baseline > 200){
-        Serial.println("Start recording");
-        Serial.print("Baseline: ");Serial.println(temporal_baseline);
-        return temporal_baseline;
+    // Serial.print("Starttime:");Serial.println(millis());
+    if(array_index <100) {
+      Sensor_arr[array_index] = ads.readADC_SingleEnded(Sensor_channel);
+      array_index++;
+    }
+    else{
+    //shift the value of each entry one position samller, and store the new valuea at the 99th position
+      for (int i = 0; i < 99; i++) {
+        Sensor_arr[i] = Sensor_arr[i + 1];
       }
-      temporal_baseline = ads.readADC_SingleEnded(Sensor_channel);
+      Sensor_arr[99] = ads.readADC_SingleEnded(Sensor_channel);
+      Serial.println("Repalaced");
+    }
+
+    if(millis() - previoustime > 500){
+      if(Sensor_arr[99] - Sensor_arr[0] > 200){
+        Serial.println("Start recording");
+        Serial.print("Baseline: ");Serial.println(Sensor_arr[0]);
+        return Sensor_arr[0];
+      }
+      temporal_baseline = Sensor_arr[0];
       previoustime =millis();
     }
     draw_sensor(ads.readADC_SingleEnded(Sensor_channel));
+    // Serial.print("Endtime:");Serial.println(millis());
   }
 }
 
@@ -164,7 +171,6 @@ double baselineRead(int channel) {
   float mean = 0;
   for (int i = 0; i < baseline_window; ++i ) {
     toSort[i] = ads.readADC_SingleEnded(channel);
-    delay(5);
   }
   for (int i = 0; i < baseline_window; ++i) {
     mean += toSort[i];
@@ -182,12 +188,17 @@ void restore_baseline(){
   double slope = 0 ;
   double flat_slope[5]= {0};
   int flat_count = 0;
+
   while (1) {
+    // return_button();
     PID_control();
     display_loading(loading_index);loading_index ++;
+    Serial.print("starttime: ");Serial.println(millis());
     temporal_read = baselineRead(Sensor_channel);
-    Serial.print("Temp value:");Serial.println(temporal_read);delay(10);
+    Serial.print("End time: ");Serial.println(millis());
+    Serial.print("Temp value:");Serial.println(temporal_read);
     reference_read = baselineRead(Sensor_channel);
+    Serial.print("End time: ");Serial.println(millis());
     Serial.print("Ref value:");Serial.println(reference_read);
     slope = (temporal_read - reference_read)/0.5; // timelapse of two value retrieved
     Serial.print("Slope:");Serial.println(slope);
@@ -196,7 +207,6 @@ void restore_baseline(){
       flat_count ++; 
       if(flat_count > 4){
         temporal_baseline = reference_read; //update sensor_baseline
-        // Serial.print("Found Baseline:");Serial.println(temporal_read);
         Serial.println("Start forecasting...");
         return;
       }
@@ -228,7 +238,7 @@ void sample_collection(){
   int a = 0;
   float bar_time;
   float bar_percentage;
-  int data_size = 0;
+  int data_size = 100;
   short adc_CO2;
   // restore_humidity();
   pump_control(true);

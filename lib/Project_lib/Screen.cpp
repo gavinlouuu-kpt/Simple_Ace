@@ -20,6 +20,7 @@
 #include "Image_assets/Wifi_not_connect.h"
 #include "Image_assets/Wifi_Off.h"
 #include "Image_assets/Loading.h"
+#include "Image_assets/Loadingcopy.h"
 
 #include "Image_assets/Homepage2.h"
 #include "Image_assets/FullBattary.h"
@@ -137,8 +138,8 @@ void draw_Settingframework()
 
 void display_loading(int count)
 {
-  tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE ); //  cover loading logo
-  tft.pushImage(90, 200, LoadingWidth, LoadingHeight, Loading[count % 11]);
+  // tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE ); //  cover loading logo
+  tft.pushImage(90, 200, LoadingcopyWidth, LoadingcopyHeight, Loadingcopy[count % 9]);
   delay(100);
 }
 
@@ -154,13 +155,6 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   tft.drawString("%", 150, 240, 4);
 }
 
-void write_analyzing(void){
-  tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );// cover huff now
-  // tft.setTextDatum(3);
-  // tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
-  // tft.fillRect(10, 260, 70, 50, TFT_NEIGHBOUR_GREEN); // cover button
-  // tft.drawString("Analyzing...", 10, 280, 4);
-}
 
 bool isbufferfull = false;
 float temporal_maximum;
@@ -286,22 +280,24 @@ void display_start_button(){
   tft.drawString("BREATHE AGAIN",120,245,2);
 }
 
-void display_sensor_lifecount(){
+void update_sensor_lifecount(bool display){
   //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
-
   extern byte lifecount_address; 
   EEPROM.begin(20);
   lifecount = EEPROM.get(lifecount_address,lifecount);
   delay(500);
   EEPROM.end();
   delay(500);
-  tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-  tft.setTextDatum(ML_DATUM);
-  tft.drawString("Sensor Life :", 20, 215, 2);
-  tft.setTextDatum(CC_DATUM);
-  tft.drawString(String(lifecount*10), 120, 215, 2);
-  tft.drawString("%", 140, 215, 2);
-  //  120, 245, 4
+  if(display == false){
+    return;
+  }else{
+    tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+    tft.setTextDatum(ML_DATUM);
+    tft.drawString("Sensor Life :", 20, 215, 2);
+    tft.setTextDatum(CC_DATUM);
+    tft.drawString(String(lifecount*10), 120, 215, 2);
+    tft.drawString("%", 140, 215, 2);
+  }
 }
 
 void draw_result(double co2, double ace){
@@ -406,7 +402,7 @@ void HomeScreen()
 
   display_Wifi();
 
-  display_sensor_lifecount();
+  update_sensor_lifecount(true);
   delay(150);
 }
 
@@ -424,13 +420,11 @@ void display_menu(){
   tft.drawString("Setting", 15, 50, 4);
 
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
-  tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
-  tft.drawString("Wifi",30,107,2);
-  tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);
-  tft.drawString("Developer Mode",30,247,2);
+  tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("Wifi",30,107,2);
+  tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);tft.drawString("Developer Mode",30,247,2);
+  tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("Calibration",30,147,2);
 
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,147,2);
   tft.fillRoundRect(15,170,210,30,3,TFT_DARKGREY);tft.drawString("User ID",30,177,2);
   tft.fillRoundRect(15,200,210,30,3,TFT_DARKGREY);tft.drawString("Language",30,207,2);
 
@@ -797,7 +791,7 @@ void Navigation()
     if(stage != homescreen){
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
-        stage = 0;
+        stage = homescreen;
         HomeScreen();
         Reset_coordinate();
       }
@@ -823,29 +817,6 @@ void Navigation()
         stage = 9;
         
       }
-
-      // else if (t_x > 60 && t_x < 100 && touch_y > 0 && touch_y < 305)               //Calibration
-      // {
-      //   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-      //   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawString("Calibration", 120, 100, 4); // Calibration
-      //   delay(200);
-
-      //   calibration_display();
-      //   stage = 3;
-      // }
-      // else if (t_x > 105 && t_x < 145 && touch_y > 0 && touch_y < 305)              //User Set up
-      // {
-      //   tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);                    // User_setup_display
-      //   tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawString("User Setup", 120, 160, 4);
-      //   delay(200);
-
-      //   User_setup_display();
-      //   stage = 11;
-      // }
 
       if (touch_x > 185 && touch_x < 200 && touch_y > 10 && touch_y < 280)
       {
@@ -889,12 +860,16 @@ void Navigation()
         Serial.print("Wifi status:");Serial.println(WiFi.status());
       }
       draw_framework();
+      tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
       tft.setTextColor(TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(TL_DATUM);
       tft.drawString("Initializing", 15, 50, 4);
       sample_collection();
       output_result();
-      start_activity_check_millis = millis();
+      update_sensor_lifecount(false);
+      stage = homescreen;
+      Serial.print("stage:");Serial.println(stage);
+      Serial.print("lifecount:");Serial.println(lifecount);
     }
 
     if (stage == calibration)
