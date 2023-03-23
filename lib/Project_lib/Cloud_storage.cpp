@@ -8,6 +8,7 @@
 #include <addons/RTDBHelper.h>
 #include <Simple_ACE.h>
 #include <TimeLib.h>
+#include "Adafruit_ADS1X15.h"
 
 #if defined(ESP32)
 #elif defined(ESP8266)
@@ -24,6 +25,7 @@
 #define filesize  256
 #define GMT_offset 8
 
+extern Adafruit_ADS1115 ads;
 unsigned long getTime();                      //get unix time on wifi
 String UnixConvert(unsigned long t);          //convert unix time into readable time
 void check_sensor_life();                     // check if current time exceed sensor life
@@ -205,6 +207,17 @@ void store_default(unsigned long tim){
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
 }
 
+double data_convert(int16_t ads_value) {
+  double load_resistance = 47000;
+  double input_voltage = 3.3;
+  double sensor_resistance = 0;
+  double sensor_voltage = 0;
+      
+  sensor_voltage = ads.computeVolts(ads_value);
+  sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
+  return sensor_resistance;
+}
+
 void store_data(){
   unsigned long millisUnixTime =0;  
   extern short Sensor_arr[store_size];
@@ -298,7 +311,8 @@ void store_data(){
     {
       if (Sensor_arr[i] != 0)
       {
-        file.print(Sensor_arr[i]);
+
+        file.print(data_convert(Sensor_arr[i]));
         file.print(',');
         file.write('\n');
       }
