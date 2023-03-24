@@ -14,6 +14,7 @@
 #include <EEPROM.h>
 #include <math.h>
 #include <TFT_eSPI.h>
+#include "Image_assets/Return_arrow_flip.h"
 
 double baselineRead(int channel); //average out baseline candidate
 void restore_baseline();           //define sensor baseline for new set of gas data        
@@ -75,7 +76,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(true);
+  EEPROM_setup(false);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -138,6 +139,11 @@ int breath_check(){
   long previoustime = millis();
   int array_index= 0;
   while (true) {
+    leave_sample();
+    if(leave ==true){
+      Serial.println("leave breath check");
+      return 0;
+    }
     PID_control();
     // Serial.print("Starttime:");Serial.println(millis());
     if(array_index <100) {
@@ -150,20 +156,18 @@ int breath_check(){
         Sensor_arr[i] = Sensor_arr[i + 1];
       }
       Sensor_arr[99] = ads.readADC_SingleEnded(Sensor_channel);
-      Serial.println("Repalaced");
     }
 
     if(millis() - previoustime > 500){
       if(Sensor_arr[99] - Sensor_arr[0] > 200){
-        Serial.println("Start recording");
         Serial.print("Baseline: ");Serial.println(Sensor_arr[0]);
+        tft.fillRect(0, 50, 240, 95, TFT_NEIGHBOUR_BEIGE );  //cover loading
         return Sensor_arr[0];
       }
       temporal_baseline = Sensor_arr[0];
       previoustime =millis();
     }
     draw_sensor(ads.readADC_SingleEnded(Sensor_channel));
-    // Serial.print("Endtime:");Serial.println(millis());
   }
 }
 
@@ -258,50 +262,45 @@ void sample_collection(){
     }
     tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);
     tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
+    tft.fillRect(0, 280, 240, 40, TFT_NEIGHBOUR_BEIGE );  //cover loading
+    tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+
     tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
-    tft.setTextDatum(CC_DATUM);
-    tft.drawString("Huff for 3 seconds", 120, 245, 4);
+    tft.setTextDatum(TL_DATUM);
+    tft.drawString("Huff for 3 seconds", 15,50, 4);
     baseline = breath_check();
-    isStore = true;
-    int previousDrawLoad = 0;
-    tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
-    long millisStartSample = millis();
-    while (millis() - millisStartSample <= sampletime + 1) {
-      int time =0 ;
-      bar_time = millis() - (float)millisStartSample;
-      bar_percentage = (bar_time/sampletime)*100;
-      draw_sample_progress(bar_time,bar_percentage);
 
-      if (millis()-previousDrawLoad >10){ 
-        Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
-        draw_sensor(Sensor_arr[data_size]); 
-        data_size ++;
-        previousDrawLoad = millis();      
+    if(leave == true){}
+    else{
+      isStore = true;
+      int previousDrawLoad = 0;
+      tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
+      long millisStartSample = millis();
+      while (millis() - millisStartSample <= sampletime + 1) {
+        int time =0 ;
+        bar_time = millis() - (float)millisStartSample;
+        bar_percentage = (bar_time/sampletime)*100;
+        draw_sample_progress(bar_time,bar_percentage);
+
+        if (millis()-previousDrawLoad >10){ 
+          Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
+          draw_sensor(Sensor_arr[data_size]); 
+          data_size ++;
+          previousDrawLoad = millis();      
+        }
+        PID_control();
       }
-      PID_control();
-    
-      // if (isStore == false) {
-      //   fail_count += 1 ;
-      //   if (fail_count== 50){
-      //    break;
-      //   }
-      //   if (read_humidity() > 40) {
-      //     isStore = true;
-      //     fail_count= 0;
-      //     // Serial.println("Certain a breathe. Recording...");
-      //   }
-      // }
-    }
-    if(fail_count==50){
-      return;
-    }
-    Serial.print("Number of sample:");Serial.println(data_size);
-    int expose = millis() - millisStartSample;
-    Serial.print("Exposed time");Serial.println(expose);
-    millisUnitTime= expose/data_size;
+      if(fail_count==50){
+        return;
+      }
+      Serial.print("Number of sample:");Serial.println(data_size);
+      int expose = millis() - millisStartSample;
+      Serial.print("Exposed time");Serial.println(expose);
+      millisUnitTime= expose/data_size;
 
-    pump_control(false);
-    sensor_heater_control(false);
+      pump_control(false);
+      sensor_heater_control(false);
+    }
   }
 }
 
@@ -322,7 +321,7 @@ int find_peak_value(int address, int unittime) {
 
     if (Sensor_arr[i] > peak_value) {
       peak_value = Sensor_arr[i];
-      printf("Replaced %d\n", i);
+      // printf("Replaced %d\n", i);
     }
   }
   Serial.print("Peak value is");Serial.println(peak_value);

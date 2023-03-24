@@ -144,15 +144,16 @@ void display_loading(int count)
 }
 
 void draw_sample_progress(float bar_length, float bar_percentage){
-  tft.setTextDatum(1);
-  tft.fillRoundRect(20, 220, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
+  tft.setTextDatum(TR_DATUM);
+  tft.fillRoundRect(15, 265, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
-    tft.fillRect(75, 240, 60, 25, TFT_NEIGHBOUR_BEIGE); // cover recorded_gas_sample number
-    tft.drawFloat(bar_percentage, 0, 115, 240, 4);
+    tft.fillRect(75, 285, 60, 25, TFT_NEIGHBOUR_BEIGE); // cover recorded_gas_sample number
+    tft.drawFloat(bar_percentage, 0, 115, 275, 4);
   }
-  tft.drawString("%", 150, 240, 4);
+  tft.setTextDatum(TC_DATUM);
+  tft.drawString("%", 135, 275, 4);
 }
 bool leave = false;
 void leave_sample(){ 
@@ -186,7 +187,7 @@ int position_temp_min = -1;
 
 void draw_sensor(double sensor_value){
   
-  graph1.pushSprite(20, 60);
+  graph1.pushSprite(20, 105);
   if (array_index < 201){
     Plot_buffer[array_index] = (int)sensor_value;
     if (position_temp_max < 0){ // relocate maximum point
@@ -324,7 +325,9 @@ void draw_result(double co2, double ace){
   char *result[]={"Try Again","Inactive workout","Moderate burn","Effective training","Moderate Ketosis","Ketoacidosis"};
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   draw_framework();
-  display_start_button();     
+  display_start_button();    
+  tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
+ 
   if(fail_count != 50){ 
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
     tft.setTextDatum(CC_DATUM);
@@ -532,9 +535,6 @@ void display_live_plot(){
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);
   tft.drawString("ADS0",30,107,2);
-  // tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  // tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);
-  // tft.drawString("Humidity",30,147,2);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 }
 
@@ -843,7 +843,7 @@ void Navigation()
         // tft.drawString("Developer Mode", 120, 220, 4); // developer mode
         // delay(200);
         display_developer_menu();
-        stage = 5;
+        stage = developer_mode ;
         delay(300);
       }
 
@@ -955,12 +955,8 @@ void Navigation()
       }
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
       {
-        // tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawString("Live Plot", 120, 35, 4);
-        // delay(200);
-        display_live_plot();
-        stage = liveplot_control;
+        // display_live_plot();
+        stage = live_plot;
         delay(400);
       }
       // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
@@ -1160,105 +1156,6 @@ void Navigation()
           file.close();
         }
       }
-
-
-      // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
-      // if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
-      // {
-      //   if (SPIFFS.exists("/Calibration"))
-      //   {
-      //     File file = SPIFFS.open("/Calibration", FILE_READ);
-      //     while (file.available())
-      //     {
-      //       Serial.write(file.read());
-      //     }
-      //     file.close();
-      //   }
-      // }
-    // }
-    // if(stage == print_gas_sample){
-    //   if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305)
-      // else if (touch_x > 120 && touch_x < 135 && touch_y > 10 && touch_y < 285)
-      // {
-      //   for(int i = 0; i< 5; i++){
-      //     String data_name = "/Dataset_";
-      //     data_name.concat(i+1);
-      //     Serial.println(data_name);
-      //     if (SPIFFS.exists(data_name))
-      //     {
-      //       File file = SPIFFS.open(data_name, FILE_READ);
-      //       while (file.available())
-      //       {
-      //         Serial.write(file.read());
-      //       }
-      //       file.close();
-      //     }
-      //     Serial.println();
-      //   }
-      // }
-    //   else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
-    //   {
-    //     // if (SPIFFS.exists("/Dataset_2"))
-    //     // {
-    //     //   File file = SPIFFS.open("/Dataset_2", FILE_READ);
-    //     //   while (file.available())
-    //     //   {
-    //     //     Serial.write(file.read());
-    //     //   }
-    //     //   file.close();
-    //     // }
-    //     for(int i = 0; i< 5; i++){
-    //       String data_name = "/Dataset_";
-    //       data_name.concat(i+6);
-    //       Serial.println(data_name);
-    //       if (SPIFFS.exists(data_name))
-    //       {
-    //         File file = SPIFFS.open(data_name, FILE_READ);
-    //         while (file.available())
-    //         {
-    //           Serial.write(file.read());
-    //         }
-    //         file.close();
-    //       }
-    //       Serial.println();
-    //     }
-    //   }
-    //   else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305)
-    //   {
-    //     for(int i = 0; i< 5; i++){
-    //       String data_name = "/Dataset_";
-    //       data_name.concat(i+11);
-    //       Serial.println(data_name);
-    //       if (SPIFFS.exists(data_name))
-    //       {
-    //         File file = SPIFFS.open(data_name, FILE_READ);
-    //         while (file.available())
-    //         {
-    //           Serial.write(file.read());
-    //         }
-    //         file.close();
-    //       }
-    //       Serial.println();
-    //     }
-    //   }
-    //   else if(touch_x > 150 && touch_x < 190 && touch_y > 0 && touch_y < 305)
-    //   {
-    //     for(int i = 0; i< 5; i++){
-    //       String data_name = "/Dataset_";
-    //       data_name.concat(i+16);
-    //       Serial.println(data_name);
-    //       if (SPIFFS.exists(data_name))
-    //       {
-    //         File file = SPIFFS.open(data_name, FILE_READ);
-    //         while (file.available())
-    //         {
-    //           Serial.write(file.read());
-    //         }
-    //         file.close();
-    //       }
-    //       Serial.println();
-    //     }
-    //   }
     }
 
     if (stage == select_user_profile){     // user_setup
@@ -1289,8 +1186,6 @@ void Navigation()
       }
 
       if (touch_x > 85 && touch_x < 100 && touch_y > 10 && touch_y < 285){
-        // draw_Settingframework();
-        // display_start_button();
         Reset_coordinate();
         stage = live_plot ;
       }
@@ -1351,6 +1246,7 @@ void Navigation()
         }
       }
     }
+
     if (stage == PID_setting){
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(4);
@@ -1368,143 +1264,134 @@ void Navigation()
         stage = setting_menu;
       }
     }
-    if (stage == live_plot)
-    { // developer mode:ADS0 
+
+    if (stage == live_plot){ // developer mode:ADS0 
       tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-        draw_Settingframework();
-        graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-        pump_control(true);
-        sensor_heater_control(true);
-        while (1){
-          PID_control();  
-          int ADS0 = ads.readADC_SingleEnded(Sensor_channel);
-          int heater = ads.readADC_SingleEnded(Heater_channel);
-          int offset = ads.readADC_SingleEnded(Offset_channel);
-          int ntcc = ads.readADC_SingleEnded(NTCC_channel);
-
-          graph1.pushSprite(20, 60);
-
-
-          if (array_index < 201){
-            Plot_buffer[array_index] = ads.readADC_SingleEnded(Sensor_channel);
-            if (position_temp_max < 0){ // relocate maximum point
-              temporal_maximum = Plot_buffer[0];
-              position_temp_max = 0;
-              for (int a = 0; a < array_index; a++){
-                if (Plot_buffer[a] > temporal_maximum){
-                  temporal_maximum = Plot_buffer[a];
-                  position_temp_max = a;
-                }
-              }
-              plot_upper_bound = temporal_maximum + 200;
-              isPlotrangeChange = true;
-            }
-
-            if (position_temp_min < 0){ // relocate minimum point
-              position_temp_min = 0;
-              temporal_minimum = Plot_buffer[0];
-              for (int a = 0; a < array_index; a++){
-                if (Plot_buffer[a] < temporal_minimum){
-                  temporal_minimum = Plot_buffer[a];
-                  position_temp_min = a;
-                }
-              }
-              plot_lower_bound = temporal_minimum - 200;
-              isPlotrangeChange = true;
-            }
-
-            if (Plot_buffer[array_index] > plot_upper_bound){
-              plot_upper_bound = Plot_buffer[array_index] + 200; position_temp_max = array_index; isPlotrangeChange = true;
-            }
-
-            if (Plot_buffer[array_index] < plot_lower_bound)
-            {
-              plot_lower_bound = Plot_buffer[array_index] - 200;
-              position_temp_min = array_index;
-              isPlotrangeChange = true;
-            }
-
-            tft.fillRect(0, 45, 50, 10, TFT_NEIGHBOUR_BEIGE );
-            tft.fillRect(0, 215, 240, 10, TFT_NEIGHBOUR_BEIGE );
-            tft.setTextDatum(CC_DATUM);
-            tft.drawFloat(float(plot_upper_bound), 0, 15, 50, 1);
-            tft.drawFloat(float(plot_lower_bound), 0, 15, 220, 1);
-            tft.setTextDatum(TL_DATUM);
-            tft.drawFloat(float(ADS0), 0, 65, 240, 2);
-            tft.drawString("ADS0:", 25, 240, 2);
-
-
-            if (isPlotrangeChange == false && array_index > 0) // draw
-            {
-              graph1.scroll(-1);
-              // printf("%f\n",value);
-              graph1.drawLine(198, 150 - 150 * ((Plot_buffer[array_index - 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199, 150 - 150 * ((Plot_buffer[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
-              // printf("%d\n",150 - 150 * ((H[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)));
-            }
-            if (isPlotrangeChange == true && array_index > 0) // redraw
-            {
-              graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
-              for (int c = 0; c < array_index; c++)
-              {
-                // graph1.drawFastVLine(199 - (array_index  - c), 150 - 150 * ((H[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)),1, TFT_YELLOW);
-                graph1.drawLine(199 - (array_index - c), 150 - 150 * ((Plot_buffer[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199 - (array_index - 1 - c), 150 - 150 * ((Plot_buffer[c + 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
-              }
-              isPlotrangeChange = false;
-            }
-            if (array_index == 199){ // When array_index >200, H[array_index-1] = H[array_index]
-              for (int j = 1; j <= 199; j++)
-              {
-                Plot_buffer[j - 1] = Plot_buffer[j];
-              }
-              as_counter = 1;
-            }
-            array_index++;
-            position_temp_max--;
-            position_temp_min--;
-            if (as_counter == 1)
-            {
-              array_index = 199;
-            }
-            // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
-
-            extern double Output;
-            
-            // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
-            if (sht.readSample()) {
-              Serial.print(sht.getHumidity(), 2);Serial.print(","); 
-              Serial.print(sht.getTemperature(), 2); Serial.print(","); 
-              Serial.print(ADS0);Serial.print(",");
-              Serial.print(heater);Serial.print(",");
-              Serial.print(offset);Serial.print(",");
-              Serial.print(Output);Serial.print(",");
-              Serial.println(ntcc); 
-              // Serial.println(analogRead(battery_read));
-            }
-          }
-          if (tft.getTouch(&touch_x, &touch_y))
+      draw_Settingframework();
+      tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+      tft.drawString("Live Plot", 15, 50, 4);
+      tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+      graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+      pump_control(true);
+      sensor_heater_control(true);
+      while (1){
+        if (tft.getTouch(&touch_x, &touch_y))
+        {
+          if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295)
           {
-            if (touch_x > 220 && touch_x <240 && touch_y > 0 && touch_y < 85)
-            {
-              // control = false;
-              pump_control(false);
-              sensor_heater_control(false);
-              break;
-              // display_menu();
-              // stage = 1;
-            }
-
-            // if (touch_x > 220 && touch_x < 240 && t_y > 220 && t_y < 320) // Return
-            // {
-            //   pump_control(control);
-            //   break;
-            //   stage = 0;
-            //   HomeScreen();
-            //   Reset_coordinate();
-            // }
+            pump_control(false);
+            sensor_heater_control(false);
+            break;
           }
         }
-        display_menu();
-        stage = setting_menu;
+        PID_control();  
+        int ADS0 = ads.readADC_SingleEnded(Sensor_channel);
+        int heater = ads.readADC_SingleEnded(Heater_channel);
+        int offset = ads.readADC_SingleEnded(Offset_channel);
+        int ntcc = ads.readADC_SingleEnded(NTCC_channel);
+
+        graph1.pushSprite(20, 105);
+
+        if (array_index < 201){
+          Plot_buffer[array_index] = ads.readADC_SingleEnded(Sensor_channel);
+          if (position_temp_max < 0){ // relocate maximum point
+            temporal_maximum = Plot_buffer[0];
+            position_temp_max = 0;
+            for (int a = 0; a < array_index; a++){
+              if (Plot_buffer[a] > temporal_maximum){
+                temporal_maximum = Plot_buffer[a];
+                position_temp_max = a;
+              }
+            }
+            plot_upper_bound = temporal_maximum + 200;
+            isPlotrangeChange = true;
+          }
+
+          if (position_temp_min < 0){ // relocate minimum point
+            position_temp_min = 0;
+            temporal_minimum = Plot_buffer[0];
+            for (int a = 0; a < array_index; a++){
+              if (Plot_buffer[a] < temporal_minimum){
+                temporal_minimum = Plot_buffer[a];
+                position_temp_min = a;
+              }
+            }
+            plot_lower_bound = temporal_minimum - 200;
+            isPlotrangeChange = true;
+          }
+
+          if (Plot_buffer[array_index] > plot_upper_bound){
+            plot_upper_bound = Plot_buffer[array_index] + 200; position_temp_max = array_index; isPlotrangeChange = true;
+          }
+
+          if (Plot_buffer[array_index] < plot_lower_bound)
+          {
+            plot_lower_bound = Plot_buffer[array_index] - 200;
+            position_temp_min = array_index;
+            isPlotrangeChange = true;
+          }
+
+          tft.fillRect(210, 90, 20, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.fillRect(210, 260, 20, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.setTextDatum(BC_DATUM);
+          tft.drawFloat(float(plot_upper_bound), 0, 220, 100, 1);
+          tft.setTextDatum(TC_DATUM);
+          tft.drawFloat(float(plot_lower_bound), 0, 220, 260, 1);
+          tft.setTextDatum(TL_DATUM);
+          // tft.drawFloat(float(ADS0), 0, 65, 240, 2);
+          // tft.drawString("ADS0:", 25, 240, 2);
+
+
+          if (isPlotrangeChange == false && array_index > 0) // draw
+          {
+            graph1.scroll(-1);
+            // printf("%f\n",value);
+            graph1.drawLine(198, 150 - 150 * ((Plot_buffer[array_index - 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199, 150 - 150 * ((Plot_buffer[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
+            // printf("%d\n",150 - 150 * ((H[array_index] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)));
+          }
+          if (isPlotrangeChange == true && array_index > 0) // redraw
+          {
+            graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+            for (int c = 0; c < array_index; c++)
+            {
+              // graph1.drawFastVLine(199 - (array_index  - c), 150 - 150 * ((H[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)),1, TFT_YELLOW);
+              graph1.drawLine(199 - (array_index - c), 150 - 150 * ((Plot_buffer[c] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), 199 - (array_index - 1 - c), 150 - 150 * ((Plot_buffer[c + 1] - plot_lower_bound) / (plot_upper_bound - plot_lower_bound)), TFT_NEIGHBOUR_BEIGE );
+            }
+            isPlotrangeChange = false;
+          }
+          if (array_index == 199){ // When array_index >200, H[array_index-1] = H[array_index]
+            for (int j = 1; j <= 199; j++)
+            {
+              Plot_buffer[j - 1] = Plot_buffer[j];
+            }
+            as_counter = 1;
+          }
+          array_index++;
+          position_temp_max--;
+          position_temp_min--;
+          if (as_counter == 1)
+          {
+            array_index = 199;
+          }
+          // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(1));Serial.print(",");Serial.print(ads.readADC_SingleEnded(2));Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(",");
+
+          extern double Output;
+          
+          // Serial.print(ADS0);Serial.print(",");Serial.print(ads.readADC_SingleEnded(3));Serial.print(",");Serial.print(Output);Serial.print(",");Serial.println(analogRead(NTCC)); 
+          if (sht.readSample()) {
+            Serial.print(sht.getHumidity(), 2);Serial.print(","); 
+            Serial.print(sht.getTemperature(), 2); Serial.print(","); 
+            Serial.print(ADS0);Serial.print(",");
+            Serial.print(heater);Serial.print(",");
+            Serial.print(offset);Serial.print(",");
+            Serial.print(Output);Serial.print(",");
+            Serial.println(ntcc); 
+            // Serial.println(analogRead(battery_read));
+          }
+        }
+      }
+      display_menu();
+      stage = setting_menu;
     }
 
     if (stage == pump_setting){  //select pump duty cycle
