@@ -145,7 +145,7 @@ void display_loading(int count)
 
 void draw_sample_progress(float bar_length, float bar_percentage){
   tft.setTextDatum(1);
-  tft.fillRoundRect(15, 220, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
+  tft.fillRoundRect(20, 220, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
