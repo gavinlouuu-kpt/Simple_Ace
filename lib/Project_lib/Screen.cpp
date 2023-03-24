@@ -155,6 +155,7 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   tft.setTextDatum(TC_DATUM);
   tft.drawString("%", 135, 275, 4);
 }
+
 bool leave = false;
 void leave_sample(){ 
   if (tft.getTouch(&touch_x, &touch_y))

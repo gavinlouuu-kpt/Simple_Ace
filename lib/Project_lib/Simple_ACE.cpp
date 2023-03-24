@@ -202,12 +202,9 @@ void restore_baseline(){
     }
     PID_control();
     display_loading(loading_index);loading_index ++;
-    Serial.print("starttime: ");Serial.println(millis());
     temporal_read = baselineRead(Sensor_channel);
-    Serial.print("End time: ");Serial.println(millis());
     Serial.print("Temp value:");Serial.println(temporal_read);
     reference_read = baselineRead(Sensor_channel);
-    Serial.print("End time: ");Serial.println(millis());
     Serial.print("Ref value:");Serial.println(reference_read);
     slope = (temporal_read - reference_read)/0.5; // timelapse of two value retrieved
     Serial.print("Slope:");Serial.println(slope);
@@ -257,52 +254,50 @@ void sample_collection(){
   restore_baseline();
   if(leave == true){}
   else{
-    for(int i =0; i<store_size; i++){
-      Sensor_arr[i]=0;
-    }
-    tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);
+    for(int i =0; i<store_size; i++){Sensor_arr[i]=0;}
+    tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
     tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
-    tft.fillRect(0, 280, 240, 40, TFT_NEIGHBOUR_BEIGE );  //cover loading
+    tft.fillRect(0, 280, 240, 40, TFT_NEIGHBOUR_BEIGE );  //cover bar
     tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
-
     tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
     tft.setTextDatum(TL_DATUM);
     tft.drawString("Huff for 3 seconds", 15,50, 4);
-    baseline = breath_check();
+  }
+  baseline = breath_check();
+  if(leave == true){}
+  else{
+    isStore = true;
+    int previousDrawLoad = 0;
+    tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
+    long millisStartSample = millis();
+    while (millis() - millisStartSample <= sampletime + 1) {
+      int time =0 ;
+      bar_time = millis() - (float)millisStartSample;
+      bar_percentage = (bar_time/sampletime)*100;
+      draw_sample_progress(bar_time,bar_percentage);
 
-    if(leave == true){}
-    else{
-      isStore = true;
-      int previousDrawLoad = 0;
-      tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
-      long millisStartSample = millis();
-      while (millis() - millisStartSample <= sampletime + 1) {
-        int time =0 ;
-        bar_time = millis() - (float)millisStartSample;
-        bar_percentage = (bar_time/sampletime)*100;
-        draw_sample_progress(bar_time,bar_percentage);
-
-        if (millis()-previousDrawLoad >10){ 
-          Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
-          draw_sensor(Sensor_arr[data_size]); 
-          data_size ++;
-          previousDrawLoad = millis();      
-        }
-        PID_control();
+      if (millis()-previousDrawLoad >10){ 
+        Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
+        draw_sensor(Sensor_arr[data_size]); 
+        data_size ++;
+        previousDrawLoad = millis();      
       }
-      if(fail_count==50){
-        return;
-      }
-      Serial.print("Number of sample:");Serial.println(data_size);
-      int expose = millis() - millisStartSample;
-      Serial.print("Exposed time");Serial.println(expose);
-      millisUnitTime= expose/data_size;
-
-      pump_control(false);
-      sensor_heater_control(false);
+      PID_control();
     }
+    if(fail_count==50){
+      return;
+    }
+
+    Serial.print("Number of sample:");Serial.println(data_size);
+    int expose = millis() - millisStartSample;
+    Serial.print("Exposed time");Serial.println(expose);
+    millisUnitTime= expose/data_size;
+
+    pump_control(false);
+    sensor_heater_control(false);
   }
 }
+
 
 int find_peak_value(int address, int unittime) {
   int peak_value = 0;
