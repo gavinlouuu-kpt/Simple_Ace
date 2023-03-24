@@ -38,7 +38,7 @@ void EEPROM_setup(bool factory){
     EEPROM.put(index_address, 0);
     delay(100); 
     printf("EEPROM write address: %d, value: %d\n", index_address, 0);
-    EEPROM.put(lifecount_address,1);
+    EEPROM.put(lifecount_address,10);
     EEPROM.commit();
     delay(500);
     EEPROM.end();
