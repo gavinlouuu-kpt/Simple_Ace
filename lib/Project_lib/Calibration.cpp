@@ -34,12 +34,23 @@ void EEPROM_setup(bool factory){
   else{
     extern byte index_address;
     extern byte lifecount_address;
+    extern byte sample_address; 
+    extern byte plot_address; 
+    extern byte blow_address; 
+
     Serial.println("Factory setting");
     EEPROM.begin(20);
     EEPROM.put(index_address, 0);
     delay(100); 
     printf("EEPROM write address: %d, value: %d\n", index_address, 0);
     EEPROM.put(lifecount_address,10);
+    delay(100);
+    EEPROM.put(sample_address, 0);
+    delay(100);
+    EEPROM.put(plot_address, 0);
+    delay(100);
+    EEPROM.put(blow_address, 0);
+    delay(100);
     EEPROM.commit();
     delay(500);
     EEPROM.end();
@@ -98,39 +109,39 @@ void Calibration() {
   }
   while(millis() - millisStartTime < sampletime+1){
     PID_control();
-    if(millis() - millisPreviousTime > millisdelay && countdown_index > 0){
+    unsigned long present_millis =millis();
+    if(present_millis - millisPreviousTime > millisdelay && countdown_index > 0){
       tft.drawString("Sample in ",110,120,4);
       tft.drawFloat(float(countdown_index),0,180,120,4);
       countdown_index--;
       millisPreviousTime = millis();
     }
 
-    if(millis()-millisPreviousTime > millisdelay && countdown_index == 0 && fillscreen == true){
+    if(present_millis-millisPreviousTime > millisdelay && countdown_index == 0 && fillscreen == true){
       tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_BEIGE);
       fillscreen = false;
     }
 
-    if(millis() - millisPreviousTime > millisdelay){
+    if(present_millis - millisPreviousTime > millisdelay){
       tft.setTextDatum(CC_DATUM);
       tft.drawString("Remain ",100,120,4);
       tft.fillRect(155,100,65,40,TFT_NEIGHBOUR_BEIGE);
-      if (millis()- millisStartTime<0)
+      if (sampletime - (present_millis- millisStartTime)<0)
       {
         print_time = 0;
-        Serial.println("print time: 0");  
       }else{
-        print_time = float((sampletime-(millis() - millisStartTime))/millisdelay);
+        print_time = float((sampletime-(present_millis - millisStartTime))/millisdelay);
       }
       tft.drawNumber((int)print_time,170,120,4);
-      Serial.print("print time: ");Serial.println(print_time); 
       millisPreviousTime= millis();
     }
 
-    if(millis() - millisPreviousTime_gif > 100){
+    if(present_millis- millisPreviousTime_gif > 100){
       display_loading(display_index);display_index++;
+      millisPreviousTime_gif = millis();
     }
 
-    if (millis()-millisPreviousTime_1>10){
+    if (present_millis-millisPreviousTime_1>10){
       Sensor_arr[sampling_index] = ads.readADC_SingleEnded(Sensor_channel);
       Serial.println(Sensor_arr[sampling_index]);
       sampling_index += 1;
@@ -156,7 +167,7 @@ void Calibration() {
 void find_peak(){
   int peak_1=0;
   int peak_2=0;
-  for(int i = 50; i <250; i++){
+  for(int i = 20; i <100; i++){
     // Serial.println(Sensor_arr[i]);
     if(Sensor_arr[i]>peak_1){
       peak_1=Sensor_arr[i];
@@ -165,7 +176,7 @@ void find_peak(){
     }
   }
   Serial.println();
-  for(int j = 800; j < sizeof(Sensor_arr)/2; j++){ //specified region of sample to look for peaks
+  for(int j = 400; j < sizeof(Sensor_arr)/2; j++){ //specified region of sample to look for peaks
     // Serial.println(Sensor_arr[j]);
     if(Sensor_arr[j]> peak_2){
       peak_2=Sensor_arr[j];

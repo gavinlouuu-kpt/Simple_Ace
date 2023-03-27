@@ -98,6 +98,10 @@ unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
 
+byte blow_address = 12; 
+byte sample_address = 14; 
+byte plot_address = 16; 
+
 void tft_setup(){
   tft.init();
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
@@ -174,6 +178,22 @@ void leave_sample(){
 }
 
 
+void screen_count(byte screen_address){
+  EEPROM.begin(20);
+  int press_count = EEPROM.get(screen_address,press_count);
+  delay(500);
+  Serial.println(press_count);
+  press_count++;
+  Serial.println(press_count);
+  EEPROM.put(screen_address,press_count);
+  delay(100);
+  EEPROM.commit();
+  delay(500);
+  EEPROM.end();
+  delay(500);
+  return;
+}
+
 bool isbufferfull = false;
 float temporal_maximum;
 float temporal_minimum;
@@ -186,7 +206,6 @@ int position_temp_max = -1;
 int position_temp_min = -1;
 
 void draw_sensor(double sensor_value){
-  
   graph1.pushSprite(20, 105);
   if (array_index < 201){
     Plot_buffer[array_index] = (int)sensor_value;
@@ -769,32 +788,33 @@ void Navigation()
     }
   }
 
-  if (stage == homescreen)
-  {
-    if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y < 200)
-    {
-      if(lifecount == 0){
-        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
-        tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
-        tft.setTextDatum(CC_DATUM);
-        tft.drawString("Change sensor to continue",120,245,2);
-        delay(150);
-        Reset_coordinate();
-        stage = change_sensor;
-      }
-      else{
-        delay(150);
-        Reset_coordinate();
-        stage = sampling;
-      }
-    }
-  }
-  
   if (tft.getTouch(&touch_x, &touch_y))
   {
     printf("%d\n", touch_x);
     printf("%d\n", touch_y);
 
+    if (stage == homescreen)
+    {
+      if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y < 200)
+      {
+        if(lifecount == 0){
+          tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+          tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
+          tft.setTextDatum(CC_DATUM);
+          tft.drawString("Change sensor to continue",120,245,2);
+          delay(150);
+          Reset_coordinate();
+          stage = change_sensor;
+        }
+        else{
+          delay(150);
+          Reset_coordinate();
+          stage = sampling;
+          Serial.print("Sampling");
+        }
+      }
+    }
+  
 
     if (stage !=setting_menu)
     {
@@ -870,7 +890,8 @@ void Navigation()
     }
 
     if(stage == sampling){//sample
-      if(isConnect ==true){
+      screen_count(blow_address);
+      if(isConnect == true){
         WiFi.disconnect(true,true);
         delay(500);
         isConnect = false;
@@ -885,6 +906,7 @@ void Navigation()
       sample_collection();
       if(leave != true){
         output_result();
+        screen_count(sample_address);
         update_sensor_lifecount(false);
         stage = homescreen;
       }
@@ -938,19 +960,19 @@ void Navigation()
       }
     }
 
-    if (stage == OTA_setting)
-    { // OTA setting options
-      // if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
-      // { // bluetooth
-      //   display_bluetooth();
-      //   stage = bluetooth_setting ;
-      // }
-      // else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305)
-      // { // wi-fi
-      //   display_control_wifi();
-      //   stage = wifi_control  ;
-      // }
-    }
+    // if (stage == OTA_setting)
+    // { // OTA setting options
+    //   // if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
+    //   // { // bluetooth
+    //   //   display_bluetooth();
+    //   //   stage = bluetooth_setting ;
+    //   // }
+    //   // else if (touch_x > 105 && touch_x < 145 && touch_y > 0 && touch_y < 305)
+    //   // { // wi-fi
+    //   //   display_control_wifi();
+    //   //   stage = wifi_control  ;
+    //   // }
+    // }
 
     if (stage == developer_mode )
     { // developer mode                                                                     // developer mode choices
@@ -1176,18 +1198,18 @@ void Navigation()
       }
     }
     
-    if (stage == liveplot_control){
-      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
-        display_developer_menu();
-        stage = developer_mode;
-        delay(400);
-      }
+    // if (stage == liveplot_control){
+    //   if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+    //     display_developer_menu();
+    //     stage = developer_mode;
+    //     delay(400);
+    //   }
 
-      if (touch_x > 85 && touch_x < 100 && touch_y > 10 && touch_y < 285){
-        Reset_coordinate();
-        stage = live_plot ;
-      }
-    }
+    //   if (touch_x > 85 && touch_x < 100 && touch_y > 10 && touch_y < 285){
+    //     Reset_coordinate();
+    //     stage = live_plot ;
+    //   }
+    // }
 
     if (stage == device_setting){
       if (touch_x > 15 && touch_x < 55 && touch_y > 0 && touch_y < 305){  
@@ -1270,6 +1292,7 @@ void Navigation()
       tft.drawString("Live Plot", 15, 50, 4);
       tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
       graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
+      screen_count(plot_address);
       pump_control(true);
       sensor_heater_control(true);
       while (1){

@@ -27,7 +27,7 @@ void sample_collection();         //  integrate function to analysis one gas sam
 void storing_data(); 
 void sensor_heater_control(bool control); //  control sensor heater power
 
-byte lifecount_address = 12;             //  background storage of gas data into Firebase/ local SPIFFS
+byte lifecount_address = 10;             //  background storage of gas data into Firebase/ local SPIFFS
 
 extern TFT_eSPI tft; 
 extern bool leave;
@@ -371,11 +371,12 @@ double ads_convert(int16_t ads_value) {
 
 void update_sensor_lifecount(){
   EEPROM.begin(20);
-  int address = 12;
-  int lifecount = EEPROM.get(address,lifecount);
+  int lifecount = EEPROM.get(lifecount_address,lifecount);
+  Serial.print("previsou: ");Serial.println(lifecount);
   delay(500);
   lifecount--;
-  EEPROM.put(address,lifecount);
+  Serial.print("Now: ");Serial.println(lifecount);
+  EEPROM.put(lifecount_address,lifecount);
   delay(100);
   EEPROM.commit();
   delay(500);

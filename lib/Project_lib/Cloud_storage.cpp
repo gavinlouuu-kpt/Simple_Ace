@@ -36,7 +36,7 @@ void store_data();                            //store gas data, either SPIFFS or
 void upload_data(String namee,unsigned long tim ,int number);                 // upload array data to firebase
 void update_sensor();                         //restart sensor life count
 void update_check_time();
-byte index_address =  8;                   //print unix time of sensor change
+byte index_address = 8;                   //print unix time of sensor change                       
 
 FirebaseData fbdo;
 FirebaseAuth auth;
