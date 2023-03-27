@@ -207,17 +207,6 @@ void store_default(unsigned long tim){
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
 }
 
-double data_convert(int16_t ads_value) {
-  double load_resistance = 47000;
-  double input_voltage = 3.3;
-  double sensor_resistance = 0;
-  double sensor_voltage = 0;
-      
-  sensor_voltage = ads.computeVolts(ads_value);
-  sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
-  return sensor_resistance;
-}
-
 void store_data(){
   unsigned long millisUnixTime =0;  
   extern short Sensor_arr[store_size];
@@ -281,8 +270,8 @@ void store_data(){
     }
   }
   else
-  {
-    // Wifi_disable();
+  {// Wifi_disable();
+    Serial.println(SPIFFS.usedBytes());
     String file_dir = "/Dataset_";
     ////Subsequent setting
     EEPROM.begin(20);
@@ -312,7 +301,7 @@ void store_data(){
       if (Sensor_arr[i] != 0)
       {
 
-        file.print(data_convert(Sensor_arr[i]));
+        file.print(Sensor_arr[i]);
         file.print(',');
         file.write('\n');
       }
@@ -320,6 +309,8 @@ void store_data(){
     // Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
     // Serial.print("File size: ");Serial.println(file.size());
     file.close();
+
+    Serial.println(SPIFFS.usedBytes());
 
     // Read
     // file = SPIFFS.open(file_dir.c_str(),FILE_READ);

@@ -40,7 +40,7 @@
 
 #define EEP_add 			0
 #define EEP_add_1           1
-#define store_size 			4096 //Number of data collect within sample time //
+#define store_size 			2048 //Number of data collect within sample time //
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
 const int freq = 20000;

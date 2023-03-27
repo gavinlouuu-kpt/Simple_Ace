@@ -97,7 +97,7 @@ void Calibration() {
     Sensor_arr[i]=0;
   }
   while(millis() - millisStartTime < sampletime+1){
-     PID_control();
+    PID_control();
     if(millis() - millisPreviousTime > millisdelay && countdown_index > 0){
       tft.drawString("Sample in ",110,120,4);
       tft.drawFloat(float(countdown_index),0,180,120,4);
