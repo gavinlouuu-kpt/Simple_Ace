@@ -138,14 +138,13 @@ void draw_Settingframework()
 
 void display_loading(int count)
 {
-  // tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE ); //  cover loading logo
   tft.pushImage(90, 200, LoadingcopyWidth, LoadingcopyHeight, Loadingcopy[count % 9]);
   delay(100);
 }
 
 void draw_sample_progress(float bar_length, float bar_percentage){
   tft.setTextDatum(TR_DATUM);
-  tft.fillRoundRect(15, 265, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
+  tft.fillRoundRect(20, 265, 200 * (bar_length / sampletime), 5, 2, TFT_TextBrown); // bar
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE);
   if ((int)(bar_percentage * 10) % 10 == 0)
   {
@@ -153,7 +152,7 @@ void draw_sample_progress(float bar_length, float bar_percentage){
     tft.drawFloat(bar_percentage, 0, 115, 275, 4);
   }
   tft.setTextDatum(TC_DATUM);
-  tft.drawString("%", 135, 275, 4);
+  tft.drawString("%", 130, 275, 4);
 }
 
 bool leave = false;
@@ -482,10 +481,11 @@ void display_calibration(){
   draw_Settingframework();
   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.setTextDatum(TL_DATUM);
   tft.drawString("Calibration", 15, 50, 4);
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(CC_DATUM);
-  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);tft.drawString("START",110,235,2);
+  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);tft.drawString("START",120,245,2);
 }
 
 void display_OTA_control(){
@@ -897,39 +897,44 @@ void Navigation()
         draw_Settingframework();
         tft.setTextColor(TFT_NEIGHBOUR_GREEN);
         tft.setTextDatum(TL_DATUM);
-        tft.drawString("Analyzing", 15, 50, 4);
+        tft.drawString("Initializing", 15, 50, 4);
         pump_control(true);
         sensor_heater_control(true);
         restore_baseline();
         tft.setTextDatum(4);
-        tft.fillRect(10, 50, 200, 150, TFT_NEIGHBOUR_GREEN);      //
-        tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-        tft.drawString("Starting in 3", 120, 120, 4);
-        delay(1000);
-        tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
-        tft.drawString("Starting in 2", 120, 120, 4);
-        delay(1000);
-        tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
-        tft.drawString("Starting in 1", 120, 120, 4);
-        delay(1000);
-        tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
-
+        tft.fillRect(10, 50, 200, 210, TFT_NEIGHBOUR_BEIGE);  
+        tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
+        //count down three second and display on screen 
+        for (size_t i = 0; i < 3; i++)
+        {
+          String countdown = "Starting in " + String(3 - i);
+          tft.drawString(countdown, 120, 120, 4);
+          delay(1000);
+          tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_BEIGE);
+        }
+        
         Calibration();
         pump_control(false);
         sensor_heater_control(false);
-        tft.fillRect(10, 80, 200, 150, TFT_NEIGHBOUR_GREEN);
+        tft.fillRect(0, 80, 240, 180, TFT_NEIGHBOUR_BEIGE);
         EEPROM.begin(20);
         int value, value_1;
         byte address = 0;
         EEPROM.get(address, value);
         delay(100);
-        tft.drawFloat(float(value), 0, 80, 120, 2);
+        tft.drawNumber(value, 80, 120, 2);
         address += sizeof(int);
         EEPROM.get(address, value_1);
         delay(100);
-        tft.drawFloat(float(value_1), 0, 160, 120, 2);
+        tft.drawNumber(value_1, 160, 120, 2);
         EEPROM.end();
         delay(500);
+        tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+        tft.setTextDatum(TL_DATUM);
+        tft.drawString("Calibration", 15, 50, 4);
+        tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+        tft.setTextDatum(CC_DATUM);
+        tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);tft.drawString("START",120,245,2);
       }
     }
 
@@ -973,9 +978,6 @@ void Navigation()
 
       else if (touch_x > 150 && touch_x < 165 && touch_y > 10 && touch_y < 285)
       {
-        // tft.fillRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawRoundRect(10, 135, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawString("Print Spiffs", 120, 160, 4);
         delay(200);
         tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
@@ -986,9 +988,6 @@ void Navigation()
       }
       else if (touch_x > 180 && touch_x < 195 && touch_y > 10 && touch_y < 285)
       {
-        // tft.fillRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawRoundRect(10, 195, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-        // tft.drawString("Previous Value", 120, 220, 4);
         delay(200);
         int DataCounter = 0;
         tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
@@ -1003,8 +1002,6 @@ void Navigation()
         }
         tft.drawString("Previous Value", 15, 50, 4);
         Reset_coordinate();
-        // tft.drawFastVLine(20, 60, 120, TFT_NEIGHBOUR_BEIGE);
-        // tft.drawFastHLine(20, 180, 200, TFT_NEIGHBOUR_BEIGE);
         retrieve_record();
         for (int i = 0; i < 10; i++)
         {
@@ -1164,7 +1161,7 @@ void Navigation()
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
       display_profile_filenumber();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover file number
-      tft.drawFloat(profileNumber_int, 0, 120, 100, 4);
+      tft.drawNumber(profileNumber_int, 120, 100, 4);
       printf("%d\n", profileNumber_int);
 
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){    // define file number
@@ -1332,12 +1329,12 @@ void Navigation()
             isPlotrangeChange = true;
           }
 
-          tft.fillRect(210, 90, 20, 10, TFT_NEIGHBOUR_BEIGE );
-          tft.fillRect(210, 260, 20, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.fillRect(210, 90, 25, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.fillRect(210, 260, 25, 10, TFT_NEIGHBOUR_BEIGE );
           tft.setTextDatum(BC_DATUM);
-          tft.drawFloat(float(plot_upper_bound), 0, 220, 100, 1);
+          tft.drawNumber(plot_upper_bound, 220, 100, 1);
           tft.setTextDatum(TC_DATUM);
-          tft.drawFloat(float(plot_lower_bound), 0, 220, 260, 1);
+          tft.drawNumber(plot_lower_bound, 220, 260, 1);
           tft.setTextDatum(TL_DATUM);
           // tft.drawFloat(float(ADS0), 0, 65, 240, 2);
           // tft.drawString("ADS0:", 25, 240, 2);
@@ -1400,7 +1397,7 @@ void Navigation()
       tft.setTextDatum(4);
       display_pump_selectDutycycle();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover pump cycle
-      tft.drawFloat(dutyCycle_pump, 0, 120, 100, 4);
+      tft.drawNumber(dutyCycle_pump, 120, 100, 4);
 
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){    
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);

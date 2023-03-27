@@ -4,10 +4,11 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
-#include "Image_assets/Loading.h"
+#include "Image_assets/Loadingcopy.h"
 #include "PID.h"
 #include "Neighbour_color.h"
 #include "Cloud_storage.h"
+#include "Screen.h"
 
 extern TFT_eSPI tft;
 extern Adafruit_ADS1115 ads;
@@ -85,15 +86,17 @@ void Calibration() {
   int display_index = 0;
   int countdown_index = 3;
   bool fillscreen = true;
-  const int millisdelay =1000;
+  float millisdelay =1000;
   long millisPreviousTime = 0;
   long millisPreviousTime_1 =0 ;
+  long millisPreviousTime_gif =0 ;
   long millisStartTime = millis();
-  tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
+  float print_time=0;
+  tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
   for(int i =0; i<store_size; i++){
     Sensor_arr[i]=0;
   }
-  while(millis() - millisStartTime < sampletime){
+  while(millis() - millisStartTime < sampletime+1){
      PID_control();
     if(millis() - millisPreviousTime > millisdelay && countdown_index > 0){
       tft.drawString("Sample in ",110,120,4);
@@ -103,26 +106,34 @@ void Calibration() {
     }
 
     if(millis()-millisPreviousTime > millisdelay && countdown_index == 0 && fillscreen == true){
-    tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_GREEN);
-    fillscreen = false;
+      tft.fillRect(0,100,240,40,TFT_NEIGHBOUR_BEIGE);
+      fillscreen = false;
     }
 
     if(millis() - millisPreviousTime > millisdelay){
-      tft.setTextDatum(4);
+      tft.setTextDatum(CC_DATUM);
       tft.drawString("Remain ",100,120,4);
-      tft.fillRect(155,100,65,40,TFT_NEIGHBOUR_GREEN);
-      tft.drawFloat(float((sampletime-(millis() - millisStartTime))/millisdelay),0,170,120,4);
+      tft.fillRect(155,100,65,40,TFT_NEIGHBOUR_BEIGE);
+      if (millis()- millisStartTime<0)
+      {
+        print_time = 0;
+        Serial.println("print time: 0");  
+      }else{
+        print_time = float((sampletime-(millis() - millisStartTime))/millisdelay);
+      }
+      tft.drawNumber((int)print_time,170,120,4);
+      Serial.print("print time: ");Serial.println(print_time); 
       millisPreviousTime= millis();
     }
 
-    tft.pushImage(90, 150, LoadingWidth  ,LoadingHeight, Loading[display_index%11]);
-    delay(10); display_index++;
+    if(millis() - millisPreviousTime_gif > 100){
+      display_loading(display_index);display_index++;
+    }
 
     if (millis()-millisPreviousTime_1>10){
       Sensor_arr[sampling_index] = ads.readADC_SingleEnded(Sensor_channel);
       Serial.println(Sensor_arr[sampling_index]);
       sampling_index += 1;
-      //printf("Counter 1: %d\n", sampling_index);
       millisPreviousTime_1 = millis();
     }
   }
@@ -139,7 +150,7 @@ void Calibration() {
   Serial.print("Peak position:");Serial.println(peak_position[1]*millisUnitTime);
   //print sensor array
   update_parameters(millisUnitTime);
-  store_calibiration_data();
+  // store_calibiration_data();
 }
 
 void find_peak(){
@@ -175,7 +186,7 @@ void store_calibiration_data(){
 
     File file = SPIFFS.open("/Calibration",FILE_WRITE);
     file.print(',');file.write('\n'); 
-    for(int i =0; i <2000; i++){
+    for(int i =0; i <store_size; i++){
       if(Sensor_arr[i] !=0){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n'); 
       }
