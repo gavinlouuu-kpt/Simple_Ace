@@ -93,7 +93,7 @@ bool isSensor =true;
 bool isPlotrangeChange = false;
 int stage = homescreen;
 int profileNumber_int = 1;
-int lifecount = 0;
+uint8_t lifecount = 0;
 unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
@@ -178,9 +178,10 @@ void leave_sample(){
 }
 
 
-void screen_count(byte screen_address){
+void screen_count(int screen_address){
   EEPROM.begin(20);
-  int press_count = EEPROM.get(screen_address,press_count);
+  int8_t press_count;
+  EEPROM.get(screen_address,press_count);
   delay(500);
   Serial.println(press_count);
   press_count++;
@@ -322,7 +323,7 @@ void update_sensor_lifecount(bool display){
   extern byte lifecount_address; 
   EEPROM.begin(20);
   lifecount = EEPROM.get(lifecount_address,lifecount);
-  delay(500);
+  delay(1000);
   EEPROM.end();
   delay(500);
   if(display == false){
@@ -347,20 +348,13 @@ void draw_result(double co2, double ace){
   display_start_button();    
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
  
-  if(fail_count != 50){ 
-    tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
-    tft.setTextDatum(CC_DATUM);
-    tft.drawString("Ketone",85,145,4);tft.drawString(":",130,145,4);
-    tft.drawString("CO2",85,175,4);tft.drawString(":",130,175,4);
-    tft.setTextDatum(ML_DATUM);
-    tft.drawFloat(ace,2,140, 145,4);
-    tft.drawFloat(co2,2,140, 175,4);
-  }
 
+  tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
   tft.setTextDatum(CC_DATUM);
   int result_pos_x = 120;
   int result_pos_y = 50;
   if(ace < 1 || co2 < 1||isStore == false){
+    tft.setTextColor(TFT_TextWarn, TFT_NEIGHBOUR_BEIGE);
     tft.drawString(result[0],result_pos_x,result_pos_y,4); // inactive workout
   } else if((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3)){
     tft.drawString(result[1],result_pos_x,result_pos_y,4);
@@ -375,6 +369,16 @@ void draw_result(double co2, double ace){
   } else if(ace >= 1.3 && co2 >= 1 ){
     tft.drawString(result[6],result_pos_x,result_pos_y,4);
   } 
+
+  if(fail_count != 50){ 
+    tft.setTextDatum(CC_DATUM);
+    tft.drawString("Ketone",85,145,4);tft.drawString(":",130,145,4);
+    tft.setTextDatum(ML_DATUM);tft.drawFloat(ace,2,140, 145,4);
+    tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
+    tft.setTextDatum(CC_DATUM);
+    tft.drawString("CO2",85,175,4);tft.drawString(":",130,175,4);
+    tft.setTextDatum(ML_DATUM);tft.drawFloat(co2,2,140, 175,4);
+  }
 }
 
 void Warmup_Screen(){

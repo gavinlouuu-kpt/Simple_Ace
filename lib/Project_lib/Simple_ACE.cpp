@@ -24,10 +24,10 @@ void output_result();             //  return sensor response in ratio
 void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
 void pump_control(bool control);  //  functions conrol high and low of the pump
 void sample_collection();         //  integrate function to analysis one gas sample
-void storing_data(); 
+void storing_data();              // background storage of gas data into Firebase/ local SPIFFS
 void sensor_heater_control(bool control); //  control sensor heater power
 
-byte lifecount_address = 10;             //  background storage of gas data into Firebase/ local SPIFFS
+int lifecount_address = 10;        
 
 extern TFT_eSPI tft; 
 extern bool leave;
@@ -76,7 +76,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -371,7 +371,8 @@ double ads_convert(int16_t ads_value) {
 
 void update_sensor_lifecount(){
   EEPROM.begin(20);
-  int lifecount = EEPROM.get(lifecount_address,lifecount);
+  uint8_t lifecount;
+  EEPROM.get(lifecount_address,lifecount);
   Serial.print("previsou: ");Serial.println(lifecount);
   delay(500);
   lifecount--;

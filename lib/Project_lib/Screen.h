@@ -19,7 +19,6 @@
 #define print_gas_sample        17
 #define change_sensor           99
 
-
 void tft_setup();
 void draw_sensor(double value);
 void draw_sample_progress(float bar_time, float bar_percentage);
@@ -31,6 +30,7 @@ void Navigation();
 void HomeScreen();
 void Warmup_Screen();
 void write_analyzing(void);
+void screen_count(int screen_address);
 
 void leave_sample();
 #endif

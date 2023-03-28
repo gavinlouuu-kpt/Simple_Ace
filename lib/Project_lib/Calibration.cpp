@@ -24,7 +24,7 @@ void update_parameters(int unit);       //  store gas maxima positions into EEPR
 
 void EEPROM_setup(bool factory){
   if(factory == false){
-    if(!EEPROM.begin(20)){
+    if(!EEPROM.begin(512)){
         printf("failed to mount EEPROM");
     }
     else{
@@ -32,11 +32,12 @@ void EEPROM_setup(bool factory){
     }
   }
   else{
-    extern byte index_address;
-    extern byte lifecount_address;
-    extern byte sample_address; 
-    extern byte plot_address; 
-    extern byte blow_address; 
+    extern int index_address;
+    extern int lifecount_address;
+    extern int sample_address; 
+    extern int plot_address; 
+    extern int blow_address; 
+    extern int setup_address;
 
     Serial.println("Factory setting");
     EEPROM.begin(20);
@@ -51,6 +52,7 @@ void EEPROM_setup(bool factory){
     delay(100);
     EEPROM.put(blow_address, 0);
     delay(100);
+    EEPROM.put(setup_address, 0);
     EEPROM.commit();
     delay(500);
     EEPROM.end();
