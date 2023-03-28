@@ -893,7 +893,6 @@ void Navigation()
     }
 
     if(stage == sampling){//sample
-      screen_count(blow_address);
       if(isConnect == true){
         WiFi.disconnect(true,true);
         delay(500);
@@ -902,6 +901,7 @@ void Navigation()
         Serial.print("Wifi status:");Serial.println(WiFi.status());
       }
       draw_framework();
+      screen_count(blow_address);
       tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
       tft.setTextColor(TFT_NEIGHBOUR_GREEN);
       tft.setTextDatum(TL_DATUM);

@@ -44,6 +44,8 @@ uint8_t fail_count = 0;
 int millisUnitTime = 0;  
 int loading_index=0 ;
 
+int temp_peak_poisition = 0;
+
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
   pinMode(pumpPin_2,OUTPUT);
@@ -117,24 +119,6 @@ void sensor_heater_control(bool control){
   }
 }
 
-// void restore_humidity(){
-//   while(1){
-//     float previous = sht20.humidity();
-//     Serial.println(sht20.humidity());
-//     if (sht20.humidity() - previous  < 2) {
-//       printf("Humiditty Restored\n");
-//       dacWrite(pumpChannel, dutyCycle_pump);
-//       delay(5);
-//       break;
-//     }    
-//   }
-// }
-
-// double read_humidity(){ 
-//   float value;
-//   value = sht20.humidity();
-//   return value;
-// }
 int breath_check(){
   long previoustime = millis();
   uint8_t array_index= 0;
@@ -145,7 +129,6 @@ int breath_check(){
       return 0;
     }
     PID_control();
-    // Serial.print("Starttime:");Serial.println(millis());
     if(array_index <100) {
       Sensor_arr[array_index] = ads.readADC_SingleEnded(Sensor_channel);
       array_index++;
@@ -226,6 +209,20 @@ void restore_baseline(){
   }
 }
 
+float forecast_baseline(int position){
+  // find the slope of the first 100 data points of the sensor array, and then halved the slope to find th equation of the slope
+  float slope = 0.1*((Sensor_arr[49] - Sensor_arr[0])/50.00);
+  Serial.print("Differnce:");Serial.println(Sensor_arr[49] - Sensor_arr[0]);
+  Serial.print("Slope:");Serial.println(slope);
+  // find the intercept of the slope
+  float intercept = Sensor_arr[0];
+  Serial.print("Intercept:");Serial.println(intercept);
+  // find the value of the sensor array at 1000ms 
+  Serial.print("position:");Serial.println(position);
+  float baseline = slope * Sensor_arr[position] + intercept;
+  Serial.print("Baseline:");Serial.println(baseline);
+  return baseline;
+}
 // void power_saving(unsigned long last_time){
 //   while(1){
 //     delay(5);
@@ -264,6 +261,7 @@ void sample_collection(){
     tft.drawString("Huff for 3 seconds", 15,50, 4);
   }
   baseline = breath_check();
+  float slope = 0.1*((Sensor_arr[49] - Sensor_arr[0])/50.00);
   if(leave == true){}
   else{
     isStore = true;
@@ -279,8 +277,10 @@ void sample_collection(){
       if (millis()-previousDrawLoad >10){ 
         Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
         draw_sensor(Sensor_arr[data_size]); 
+        // Serial.print((float)Sensor_arr[data_size]);Serial.print(",");
+        // Serial.println(slope * (float)data_size + (float)Sensor_arr[0]);    
         data_size ++;
-        previousDrawLoad = millis();      
+        previousDrawLoad = millis();
       }
       PID_control();
     }
@@ -316,6 +316,7 @@ int find_peak_value(int address, int unittime) {
 
     if (Sensor_arr[i] > peak_value) {
       peak_value = Sensor_arr[i];
+      temp_peak_poisition = i;
       // printf("Replaced %d\n", i);
     }
   }
@@ -394,17 +395,25 @@ void output_result(){
   double conc_Ace = 0;
   double conc_CO2 = 0;
   int CO2_peak = find_peak_value(0,millisUnitTime);
+  double drift_baseline_CO2 = forecast_baseline(temp_peak_poisition);
+
   int ace_peak = find_peak_value(4,millisUnitTime);
-  double baseline_resist = ads_convert(baseline); 
+  double drift_baseline_Ace = forecast_baseline(temp_peak_poisition);
+  
+  double baseline_resist_CO2 = ads_convert(drift_baseline_CO2); 
+  double baseline_resist_Ace = ads_convert(drift_baseline_Ace); 
   double peak_resist_CO2 = ads_convert(CO2_peak);
   double peak_resist_Ace = ads_convert(ace_peak);
     // conc_CO2 = ratio_calibration(baseline_resist, peak_resist_CO2, 1);
     // conc_Ace = ratio_calibration(baseline_resist, peak_resist_Ace, 2);
-  conc_CO2 = baseline_resist/peak_resist_CO2;
-  conc_Ace = baseline_resist/peak_resist_Ace;
-  Serial.print("Resistance: ");Serial.print(baseline_resist);Serial.print(",");Serial.print(peak_resist_CO2);Serial.print(",");Serial.println(peak_resist_Ace);
-  Serial.print("ADC: ");Serial.print(baseline);Serial.print(",");Serial.print(CO2_peak);Serial.print(",");Serial.println(ace_peak);
-  Serial.print("Ratio: ");Serial.print(conc_CO2);Serial.print(",");Serial.println(conc_Ace);
+  conc_CO2 = baseline_resist_CO2/peak_resist_CO2;
+  conc_Ace = baseline_resist_Ace/peak_resist_Ace;
+  // Serial.println("Resistance: ");
+  // Serial.print(baseline_resist_CO2);Serial.print(",");Serial.print(peak_resist_CO2);Serial.print(",");Serial.print(baseline_resist_Ace);Serial.print(",");Serial.println(peak_resist_Ace);
+  // Serial.println("ADC: ");
+  // Serial.print(baseline);Serial.print(",");
+  // Serial.print(drift_baseline_CO2);Serial.print(",");Serial.print(CO2_peak);Serial.print(","); Serial.print(drift_baseline_Ace);Serial.print(",");Serial.println(ace_peak);
+  // Serial.print("Ratio: ");Serial.print(conc_CO2);Serial.print(",");Serial.println(conc_Ace);
   store_result(conc_Ace,conc_CO2);
 
   draw_result(conc_CO2,conc_Ace);
