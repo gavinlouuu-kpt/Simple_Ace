@@ -353,7 +353,6 @@ void draw_result(double co2, double ace){
   int result_pos_x = 120;
   int result_pos_y = 50;
   if(ace < 1 || co2 < 1||isStore == false){
-    tft.setTextColor(TFT_TextWarn, TFT_NEIGHBOUR_BEIGE);
     tft.drawString(result[0],result_pos_x,result_pos_y,4); // inactive workout
   } else if((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3)){
     tft.drawString(result[1],result_pos_x,result_pos_y,4);
@@ -366,6 +365,7 @@ void draw_result(double co2, double ace){
   } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
     tft.drawString(result[5],result_pos_x,result_pos_y,4);
   } else if(ace >= 1.3 && co2 >= 1 ){
+    tft.setTextColor(TFT_TextWarn, TFT_NEIGHBOUR_BEIGE);
     tft.drawString(result[6],result_pos_x,result_pos_y,4);
   } 
 
