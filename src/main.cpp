@@ -13,8 +13,9 @@ void setup() {
   pinSetup();
   checkSetup();
   firebase_setup();
-  // Warmup_Screen();
-  // Serial.println( "Setup done" );
+  Warmup_Screen();
+  Serial.println( "Setup done" );
+
   update_check_time();
   HomeScreen();
 }
@@ -23,6 +24,7 @@ void loop()
 {
   PID_control();
   Navigation();
+
   // if(millis()-millis_previousCheckTime > 10000){
     // check_sensor_life();
   //   millis_previousCheckTime = millis();
