@@ -28,7 +28,6 @@
 #include "Image_assets/WifiButtonOn.h"
 #include "Image_assets/WifiButtonOff.h"
 #include "Image_assets/BreatheHere.h"
-// #include "Image_assets/Analyzing.h"
 #include "Image_assets/Bar.h"
 #include "Image_assets/Breathe.h"
 #include "Image_assets/Beagle.h"
@@ -88,11 +87,11 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite graph1 = TFT_eSprite(&tft);
 TFT_eSprite Warmup_Graph = TFT_eSprite(&tft);
 
-int page_number = 0;
+uint8_t page_number = 0;
 bool isSensor =true;
 bool isPlotrangeChange = false;
-int stage = homescreen;
-int profileNumber_int = 1;
+uint8_t stage = homescreen;
+uint8_t profileNumber_int = 1;
 uint8_t lifecount = 0;
 unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
@@ -320,7 +319,7 @@ void display_start_button(){
 
 void update_sensor_lifecount(bool display){
   //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
-  extern byte lifecount_address; 
+  extern uint8_t lifecount_address; 
   EEPROM.begin(20);
   lifecount = EEPROM.get(lifecount_address,lifecount);
   delay(1000);
@@ -773,7 +772,7 @@ void Navigation()
   while(stage == change_sensor ){
     if (tft.getTouch(&touch_x, &touch_y)){
       if(touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200){
-        extern byte lifecount_address;
+        extern uint8_t lifecount_address;
         EEPROM.begin(20);
         EEPROM.put(lifecount_address, 10);
         delay(100);

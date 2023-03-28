@@ -27,7 +27,7 @@ void sample_collection();         //  integrate function to analysis one gas sam
 void storing_data();              // background storage of gas data into Firebase/ local SPIFFS
 void sensor_heater_control(bool control); //  control sensor heater power
 
-int lifecount_address = 10;        
+uint8_t lifecount_address = 10;        
 
 extern TFT_eSPI tft; 
 extern bool leave;
@@ -38,9 +38,9 @@ short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
 bool isStore = false;
 
-int dutyCycle_pump = 120;         
+uint8_t dutyCycle_pump = 120;         
 int baseline = 0;
-int fail_count = 0;
+uint8_t fail_count = 0;
 int millisUnitTime = 0;  
 int loading_index=0 ;
 
@@ -76,7 +76,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(true);
+  EEPROM_setup(false);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -137,7 +137,7 @@ void sensor_heater_control(bool control){
 // }
 int breath_check(){
   long previoustime = millis();
-  int array_index= 0;
+  uint8_t array_index= 0;
   while (true) {
     leave_sample();
     if(leave ==true){
