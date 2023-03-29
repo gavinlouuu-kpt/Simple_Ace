@@ -758,6 +758,8 @@ void Navigation()
         delay(100);
         EEPROM.commit();
         delay(500);
+        EEPROM.end();
+        delay(500);
         // update_sensor();
         // update_check_time();
         isSensor = true;
