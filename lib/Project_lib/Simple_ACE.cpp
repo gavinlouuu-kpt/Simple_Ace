@@ -68,6 +68,7 @@ void pinSetup(){
   ledcAttachPin(colPin_2,colChannel_2);
 }
 
+
 void checkSetup(){
   if (!Wire.begin(21,22)) {
   Serial.println("Failed to initialize wire library");
@@ -78,7 +79,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -413,8 +414,15 @@ void output_result(){
   store_result(conc_Ace,conc_CO2);
 
   draw_result(conc_CO2,conc_Ace);
+  tft.setTextDatum(CC_DATUM);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
+  tft.drawString("Saving Data",120,245,4);
   store_data();
-
+  tft.fillRect(20,230,220,50,TFT_NEIGHBOUR_BEIGE);
+  tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);      //Button
+  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
+  tft.setTextDatum(CC_DATUM);
+  tft.drawString("BREATHE AGAIN",120,245,2);   
   update_sensor_lifecount();
 }// not in percentage
 
