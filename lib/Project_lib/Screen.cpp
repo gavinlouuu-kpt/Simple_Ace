@@ -1248,6 +1248,7 @@ void Navigation()
       }
     }
 
+
     if (stage == live_plot){ // developer mode:ADS0 
       graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
       screen_count(plot_address);
