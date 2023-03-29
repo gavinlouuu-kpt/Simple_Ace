@@ -7,4 +7,5 @@
 #define TFT_PaleYellow          0xFFBC
 #define TFT_PaleWhite           0xFFCC
 #define TFT_TextBrown           0x6A20
+#define TFT_TextWarn            0xD986
 #endif

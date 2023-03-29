@@ -8,6 +8,7 @@
 #include <addons/RTDBHelper.h>
 #include <Simple_ACE.h>
 #include <TimeLib.h>
+#include "Adafruit_ADS1X15.h"
 
 #if defined(ESP32)
 #elif defined(ESP8266)
@@ -24,6 +25,7 @@
 #define filesize  256
 #define GMT_offset 8
 
+extern Adafruit_ADS1115 ads;
 unsigned long getTime();                      //get unix time on wifi
 String UnixConvert(unsigned long t);          //convert unix time into readable time
 void check_sensor_life();                     // check if current time exceed sensor life
@@ -34,7 +36,7 @@ void store_data();                            //store gas data, either SPIFFS or
 void upload_data(String namee,unsigned long tim ,int number);                 // upload array data to firebase
 void update_sensor();                         //restart sensor life count
 void update_check_time();
-byte index_address =  8;                   //print unix time of sensor change
+uint8_t index_address = 8;                   //print unix time of sensor change                       
 
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -54,7 +56,7 @@ const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* ntpServer = "pool.ntp.org";
 
-int file_index = 0;
+uint8_t file_index = 0;
 int h =178;
 int w = 75;
 String macadddress = WiFi.macAddress();
@@ -268,17 +270,17 @@ void store_data(){
     }
   }
   else
-  {
-    // Wifi_disable();
+  {// Wifi_disable();
+    Serial.println(SPIFFS.usedBytes());
     String file_dir = "/Dataset_";
     ////Subsequent setting
-    EEPROM.begin(20);
+    EEPROM.begin(512);
     EEPROM.get(index_address, file_index);
     delay(500); 
+    file_dir.concat((String)(file_index%20 +1));
     file_index++;
     EEPROM.put(index_address, file_index);
     delay(100); 
-    file_dir.concat((String)(file_index%20 +1));
     Serial.print("file dir: ");Serial.println(file_dir);
     EEPROM.commit();
     delay(500);
@@ -294,10 +296,11 @@ void store_data(){
     File file = SPIFFS.open(file_dir.c_str(), FILE_WRITE);
     file.print(',');
     file.write('\n');
-    for (int i = 0; i < 2048; i++)
+    for (int i = 0; i < store_size; i++)
     {
       if (Sensor_arr[i] != 0)
       {
+
         file.print(Sensor_arr[i]);
         file.print(',');
         file.write('\n');
@@ -306,6 +309,8 @@ void store_data(){
     // Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
     // Serial.print("File size: ");Serial.println(file.size());
     file.close();
+
+    Serial.println(SPIFFS.usedBytes());
 
     // Read
     // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
