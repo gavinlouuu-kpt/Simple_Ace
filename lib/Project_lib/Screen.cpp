@@ -110,7 +110,7 @@ uint16_t touch_x = 0, touch_y = 0;
 
 void tft_setup(){
   tft.init();
-  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
+  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
   tft.setSwapBytes(true);
   tft.setRotation(2);
 
