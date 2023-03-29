@@ -102,7 +102,7 @@ bool isSensor =true;
 bool isPlotrangeChange = false;
 uint8_t stage = homescreen;
 uint8_t profileNumber_int = 1;
-uint8_t lifecount = 0;
+uint8_t lifecount;
 unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
@@ -331,8 +331,10 @@ void update_sensor_lifecount(bool display){
   //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
   extern uint8_t lifecount_address; 
   EEPROM.begin(512);
+  lifecount = 0 ;
   lifecount = EEPROM.get(lifecount_address,lifecount);
-  delay(1000);
+  delay(100);
+  Serial.print("lifecount:");Serial.println(lifecount);
   EEPROM.end();
   delay(500);
   if(display == false){
@@ -782,11 +784,14 @@ void Navigation()
     if (tft.getTouch(&touch_x, &touch_y)){
       if(touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200){
         extern uint8_t lifecount_address;
+        int lifecount;
         EEPROM.begin(512);
         EEPROM.put(lifecount_address, 10);
         delay(100);
         EEPROM.commit();
         delay(500);
+        EEPROM.get(lifecount_address, lifecount);
+        Serial.print("lifecount = "); Serial.println(lifecount);
         EEPROM.end();
         delay(500);
         // update_sensor();

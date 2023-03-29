@@ -43,8 +43,11 @@ void EEPROM_setup(bool factory){
     EEPROM.begin(512);
     EEPROM.put(index_address, 0);
     delay(100); 
-    printf("EEPROM write address: %d, value: %d\n", index_address, 0);
     EEPROM.put(lifecount_address,10);
+    delay(100);
+    int lifecount;
+    EEPROM.get(lifecount_address, lifecount);
+    Serial.print("lifecount = "); Serial.println(lifecount);
     delay(100);
     EEPROM.put(sample_address, 0);
     delay(100);
