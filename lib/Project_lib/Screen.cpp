@@ -52,9 +52,7 @@ void display_control_wifi();
 void display_calibration();
 void display_developer_menu();
 void display_device_setting();
-// void display_enable_sampling();
 void display_live_plot();
-// void display_load_SPIFFS();
 void display_load_data();
 void display_loading(int count);
 void display_menu();
@@ -66,6 +64,8 @@ void display_start_button();
 void display_setup_profile_select();
 void display_setup_pump();
 void display_setup_PID();
+void display_sampling_init();
+void display_Spiffs_data(int page);
 void display_Wifi();
 void HomeScreen();                        // display brand, assets and setting figure
 void Navigation();                        // touch screen navigation logic
@@ -488,20 +488,10 @@ void display_Wifi(){             // draw wifi logo
   }
 }
 
-// void display_enable_sampling(){
-//   Reset_coordinate();
-//   draw_framework();
-//   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-//   tft.setTextDatum(TL_DATUM);
-//   tft.drawString("Breathe Here", 15, 50, 4);
-//   display_start_button();
-//   delay(300);
-// }
 
 void display_calibration(){
   Reset_coordinate();
   draw_Settingframework();
-  // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(TL_DATUM);
   tft.drawString("Calibration", 15, 50, 4);
@@ -529,7 +519,6 @@ void display_developer_menu(){
   Reset_coordinate();
   tft.setTextDatum(TL_DATUM);
   draw_Settingframework();
-  // tft.pushImage(0, 100, DeveloperModeWidth, DeveloperModeHeight, DeveloperMode);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   tft.drawString("Developer Mode", 15, 50, 4);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
@@ -659,7 +648,7 @@ void display_device_setting(){
   tft.pushImage(0, 100, DefaultSettingWidth, DefaultSettingHeight, DefaultSetting);
 }
 
-void Spiffs_display(int page)
+void display_Spiffs_data(int page)
 {
   int buffer_y = 5;
   int buffer_x = 15;
@@ -764,7 +753,7 @@ void Navigation()
     if (tft.getTouch(&touch_x, &touch_y)){
       if(touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y <200){
         extern uint8_t lifecount_address;
-        EEPROM.begin(20);
+        EEPROM.begin(512);
         EEPROM.put(lifecount_address, 10);
         delay(100);
         EEPROM.commit();
@@ -833,18 +822,10 @@ void Navigation()
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 300)                //OTA
       {
         draw_Settingframework();
-        // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
-        // tft.drawString("Wifi", 15, 50, 4); // OTA Setting
-        // tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
-        // tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("On",30,107,2);
-        // tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("OFF",30,147,2);
-        // tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
-
         display_OTA_control();
         delay(200);
         Reset_coordinate();
-        stage = 9;
-        
+        stage = wifi_control;
       }
 
       if (touch_x > 185 && touch_x < 200 && touch_y > 10 && touch_y < 280)
@@ -972,7 +953,7 @@ void Navigation()
         tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
         Reset_coordinate();
         page_number = 0;
-        Spiffs_display(page_number);
+        display_Spiffs_data(page_number);
         stage = print_stored_data ;
       }
       else if (touch_x > 180 && touch_x < 195 && touch_y > 10 && touch_y < 285)
@@ -1054,7 +1035,7 @@ void Navigation()
         if(page_number >=3){
         }else{
           page_number  += 1;
-          Spiffs_display(page_number);
+          display_Spiffs_data(page_number);
         }
       }
 
@@ -1066,7 +1047,7 @@ void Navigation()
         
         }else{
           page_number  -= 1;
-          Spiffs_display(page_number);
+          display_Spiffs_data(page_number);
         }
       }
 

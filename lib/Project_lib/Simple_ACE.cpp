@@ -41,7 +41,7 @@ bool isStore = false;
 uint8_t dutyCycle_pump = 120;         
 int baseline = 0;
 uint8_t fail_count = 0;
-int millisUnitTime = 0;  
+uint8_t millisUnitTime = 0;  
 int loading_index=0 ;
 
 int temp_peak_poisition = 0;
@@ -57,7 +57,7 @@ void pinSetup(){
   pinMode(battery_read,INPUT);
 
   digitalWrite(battery_EN,1);           //  enable battery monitor
-  dacWrite(sensor_heater,255);             //  enable senosr heater
+  dacWrite(sensor_heater,0);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
   ledcSetup(pumpChannel_1, freq, resolution);
@@ -175,7 +175,7 @@ void restore_baseline(){
   unsigned long millisCleanStart = millis();
   double slope = 0 ;
   double flat_slope[5]= {0};
-  int flat_count = 0;
+  uint8_t flat_count = 0;
 
   while (1) {
     leave_sample();
@@ -214,10 +214,8 @@ float forecast_baseline(int position){
   float slope = 0.1*((Sensor_arr[49] - Sensor_arr[0])/50.00);
   Serial.print("Differnce:");Serial.println(Sensor_arr[49] - Sensor_arr[0]);
   Serial.print("Slope:");Serial.println(slope);
-  // find the intercept of the slope
   float intercept = Sensor_arr[0];
   Serial.print("Intercept:");Serial.println(intercept);
-  // find the value of the sensor array at 1000ms 
   Serial.print("position:");Serial.println(position);
   float baseline = slope * Sensor_arr[position] + intercept;
   Serial.print("Baseline:");Serial.println(baseline);
@@ -243,7 +241,6 @@ void sample_collection(){
   float bar_percentage;
   int data_size = 100;
   short adc_CO2;
-  // restore_humidity();
   pump_control(true);
   sensor_heater_control(true);
 
@@ -317,7 +314,6 @@ int find_peak_value(int address, int unittime) {
     if (Sensor_arr[i] > peak_value) {
       peak_value = Sensor_arr[i];
       temp_peak_poisition = i;
-      // printf("Replaced %d\n", i);
     }
   }
   Serial.print("Peak value is");Serial.println(peak_value);
