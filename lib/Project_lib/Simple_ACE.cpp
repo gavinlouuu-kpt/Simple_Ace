@@ -79,7 +79,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(true);
+  EEPROM_setup(false);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -411,12 +411,12 @@ void output_result(){
   // Serial.print(baseline);Serial.print(",");
   // Serial.print(drift_baseline_CO2);Serial.print(",");Serial.print(CO2_peak);Serial.print(","); Serial.print(drift_baseline_Ace);Serial.print(",");Serial.println(ace_peak);
   // Serial.print("Ratio: ");Serial.print(conc_CO2);Serial.print(",");Serial.println(conc_Ace);
-  store_result(conc_Ace,conc_CO2);
+  store_result(conc_CO2,conc_Ace);
 
   draw_result(conc_CO2,conc_Ace);
   tft.setTextDatum(CC_DATUM);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
-  tft.drawString("Saving Data",120,245,4);
+  tft.drawString("Saving data",120,245,4);
   store_data();
   tft.fillRect(20,230,220,50,TFT_NEIGHBOUR_BEIGE);
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);      //Button

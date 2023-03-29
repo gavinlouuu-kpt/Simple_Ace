@@ -38,7 +38,8 @@ void EEPROM_setup(bool factory){
     extern int plot_address; 
     extern int blow_address; 
     extern int setup_address;
-
+    extern bool isCal;
+    isCal= true;
     Serial.println("Factory setting");
     EEPROM.begin(512);
     EEPROM.put(index_address, 0);
