@@ -15,7 +15,8 @@ void setup() {
   checkSetup();
   firebase_setup();
   screen_count(setup_address);
-  // Warmup_Screen();
+  Warmup_Screen();
+
   update_check_time();
   HomeScreen();
 }
@@ -24,6 +25,7 @@ void loop()
 {
   PID_control();
   Navigation();
+
   // if(millis()-millis_previousCheckTime > 10000){
     // check_sensor_life();
   //   millis_previousCheckTime = millis();
