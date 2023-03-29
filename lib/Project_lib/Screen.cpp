@@ -64,7 +64,7 @@ void display_live_plot();
 void display_load_data();
 void display_loading(int count);
 void display_menu();
-void display_OTA_control();
+void display_OTA_control(); 
 void display_PID_selectSetpoint(); 
 void display_profile_filenumber();
 void display_pump_selectDutycycle();
@@ -1310,8 +1310,8 @@ void Navigation()
             isPlotrangeChange = true;
           }
 
-          tft.fillRect(210, 90, 25, 10, TFT_NEIGHBOUR_BEIGE );
-          tft.fillRect(210, 260, 25, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.fillRect(205, 90, 30, 10, TFT_NEIGHBOUR_BEIGE );
+          tft.fillRect(205, 260, 30, 10, TFT_NEIGHBOUR_BEIGE );
           tft.setTextDatum(BC_DATUM);
           tft.drawNumber(plot_upper_bound, 220, 100, 1);
           tft.setTextDatum(TC_DATUM);
