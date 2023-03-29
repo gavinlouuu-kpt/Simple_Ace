@@ -6,6 +6,7 @@
 #include <Wifi_connection.h>
 
 unsigned long millis_previousCheckTime =0;
+int setup_address = 18;
 
 void setup() {
   Serial.begin(115200);
@@ -13,18 +14,18 @@ void setup() {
   pinSetup();
   checkSetup();
   firebase_setup();
+  screen_count(setup_address);
   Warmup_Screen();
-  // Serial.println( "Setup done" );
   update_check_time();
   HomeScreen();
 }
 
-void loop() {
+void loop()
+{
   PID_control();
   Navigation();
-  if(millis()-millis_previousCheckTime > 10000){
-    check_sensor_life();
-    millis_previousCheckTime = millis();
-  }
+  // if(millis()-millis_previousCheckTime > 10000){
+    // check_sensor_life();
+  //   millis_previousCheckTime = millis();
+  // }
 }
-
