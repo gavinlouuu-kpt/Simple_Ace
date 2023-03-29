@@ -330,7 +330,7 @@ void display_start_button(){
 void update_sensor_lifecount(bool display){
   //retrieve sensor life count from EEPROM address 12 and display at the bottom corner of the screen ,alighned to the top left of the text
   extern uint8_t lifecount_address; 
-  EEPROM.begin(20);
+  EEPROM.begin(512);
   lifecount = EEPROM.get(lifecount_address,lifecount);
   delay(1000);
   EEPROM.end();
