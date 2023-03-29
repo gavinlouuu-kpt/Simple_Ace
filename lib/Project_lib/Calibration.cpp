@@ -40,7 +40,7 @@ void EEPROM_setup(bool factory){
     extern int setup_address;
 
     Serial.println("Factory setting");
-    EEPROM.begin(20);
+    EEPROM.begin(512);
     EEPROM.put(index_address, 0);
     delay(100); 
     printf("EEPROM write address: %d, value: %d\n", index_address, 0);

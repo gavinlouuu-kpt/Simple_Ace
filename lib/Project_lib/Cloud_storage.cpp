@@ -36,7 +36,7 @@ void store_data();                            //store gas data, either SPIFFS or
 void upload_data(String namee,unsigned long tim ,int number);                 // upload array data to firebase
 void update_sensor();                         //restart sensor life count
 void update_check_time();
-byte index_address = 8;                   //print unix time of sensor change                       
+uint8_t index_address = 8;                   //print unix time of sensor change                       
 
 FirebaseData fbdo;
 FirebaseAuth auth;
@@ -56,7 +56,7 @@ const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* ntpServer = "pool.ntp.org";
 
-int file_index = 0;
+uint8_t file_index = 0;
 int h =178;
 int w = 75;
 String macadddress = WiFi.macAddress();
@@ -274,7 +274,7 @@ void store_data(){
     Serial.println(SPIFFS.usedBytes());
     String file_dir = "/Dataset_";
     ////Subsequent setting
-    EEPROM.begin(20);
+    EEPROM.begin(512);
     EEPROM.get(index_address, file_index);
     delay(500); 
     file_dir.concat((String)(file_index%20 +1));
