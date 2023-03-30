@@ -1,42 +1,31 @@
+#include <Arduino.h>
+#include <Adafruit_ADS1X15.h>
+#include <PID_v1.h>
 #include "PID.h"
 #include "Simple_ACE.h"
-#include <PID_v1.h>
-#include <SimpleKalmanFilter.h>
 
-SimpleKalmanFilter simpleKalmanFilter(2, 2, 0.01);
+void PID_setup();               // initialize PID
+void PID_control();             // regualte heating element
 
-//Define the aggressive and conservative Tuning Parameters
-// double aggKp=4, aggKi=0.2, aggKd=1;
-double consKp=6, consKi=0.125, consKd=0.25;
-
-double Setpoint = 900;
+extern Adafruit_ADS1115 ads;
+double PID_Setpoint = 6000;
 double Input, Output;
-PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, REVERSE);
+double consKp=64, consKi= 2, consKd= 8;
+// double aggKp=4, aggKi=0.2, aggKd=1;
+// double consKp=6, consKi=0.125, consKd=0.25;
+// double consKp=4, consKi=0.3, consKd=0.6;
+
+PID myPID(&Input, &Output, &PID_Setpoint, consKp, consKi, consKd, REVERSE);
 
 void PID_setup(){
     myPID.SetMode(AUTOMATIC);
 }
 
 void PID_control(){
-    Input = simpleKalmanFilter.updateEstimate(analogRead(NTCC));
-    // Input = analogRead(NTCC);
-
-    //   double gap = abs(Setpoint-Input); //distance away from setpoint
-//   if (gap < 100)
-//   {  //we're close to setpoint, use conservative tuning parameters
+    Input = (double)ads.readADC_SingleEnded(NTCC_channel);
     myPID.SetTunings(consKp, consKi, consKd);
-//   }
-//   else
-//   {
-//      //we're far from setpoint, use aggressive tuning parameters
-//      myPID.SetTunings(aggKp, aggKi, aggKd);
-//   }
-
     myPID.Compute();
-    ledcWrite(colChannel,Output); //220
-    // delay(10);
-    // Serial.println(Output);
-    // Serial.print("Column temp:"); Serial.println(analogRead(NTCC));
+    ledcWrite(colChannel_1,Output); //220
 }
 
 
