@@ -79,7 +79,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {

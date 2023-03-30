@@ -32,12 +32,12 @@ void EEPROM_setup(bool factory){
     }
   }
   else{
-    extern int index_address;
-    extern int lifecount_address;
-    extern int sample_address; 
-    extern int plot_address; 
-    extern int blow_address; 
-    extern int setup_address;
+    extern uint8_t index_address;
+    extern uint8_t lifecount_address;
+    extern uint8_t sample_address; 
+    extern uint8_t plot_address; 
+    extern uint8_t blow_address; 
+    extern uint8_t setup_address;
     extern bool isCal;
     isCal= true;
     Serial.println("Factory setting");
@@ -61,6 +61,13 @@ void EEPROM_setup(bool factory){
     delay(500);
     EEPROM.end();
     delay(500);
+
+    //spiffs remove /dataset_1 to /dataset_20
+    for(int i = 1; i<21; i++){
+      String path = "/Dataset_" + String(i);
+      SPIFFS.remove(path);
+    }
+    SPIFFS.remove("/History_data_1");
   }
 }
 

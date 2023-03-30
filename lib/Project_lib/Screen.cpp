@@ -108,9 +108,9 @@ unsigned long start_activity_check_millis = 0;
 String profileNumber = "1";
 uint16_t touch_x = 0, touch_y = 0;
 
-byte blow_address = 12; 
-byte sample_address = 14; 
-byte plot_address = 16; 
+uint8_t blow_address = 12; 
+uint8_t sample_address = 14; 
+uint8_t plot_address = 16; 
 
 void tft_setup(){
   tft.init();
@@ -359,27 +359,30 @@ void draw_result(double co2, double ace){
   draw_framework();
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
  
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
+  tft.drawString("Results", 15, 50, 4);
 
   tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE );
-  tft.setTextDatum(CC_DATUM);
-  int result_pos_x = 120;
-  int result_pos_y = 50;
-  if(ace < 1 || co2 < 1||isStore == false){
-    tft.drawString(result[0],result_pos_x,result_pos_y,4); // inactive workout
-  } else if((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3)){
-    tft.drawString(result[1],result_pos_x,result_pos_y,4);
-  } else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
-    tft.drawString(result[2],result_pos_x,result_pos_y,4);
-  } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.3 && co2 < 1.5)){
-    tft.drawString(result[3],result_pos_x,result_pos_y,4);
-  } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.5)){
-    tft.drawString(result[4],result_pos_x,result_pos_y,4);
-  } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
-    tft.drawString(result[5],result_pos_x,result_pos_y,4);
-  } else if(ace >= 1.3 && co2 >= 1 ){
-    tft.setTextColor(TFT_TextWarn, TFT_NEIGHBOUR_BEIGE);
-    tft.drawString(result[6],result_pos_x,result_pos_y,4);
-  } 
+  // tft.setTextDatum(CC_DATUM);
+  // int result_pos_x = 120;
+  // int result_pos_y = 50;
+  // if(ace < 1 || co2 < 1||isStore == false){
+  //   tft.drawString(result[0],result_pos_x,result_pos_y,4); // inactive workout
+  // } else if((ace >= 1 && ace < 1.2) && (co2 >= 1 && co2 < 1.3)){
+  //   tft.drawString(result[1],result_pos_x,result_pos_y,4);
+  // } else if((ace >= 1 && ace < 1.2) && (co2 >= 1.3 && co2 < 1.5)){
+  //   tft.drawString(result[2],result_pos_x,result_pos_y,4);
+  // } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.3 && co2 < 1.5)){
+  //   tft.drawString(result[3],result_pos_x,result_pos_y,4);
+  // } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1.5)){
+  //   tft.drawString(result[4],result_pos_x,result_pos_y,4);
+  // } else if((ace >= 1.2 && ace < 1.3) && (co2 >= 1 && co2 < 1.3 )){
+  //   tft.drawString(result[5],result_pos_x,result_pos_y,4);
+  // } else if(ace >= 1.3 && co2 >= 1 ){
+  //   tft.setTextColor(TFT_TextWarn, TFT_NEIGHBOUR_BEIGE);
+  //   tft.drawString(result[6],result_pos_x,result_pos_y,4);
+  // } 
 
   if(fail_count != 50){ 
     tft.setTextDatum(CC_DATUM);
@@ -990,7 +993,13 @@ void Navigation()
           stage = developer_mode;
           delay(400);
         }
+        tft.setTextDatum(TL_DATUM);
         tft.drawString("Previous Value", 15, 50, 4);
+
+        tft.setTextDatum(CC_DATUM);
+        tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+        tft.drawString("CO2", 80, 100, 2);
+        tft.drawString("Acetone", 160, 100, 2);
         Reset_coordinate();
         retrieve_record();
         for (int i = 0; i < 10; i++)
@@ -1021,12 +1030,12 @@ void Navigation()
         //     tft.drawLine((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((recorded_gas_sample[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
         //   }
         // }
-            Serial.print("plotting: ");
+            
             Serial.println(recorded_gas_sample[i][0]);Serial.print(","); Serial.println(recorded_gas_sample[i][1]);
             tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-            tft.drawNumber(i+1, 20, 100+10 *(i+1));
-            tft.drawFloat(recorded_gas_sample[i][0],2,40,100+10*(i+1));
-            tft.drawFloat(recorded_gas_sample[i][1],2,70,100+10*(i+1));
+            tft.drawNumber(i+1, 22, 110+15 *(i+1),2);
+            tft.drawFloat(recorded_gas_sample[i][0],2,80,110+15*(i+1),2);
+            tft.drawFloat(recorded_gas_sample[i][1],2,160,110+15*(i+1),2);
             // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
             // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
             // // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)

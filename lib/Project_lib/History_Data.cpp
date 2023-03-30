@@ -30,36 +30,33 @@ void store_result(float ratio_co2,float ratio_acetone){
 void retrieve_record(){
     file_dir = "/History_data_";
     file_dir.concat(profileNumber);
-    Serial.print("Retrieved directory");Serial.println(file_dir);
+    // SPIFFS.remove(file_dir);
     if(SPIFFS.exists(file_dir.c_str())){
         File file = SPIFFS.open(file_dir,FILE_READ);
         String buffer_ratio="";
-        int length = file.size()/(sizeof(double)*sizeof(double));
-        // Serial.print(file.size());Serial.print(",");Serial.println(length);
+        int length = file.size()/10;
+        Serial.print(file.size());Serial.print(",");Serial.println(length);
         double recorded_sample_buffer[length][2] ={{0}};
         for(int i = 0 ; i < length; i++){
             if(file.available()> 0){
                 Serial.println("File available");
-                int j =0;
                 buffer_ratio = file.readStringUntil(',');
-                Serial.print("buffer_ratio");Serial.println(buffer_ratio);
-                recorded_sample_buffer[i][j] = buffer_ratio.toDouble();
-                j++;
+                // Serial.print("buffer_ratio");Serial.println(buffer_ratio);
+                recorded_sample_buffer[i][0] = buffer_ratio.toDouble();
                 buffer_ratio = file.readStringUntil('\n');
-                Serial.print("buffer_ratio");Serial.println(buffer_ratio);
-                recorded_sample_buffer[i][j] = buffer_ratio.toDouble();
+                // Serial.print("buffer_ratio");Serial.println(buffer_ratio);
+                recorded_sample_buffer[i][1] = buffer_ratio.toDouble();
             }
-            // buffer_ratio = file.readStringUntil('\n');
-            // recorded_sample_buffer[i] = buffer_ratio.toDouble();
         }
         for(int q =0; q< 10;q ++){
-            for (int p = 0; p <2; p++)
-            {
-                recorded_gas_sample[q][p] = recorded_sample_buffer[length - q][p];
-                Serial.print("recorded_gas_sample");Serial.println(recorded_gas_sample[q][p]);
+            if((length-1) - q <0){break;}
+            else{
+                for (int p = 0; p <2; p++)
+                {
+                    recorded_gas_sample[q][p] = recorded_sample_buffer[(length-1) - q][p];
+                    Serial.print("recorded_gas_sample");Serial.println(recorded_gas_sample[q][p]);
+                }
             }
-            
-            // recorded_gas_sample[q] =recorded_sample_buffer[length-10 + q];
         }
         file.close();
     }
