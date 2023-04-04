@@ -345,7 +345,7 @@ void update_sensor_lifecount(bool display){
     tft.setTextDatum(ML_DATUM);
     tft.drawString("Sensor Life :", 20, 215, 2);
     tft.setTextDatum(CC_DATUM);
-    tft.drawString(String(lifecount*10), 120, 215, 2);
+    tft.drawNumber((int)(lifecount*20/3), 120, 215, 2);
     tft.drawString("%", 140, 215, 2);
   }
 }
@@ -771,7 +771,7 @@ void Navigation()
         extern uint8_t lifecount_address;
         int lifecount;
         EEPROM.begin(512);
-        EEPROM.put(lifecount_address, 10);
+        EEPROM.put(lifecount_address, 15);
         delay(100);
         EEPROM.commit();
         delay(500);

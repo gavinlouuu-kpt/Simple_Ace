@@ -44,7 +44,7 @@ void EEPROM_setup(bool factory){
     EEPROM.begin(512);
     EEPROM.put(index_address, 0);
     delay(100); 
-    EEPROM.put(lifecount_address,10);
+    EEPROM.put(lifecount_address,15);
     delay(100);
     int lifecount;
     EEPROM.get(lifecount_address, lifecount);
