@@ -39,12 +39,13 @@
 #include "WifiButtonOn.h"
 #include "WifiButtonOff.h"
 
-
 void tft_setup();                         //initialize TFT screen
+void draw_framework();
 void draw_result(double co2, double ace);
 void draw_result_bar(double bar_CO2, double bar_Ace);
 void draw_sample_progress(float bar_length, float bar_percentage);
 void draw_sensor(double sensor_value);
+void draw_Settingframework();
 void display_assets();
 void display_bluetooth();
 void display_control_wifi();
@@ -61,17 +62,19 @@ void display_previous_value();
 void display_profile_filenumber();
 void display_pump_selectDutycycle();
 void display_start_button();
+void display_sampling_init();
 void display_setup_profile_select();
 void display_setup_pump();
 void display_setup_PID();
-void display_sampling_init();
 void display_Spiffs_data(int page);
 void display_Wifi();
 void HomeScreen();                        // display brand, assets and setting figure
+void leave_sample();
 void Navigation();                        // touch screen navigation logic
 void Reset_coordinate();
+void screen_count(int screen_address);
 void Warmup_Screen();
-// void write_analyzing(void);
+void update_sensor_lifecount(bool display);
 
 extern Adafruit_ADS1115 ads;
 extern SHTSensor sht;
@@ -89,20 +92,21 @@ TFT_eSprite Warmup_Graph = TFT_eSprite(&tft);
 TFT_eSprite Bubble2 = TFT_eSprite(&tft);
 TFT_eSprite Warmup_BG = TFT_eSprite(&tft);
 
-uint8_t page_number = 0;
 bool isSensor =true;
 bool isPlotrangeChange = false;
 bool isCal = false;
+bool leave = false;
+unsigned long start_activity_check_millis = 0;
+uint8_t page_number = 0;
 uint8_t stage = homescreen;
 uint8_t profileNumber_int = 1;
 uint8_t lifecount;
-unsigned long start_activity_check_millis = 0;
-String profileNumber = "1";
-uint16_t touch_x = 0, touch_y = 0;
-
 uint8_t blow_address = 12; 
 uint8_t sample_address = 14; 
 uint8_t plot_address = 16; 
+uint16_t touch_x = 0, touch_y = 0;
+String profileNumber = "1";
+
 
 void tft_setup(){
   tft.init();
@@ -114,9 +118,6 @@ void tft_setup(){
   graph1.createSprite(200, 150);
   graph1.fillSprite(TFT_NEIGHBOUR_GREEN);
   graph1.setScrollRect(0, 0, 200, 150, TFT_NEIGHBOUR_GREEN);
-
-  
-  // Warmup_Graph.createSprite(Bubbles_w,Bubblesh);
 }
 
 void Reset_coordinate(){
@@ -161,7 +162,6 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   tft.drawString("%", 130, 275, 4);
 }
 
-bool leave = false;
 void leave_sample(){ 
   if (tft.getTouch(&touch_x, &touch_y))
   {
@@ -178,7 +178,6 @@ void leave_sample(){
     }
   }
 }
-
 
 void screen_count(int screen_address){
   EEPROM.begin(20);
@@ -438,8 +437,6 @@ void HomeScreen()
   delay(150);
 }
 
-
-
 void display_menu(){
   Reset_coordinate();
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
@@ -478,7 +475,6 @@ void display_Wifi(){             // draw wifi logo
   }
 }
 
-
 void display_calibration(){
   Reset_coordinate();
   draw_Settingframework();
@@ -497,14 +493,15 @@ void display_OTA_control(){
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("On",30,107,2);
   tft.fillRoundRect(15,140,210,30,3,TFT_PaleYellow);tft.drawString("OFF",30,147,2);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
-
 }
+
 void display_sampling_init(){
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(TL_DATUM);
   tft.drawString("Initializing", 15, 50, 4);
 }
+
 void display_developer_menu(){
   Reset_coordinate();
   tft.setTextDatum(TL_DATUM);
@@ -530,6 +527,7 @@ void display_live_plot(){
   tft.drawString("Live Plot", 15, 50, 4);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 }
+
 void display_previous_value(){
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
@@ -595,6 +593,7 @@ void display_previous_value(){
     }
   }
 }
+
 void display_bluetooth(){
   Reset_coordinate();
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
@@ -791,6 +790,7 @@ void display_PID_selectSetpoint()
     }
   }
 }
+
 void Navigation()
 {
   if (isSensor != true)
