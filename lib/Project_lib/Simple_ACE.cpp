@@ -4,7 +4,7 @@
 #include "SPIFFS.h"
 #include "Cloud_storage.h"
 #include "History_Data.h"
-#include "Image_assets/Beagle.h"
+#include "Beagle.h"
 #include "Neighbour_color.h"
 #include "SHTSensor.h"
 
@@ -14,7 +14,7 @@
 #include <EEPROM.h>
 #include <math.h>
 #include <TFT_eSPI.h>
-#include "Image_assets/Return_arrow_flip.h"
+#include "Return_arrow_flip.h"
 
 double baselineRead(int channel); //average out baseline candidate
 void restore_baseline();           //define sensor baseline for new set of gas data        
@@ -36,7 +36,6 @@ SHTSensor sht(SHTSensor::SHT4X);
 
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
-// bool isStore = false;
 
 uint8_t dutyCycle_pump = 120;         
 int baseline = 0;

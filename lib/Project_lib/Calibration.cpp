@@ -4,7 +4,6 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "TFT_eSPI.h"
-#include "Image_assets/Loadingcopy.h"
 #include "PID.h"
 #include "Neighbour_color.h"
 #include "Cloud_storage.h"

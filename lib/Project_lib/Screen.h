@@ -30,7 +30,7 @@ void display_Wifi();
 void Navigation();
 void HomeScreen();
 void Warmup_Screen();
-void write_analyzing(void);
+// void write_analyzing(void);
 void screen_count(int screen_address);
 
 void leave_sample();

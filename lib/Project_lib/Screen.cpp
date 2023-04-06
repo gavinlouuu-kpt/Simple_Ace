@@ -16,38 +16,28 @@
 #include <EEPROM.h>
 #include <Adafruit_ADS1X15.h>
 #include "SHTSensor.h"
-#include "Image_assets/Wifi_connect.h"
-#include "Image_assets/Wifi_not_connect.h"
-#include "Image_assets/Wifi_Off.h"
-#include "Image_assets/Loading.h"
-#include "Image_assets/Loadingcopy.h"
 
-#include "Image_assets/Homepage2.h"
-#include "Image_assets/FullBattary.h"
-#include "Image_assets/Setting2.h"
-#include "Image_assets/WifiButtonOn.h"
-#include "Image_assets/WifiButtonOff.h"
-#include "Image_assets/BreatheHere.h"
-#include "Image_assets/Bar.h"
-#include "Image_assets/Breathe.h"
-#include "Image_assets/Beagle.h"
-#include "Image_assets/Started.h"
-#include "Image_assets/SettingBar.h"
-#include "Image_assets/DeveloperMode.h"
-#include "Image_assets/LivePlot.h"
-#include "Image_assets/DefaultSetting.h"
-#include "Image_assets/Spiffs.h"
-#include "Image_assets/Return_arrow.h"
-#include "Image_assets/Return_arrow_flip.h"
-#include "Image_assets/Bubble_1.h"
-#include "Image_assets/Bubble_2.h"
-#include "Image_assets/Bubble_3.h"
-#include "Image_assets/Bubble_4.h"
-#include "Image_assets/Bubble_5.h"
-#include "Image_assets/Bubble_6.h"
-#include "Image_assets/Beagle_Warmup.h"
-#include "Image_assets/Loadingcopy2.h"
-#include "Image_assets/Pointer.h"
+#include "Bar.h"
+#include "Beagle_Warmup.h"
+#include "Beagle.h"
+#include "Bubble_1.h"
+#include "Bubble_2.h"
+#include "Bubble_3.h"
+#include "Bubble_4.h"
+#include "Bubble_5.h"
+#include "Bubble_6.h"
+#include "DefaultSetting.h"
+#include "FullBattary.h"
+#include "Loading.h"
+#include "Pointer.h"
+#include "Return_arrow.h"
+#include "Return_arrow_flip.h"
+#include "SettingBar.h"
+#include "Wifi_connect.h"
+#include "Wifi_not_connect.h"
+#include "Wifi_Off.h"
+#include "WifiButtonOn.h"
+#include "WifiButtonOff.h"
 
 
 void tft_setup();                         //initialize TFT screen
@@ -81,7 +71,7 @@ void HomeScreen();                        // display brand, assets and setting f
 void Navigation();                        // touch screen navigation logic
 void Reset_coordinate();
 void Warmup_Screen();
-void write_analyzing(void);
+// void write_analyzing(void);
 
 extern Adafruit_ADS1115 ads;
 extern SHTSensor sht;
@@ -154,7 +144,7 @@ void draw_Settingframework()
 
 void display_loading(int count)
 {
-  tft.pushImage(90, 200, LoadingcopyWidth, LoadingcopyHeight, Loadingcopy[count % 9]);
+  tft.pushImage(90, 200, LoadingWidth, LoadingHeight, Loading[count % 9]);
   delay(100);
 }
 
@@ -431,7 +421,7 @@ void HomeScreen()
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
   tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
-  tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
+  // tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
   tft.setTextDatum(TL_DATUM);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Lets Get Started", 15, 50, 4);
