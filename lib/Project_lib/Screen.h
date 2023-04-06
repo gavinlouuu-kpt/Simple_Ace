@@ -13,6 +13,7 @@
 #define wifi_control            9   
 #define print_stored_data       10
 #define select_user_profile     11
+#define previous_value          12
 #define live_plot               13
 #define pump_setting            15
 #define PID_setting             16

@@ -47,6 +47,7 @@
 #include "Image_assets/Bubble_6.h"
 #include "Image_assets/Beagle_Warmup.h"
 #include "Image_assets/Loadingcopy2.h"
+#include "Image_assets/Pointer.h"
 
 
 void tft_setup();                         //initialize TFT screen
@@ -66,6 +67,7 @@ void display_loading(int count);
 void display_menu();
 void display_OTA_control(); 
 void display_PID_selectSetpoint(); 
+void display_previous_value();
 void display_profile_filenumber();
 void display_pump_selectDutycycle();
 void display_start_button();
@@ -295,40 +297,28 @@ void draw_result_bar(double bar_CO2, double bar_Ace){
   // const int base_y =190;
   double CO2_max = 1.5;double CO2_min = 0.9;
   double ACE_max = 1.4;double ACE_min = 0.6;
-  // int y_length = base_y - top_y;
-  // int start_y_ace;
-  // int end_y_ace;
-  // int start_y_co2;
-  // int end_y_co2;
-  tft.fillRoundRect(20,145,200,10,2,TFT_PaleYellow);
-  tft.fillRoundRect(20,190,200,10,2,TFT_PaleYellow);
+  if (bar_CO2 > CO2_max){
+    bar_CO2 = CO2_max;
+  }
+  if (bar_CO2 < CO2_min){
+    bar_CO2 = CO2_min;
+  }
+  if (bar_Ace > ACE_max){
+    bar_Ace = ACE_max;
+  }
+  if (bar_Ace < ACE_min){
+    bar_Ace = ACE_min;
+  }
+  tft.fillRoundRect(20,135,200,10,5,TFT_PaleYellow);
+  tft.fillRoundRect(20,200,200,10,5,TFT_PaleYellow);
   
-  tft.fillRoundRect(120,145,120.00*(bar_Ace - 1.0)/(ACE_max- 1.0),10,5,TFT_TextBrown);
-  tft.fillRoundRect(120,190,120.00*(bar_CO2 - 1.2)/(CO2_max- 1.2),10,5,TFT_TextBrown);
-  tft.drawFastVLine(120,145,20,TFT_TextWarn);
-  tft.drawFastVLine(120,190,20,TFT_TextWarn);
-  // start_y_co2 = top_y + (int)(y_length * (1 - (bar_1 / 2)));
-  // end_y_co2 = base_y - start_y_co2;
-  // start_y_ace = top_y + (int)(y_length * (1 - bar_Ace / 2));
-  // end_y_ace = base_y - start_y_ace;
-  // Serial.print("start_y_co2:");Serial.println(start_y_co2);
-  // Serial.print("end_y_co2:");Serial.println(end_y_co2);
-  // Serial.print("start_y_ace:");Serial.println(start_y_ace);
-  // Serial.print("end_y_ace:");Serial.println(end_y_ace);
-
-  // tft.drawFastHLine(20,190,200,TFT_NEIGHBOUR_BEIGE);
-  // int split_portion =10;
-  // unsigned long previous_data = 0;
-  // tft.drawRect(50,top_y, 20, y_length,TFT_NEIGHBOUR_BEIGE);
-  // tft.drawRect(160,top_y, 20, y_length,TFT_NEIGHBOUR_BEIGE);
-  // for(int i =0; i<split_portion; i++){
-  //   while(millis()-previous_data <150){
-  //   }
-  //   previous_data =millis();
-  //   tft.fillRect(50,190 - (int)((i+1)*(end_y_co2/split_portion)), 20, (int)(end_y_co2/split_portion) ,TFT_NEIGHBOUR_BEIGE);
-  //   tft.fillRect(160,190 - (int)((i+1)*(end_y_ace/split_portion)), 20, (int)(end_y_ace/split_portion) ,TFT_NEIGHBOUR_BEIGE);
-  // }
-}
+  tft.fillRect(20,135,200.00*(bar_Ace - ACE_min)/(ACE_max- ACE_min),10,TFT_TextBrown);
+  tft.fillRect(20,200,200.00*(bar_CO2 - CO2_min)/(CO2_max- CO2_min),10,TFT_TextBrown);
+  tft.pushImage(20 + 200.00*(bar_Ace - ACE_min)/(ACE_max- ACE_min) - Pointer_width/2,135-Pointer_height,Pointer_width,Pointer_height,Pointer);
+  tft.pushImage(20 + 200.00*(bar_CO2 - CO2_min)/(CO2_max- CO2_min) - Pointer_width/2,200-Pointer_height,Pointer_width,Pointer_height,Pointer);
+  tft.drawFastVLine(120,135,10,TFT_PaleYellow);
+  tft.drawFastVLine(120,200,10,TFT_PaleYellow);
+} 
 
 void display_start_button(){
   tft.setTextColor(TFT_WHITE, TFT_NEIGHBOUR_GREEN);
@@ -379,12 +369,12 @@ void draw_result(double co2, double ace){
   }
   // if(fail_count != 50){ 
     tft.setTextDatum(CC_DATUM);
-    tft.drawString("Ketone",85,120,4);tft.drawString(":",130,120,4);
-    tft.setTextDatum(ML_DATUM);tft.drawFloat(ace,2,140, 120,4);
+    tft.drawString("Ketone",85,110,4);tft.drawString(":",130,110,4);
+    tft.setTextDatum(ML_DATUM);tft.drawFloat(ace,2,140, 110,4);
     tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
     tft.setTextDatum(CC_DATUM);
-    tft.drawString("CO2",85,180,4);tft.drawString(":",130,180,4);
-    tft.setTextDatum(ML_DATUM);tft.drawFloat(co2,2,140, 180,4);
+    tft.drawString("CO2",85,175,4);tft.drawString(":",130,175,4);
+    tft.setTextDatum(ML_DATUM);tft.drawFloat(co2,2,140, 175,4);
     draw_result_bar(co2,ace);
   // }
 }
@@ -550,7 +540,71 @@ void display_live_plot(){
   tft.drawString("Live Plot", 15, 50, 4);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 }
+void display_previous_value(){
+  tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
+  tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
+  tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
+  tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
+  tft.setTextDatum(TL_DATUM);
+  tft.drawString("Previous Value", 15, 50, 4);
+  int DataCounter = 0;
 
+  tft.setTextDatum(CC_DATUM);
+  tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+  tft.drawString("CO2", 80, 100, 2);
+  tft.drawString("Acetone", 160, 100, 2);
+  retrieve_record();
+  for (int i = 0; i < 10; i++)
+  {
+    if(recorded_gas_sample[i][0] != 0)
+    {
+      
+  //     Serial.print("plotting: "); Serial.println(recorded_gas_sample[i]);
+  //     tft.fillCircle((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, 2, TFtouch_yELLOW);
+  //     tft.setTextColor(TFT_YELLOW, TFT_NEIGHBOUR_GREEN);
+  //     // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
+  //     if (i %2 ==0)
+  //     {
+  //       tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 40, 1);
+  //     }
+  //     // if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
+  //     else
+  //     {
+  //       tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 20, 1);
+  //     }
+  //     DataCounter++;
+  //   }
+  // }
+  // if (DataCounter > 1)
+  // {
+  //   for (int i = 0; i < DataCounter - 1; i++)
+  //   {
+  //     tft.drawLine((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((recorded_gas_sample[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
+  //   }
+  // }
+      
+      Serial.println(recorded_gas_sample[i][0]);Serial.print(","); Serial.println(recorded_gas_sample[i][1]);
+      tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
+      tft.drawNumber(i+1, 22, 110+15 *(i+1),2);
+      tft.drawFloat(recorded_gas_sample[i][0],2,80,110+15*(i+1),2);
+      tft.drawFloat(recorded_gas_sample[i][1],2,160,110+15*(i+1),2);
+      // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
+      // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
+      // // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
+      // if (i % 2 == 0)
+      // {
+      //   tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 40, 1);
+      // }
+      // // if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
+      // else
+      // {
+      //   tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 20, 1);
+      // }
+      // DataCounter++;
+    }
+  }
+}
 void display_bluetooth(){
   Reset_coordinate();
   tft.fillScreen(TFT_NEIGHBOUR_GREEN);
@@ -976,75 +1030,9 @@ void Navigation()
       else if (touch_x > 180 && touch_x < 195 && touch_y > 10 && touch_y < 285)
       {
         delay(200);
-        int DataCounter = 0;
-        tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
-        tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
-        tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-        tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
-        tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
-        if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
-          display_developer_menu();
-          stage = developer_mode;
-          delay(400);
-        }
-        tft.setTextDatum(TL_DATUM);
-        tft.drawString("Previous Value", 15, 50, 4);
-
-        tft.setTextDatum(CC_DATUM);
-        tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-        tft.drawString("CO2", 80, 100, 2);
-        tft.drawString("Acetone", 160, 100, 2);
         Reset_coordinate();
-        retrieve_record();
-        for (int i = 0; i < 10; i++)
-        {
-          if(recorded_gas_sample[i][0] != 0)
-          {
-            
-        //     Serial.print("plotting: "); Serial.println(recorded_gas_sample[i]);
-        //     tft.fillCircle((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, 2, TFtouch_yELLOW);
-        //     tft.setTextColor(TFT_YELLOW, TFT_NEIGHBOUR_GREEN);
-        //     // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
-        //     if (i %2 ==0)
-        //     {
-        //       tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 40, 1);
-        //     }
-        //     // if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
-        //     else
-        //     {
-        //       tft.drawFloat(recorded_gas_sample[i], 2, (i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 20, 1);
-        //     }
-        //     DataCounter++;
-        //   }
-        // }
-        // if (DataCounter > 1)
-        // {
-        //   for (int i = 0; i < DataCounter - 1; i++)
-        //   {
-        //     tft.drawLine((i + 2) * 20, (120 - 120 * ((recorded_gas_sample[i] - 0.9) / 1.1)) + 60, (i + 3) * 20, (120 - 120 * ((recorded_gas_sample[i + 1] - 0.9) / 1.1)) + 60, TFT_YELLOW);
-        //   }
-        // }
-            
-            Serial.println(recorded_gas_sample[i][0]);Serial.print(","); Serial.println(recorded_gas_sample[i][1]);
-            tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-            tft.drawNumber(i+1, 22, 110+15 *(i+1),2);
-            tft.drawFloat(recorded_gas_sample[i][0],2,80,110+15*(i+1),2);
-            tft.drawFloat(recorded_gas_sample[i][1],2,160,110+15*(i+1),2);
-            // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
-            // tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE );
-            // // if (i == 0 || i == 2 || i == 4 || i == 6 || i == 8)
-            // if (i % 2 == 0)
-            // {
-            //   tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 40, 1);
-            // }
-            // // if (i == 1 || i == 3 || i == 5 || i == 7 || i == 9)
-            // else
-            // {
-            //   tft.drawFloat(previous_data[i], 2, (i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 20, 1);
-            // }
-            // DataCounter++;
-          }
-        }
+        display_previous_value();
+        stage = previous_value;
       }
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
@@ -1053,6 +1041,15 @@ void Navigation()
         Reset_coordinate();
       }
     }
+    if (stage == previous_value)
+    {
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
+          display_developer_menu();
+          stage = developer_mode;
+          delay(400);
+        }
+    }
+    
     if (stage == print_stored_data )      //print spiffs
     {
       String file_name = "/Dataset_";
