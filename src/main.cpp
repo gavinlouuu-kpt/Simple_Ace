@@ -15,7 +15,7 @@ void setup() {
   checkSetup();
   firebase_setup();
   screen_count(setup_address);
-  Warmup_Screen();
+  // Warmup_Screen();
   update_check_time();
   HomeScreen();
 }

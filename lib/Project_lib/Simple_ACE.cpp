@@ -36,11 +36,11 @@ SHTSensor sht(SHTSensor::SHT4X);
 
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
-bool isStore = false;
+// bool isStore = false;
 
 uint8_t dutyCycle_pump = 120;         
 int baseline = 0;
-uint8_t fail_count = 0;
+bool fail_count = false;
 uint8_t millisUnitTime = 0;  
 int loading_index=0 ;
 
@@ -79,7 +79,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(false);
+  EEPROM_setup(true);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -262,7 +262,7 @@ void sample_collection(){
   float slope = 0.1*((Sensor_arr[49] - Sensor_arr[0])/50.00);
   if(leave == true){}
   else{
-    isStore = true;
+    // isStore = true;
     int previousDrawLoad = 0;
     tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
     long millisStartSample = millis();
@@ -384,10 +384,19 @@ void update_sensor_lifecount(){
   return;
 }
 
+float gradient_change(){
+  float grad_1 = (Sensor_arr[24] - Sensor_arr[0])/25.00;
+  Serial.print("gradient 1: ");Serial.println(grad_1);
+  float grad_2 = (Sensor_arr[49] - Sensor_arr[25])/25.00;
+  Serial.print("gradient 2: ");Serial.println(grad_2);
+  float stability = abs(grad_1 *grad_2);
+  Serial.print("gradient change: ");Serial.println(stability);
+  return stability;
+}
+
 void output_result(){
-  if(fail_count==50){
-    draw_result(0,0);
-    return;
+  if(gradient_change() > 3.00){
+    fail_count = true;
   }
   double conc_Ace = 0;
   double conc_CO2 = 0;
