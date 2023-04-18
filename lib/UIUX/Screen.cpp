@@ -80,7 +80,7 @@ extern Adafruit_ADS1115 ads;
 extern SHTSensor sht;
 extern float ref_position[2];
 extern double recorded_gas_sample[10][2];
-extern int dutyCycle_pump;
+extern uint8_t dutyCycle_pump;
 extern double PID_Setpoint;
 extern bool isWifi;
 extern bool isConnect;
@@ -162,11 +162,11 @@ void draw_sample_progress(float bar_length, float bar_percentage){
   tft.drawString("%", 130, 275, 4);
 }
 
-void leave_sample(){ 
+void leave_sample(){                          //escape from current screen
   if (tft.getTouch(&touch_x, &touch_y))
   {
-    printf("%d\n", touch_x);
-    printf("%d\n", touch_y);
+    // printf("%d\n", touch_x);
+    // printf("%d\n", touch_y);
     if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
       stage = homescreen; 
       pump_control(false);
@@ -179,7 +179,7 @@ void leave_sample(){
   }
 }
 
-void screen_count(int screen_address){
+void screen_count(int screen_address){          //count the number of times the screen is pressed 
   EEPROM.begin(20);
   int8_t press_count;
   EEPROM.get(screen_address,press_count);
@@ -207,7 +207,7 @@ int as_counter = 0;
 int position_temp_max = -1;
 int position_temp_min = -1;
 
-void draw_sensor(double sensor_value){
+void draw_sensor(double sensor_value){          //draw the sensor value on the screen
   graph1.pushSprite(20, 105);
   if (array_index < 201){
     Plot_buffer[array_index] = (int)sensor_value;
@@ -282,8 +282,6 @@ void draw_sensor(double sensor_value){
 }
 
 void draw_result_bar(double bar_CO2, double bar_Ace){
-  // const int top_y =60;
-  // const int base_y =190;
   double CO2_max = 1.5;double CO2_min = 0.9;
   double ACE_max = 1.4;double ACE_min = 0.6;
   if (bar_CO2 > CO2_max){
@@ -339,7 +337,6 @@ void update_sensor_lifecount(bool display){
 }
 
 void draw_result(double co2, double ace){
-  // extern bool isStore;
   extern bool fail_count;
 
   // creat a pointer of array of result according to the ace and co2 concentration
@@ -368,7 +365,7 @@ void draw_result(double co2, double ace){
   // }
 }
 
-void Warmup_Screen(){
+void Warmup_Screen(){                       //display warmup screen, looping 5 image assets unitl column reach Setpoitn Temperature
   extern double PID_Setpoint;
   unsigned long counttime = 0;
   double display_warmup = 0;
@@ -390,7 +387,6 @@ void Warmup_Screen(){
         tft.pushImage(150, 200, Bubble4_w,Bubble4_h,Bubble_4);
         tft.pushImage(190, 200, Bubble5_w,Bubble5_h,Bubble_5);
      }else{
-        // display_warmup = abs ((double)ads.readADC_SingleEnded(NTCC_channel)-PID_Setpoint);
         tft.pushImage(23, 200, Bubble6_w,Bubble6_h,Bubble_6);
         PID_control();
         delay(100);
@@ -412,7 +408,6 @@ void Warmup_Screen(){
      }
    delay(10);
   }
-  //tft.fillRect(20,200,200,80,TFT_NEIGHBOUR_GREEN);   // cover graph 
 }
 
 void HomeScreen()
@@ -515,8 +510,7 @@ void display_developer_menu(){
   tft.fillRoundRect(15,185,210,30,3,TFT_PaleYellow);tft.drawString("Print Spiffs",30,192,2);
   tft.fillRoundRect(15,225,210,30,3,TFT_PaleYellow);tft.drawString("Previous Value",30,232,2);
 
-  tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
-  tft.fillRoundRect(15,145,210,30,3,TFT_DARKGREY);
+  tft.fillRoundRect(15,145,210,30,3,TFT_PaleYellow);
   tft.drawString("Default Setting",30,152,2);
 }
 
@@ -656,7 +650,7 @@ void display_setup_PID()
   // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
   tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
   tft.setTextDatum(4);
-  tft.drawString("PID PID_Setpoint", 120, 40, 4);
+  tft.drawString("PID_Setpoint", 120, 40, 4);
 
   tft.fillRect(10, 140, 100, 100, TFT_RED);
   tft.drawRect(10, 140, 100, 100, TFT_NEIGHBOUR_BEIGE);
@@ -695,10 +689,20 @@ void display_device_setting(){
   draw_Settingframework;
   display_Wifi();
 
-  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
-  tft.setTextColor(TFT_NEIGHBOUR_GREEN);
-  tft.drawString("Default Setting", 15, 50, 4);
-  tft.pushImage(0, 100, DefaultSettingWidth, DefaultSettingHeight, DefaultSetting);
+  // tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  // tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  // tft.drawString("Default Setting", 15, 50, 4);
+  // tft.pushImage(0, 100, DefaultSettingWidth, DefaultSettingHeight, DefaultSetting);
+  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
+  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);    //Pump dutycycle
+  tft.fillRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 10, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.setTextDatum(CC_DATUM);
+  tft.drawString("Pump power", 120, 35, 4);
+
+  tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BEIGE);
+  // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+  tft.drawString("Columm Temp", 120, 100, 4);
 }
 
 void display_Spiffs_data(int page)
@@ -791,7 +795,7 @@ void display_PID_selectSetpoint()
   }
 }
 
-void Navigation()
+void Navigation()                     //Naviagtion layer to different functions and screens
 {
   if (isSensor != true)
   {
@@ -878,7 +882,7 @@ void Navigation()
 
     if (stage == setting_menu)
     { // Navigation
-      if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 300)                //OTA
+      if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 290)                //OTA
       {
         draw_Settingframework();
         display_OTA_control();
@@ -887,7 +891,7 @@ void Navigation()
         stage = wifi_control;
       }
 
-      if (touch_x > 185 && touch_x < 200 && touch_y > 10 && touch_y < 280)
+      if (touch_x > 185 && touch_x < 200 && touch_y > 10 && touch_y < 290)
       {
         display_developer_menu();
         stage = developer_mode ;
@@ -989,6 +993,7 @@ void Navigation()
       if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
         display_menu();
         stage = setting_menu;
+        delay(150);
       }
       if (touch_x > 85 && touch_x < 105 && touch_y > 10 && touch_y < 285)
       {
@@ -996,16 +1001,16 @@ void Navigation()
         stage = live_plot;
         delay(400);
       }
-      // else if (touch_x > 60 && touch_x < 100 && touch_y > 0 && touch_y < 305)
-      // {
-      //   tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
-      //   tft.drawString("Default Setting", 120, 100, 4);
-      //   delay(200);
-      //   display_device_setting();
-      //   stage = device_setting;
-      //   delay(300);
-      // }
+      else if (touch_x > 120 && touch_x < 140 && touch_y > 10 && touch_y < 285)
+      {
+        // tft.fillRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
+        // tft.drawString("Default Setting", 120, 100, 4);
+        delay(200);
+        display_device_setting();
+        stage = device_setting;
+        delay(300);
+      }
 
       else if (touch_x > 150 && touch_x < 165 && touch_y > 10 && touch_y < 285)
       {
@@ -1235,7 +1240,7 @@ void Navigation()
       double sensor_resistance = 0;
       double sensor_voltage = 0;
       tft.setTextColor(TFT_TextBrown, TFT_NEIGHBOUR_BEIGE);
-      while (1){
+      while (1){                                            //draw sensor live graph
         if (tft.getTouch(&touch_x, &touch_y))
         {
           if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295)
@@ -1304,7 +1309,6 @@ void Navigation()
           // tft.drawFloat(float(ADS0), 0, 65, 240, 2);
           // tft.drawString("ADS0:", 25, 240, 2);
 
-
           if (isPlotrangeChange == false && array_index > 0) // draw
           {
             graph1.scroll(-1);
@@ -1348,8 +1352,9 @@ void Navigation()
           }
         }
       }
-      display_menu();
-      stage = setting_menu;
+      display_developer_menu();
+      stage = developer_mode;
+      delay(150);
     }
 
     if (stage == pump_setting){  //select pump duty cycle
@@ -1357,7 +1362,8 @@ void Navigation()
       tft.setTextDatum(4);
       display_pump_selectDutycycle();
       tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover pump cycle
-      tft.drawNumber(dutyCycle_pump, 120, 100, 4);
+      // tft.drawString((String)dutyCycle_pump,120, 100, 4);
+      tft.drawNumber(dutyCycle_pump,120, 100, 4);
 
       if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){    
         tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);

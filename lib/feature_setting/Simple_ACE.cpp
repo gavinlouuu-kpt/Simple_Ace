@@ -78,7 +78,7 @@ void checkSetup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  EEPROM_setup(true);
+  EEPROM_setup(false);
   if (sht.init()) {
       Serial.print("init(): success\n");
   } else {
@@ -119,7 +119,7 @@ void sensor_heater_control(bool control){
   }
 }
 
-int breath_check(){
+int breath_check(){                       //  check if sensor value exceed threshold, indicate a breathe incoming
   long previoustime = millis();
   uint8_t array_index= 0;
   while (true) {
@@ -167,7 +167,7 @@ double baselineRead(int channel) {
   return mean;
 }
 
-void restore_baseline(){
+void restore_baseline(){                        //  restore baseline before a breathe
   extern double PID_Setpoint;
   double temporal_read = 0;
   double reference_read = 0;
@@ -209,7 +209,7 @@ void restore_baseline(){
   }
 }
 
-float forecast_baseline(int position){
+float forecast_baseline(int position){        //  forecast baseline drifting based on the first 100 datapoints
   // find the slope of the first 100 data points of the sensor array, and then halved the slope to find th equation of the slope
   float slope = 0.1*((Sensor_arr[49] - Sensor_arr[0])/50.00);
   Serial.print("Differnce:");Serial.println(Sensor_arr[49] - Sensor_arr[0]);
@@ -383,7 +383,7 @@ void update_sensor_lifecount(){
   return;
 }
 
-float gradient_change(){
+float gradient_change(){                    // check the gradient change to evaluate the interference of breathe 
   float grad_1 = (Sensor_arr[24] - Sensor_arr[0])/25.00;
   Serial.print("gradient 1: ");Serial.println(grad_1);
   float grad_2 = (Sensor_arr[49] - Sensor_arr[25])/25.00;

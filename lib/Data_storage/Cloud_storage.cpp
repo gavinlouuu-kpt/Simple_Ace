@@ -69,6 +69,7 @@ void setLocalTime(){
   setenv("TZ","WET0WEST,M3.5.0/1,M10.5.0",1);
   tzset();
 }
+
 unsigned long getTime() {
   time_t now;
   struct tm timeinfo;
@@ -82,17 +83,6 @@ unsigned long getTime() {
   return now;
 }
 
-
-// void UnixToTime(int UnixNum)                                                           self-calculated unix converter
-// {
-//   int years = UnixNum / 31556926 + 1970;
-//   int months = UnixNum / 2629743 - (years-1970)*12;
-//   int days = UnixNum / 86400 -(53*365+12+(months-1)*30);
-//   int hours = UnixNum / 3600 % 24;
-//   int minutes = UnixNum / 60 % 60;
-//   int seconds = UnixNum % 60;
-//   Serial.println(hours);
-// }
 
 void firebase_setup()
 {
@@ -219,7 +209,7 @@ void store_data(){
       millisPreviousTime = millis();
       //Check first file
       configTime(gmtOffset_sec, 0, ntpServer);
-      for(int i = 0; i <20 ;i++){
+      for(int i = 0; i <20 ;i++){                         //check if 20 files exist, and upload them to firebase
         String upload_file_dir = "/Dataset_";
         upload_file_dir.concat((String)(i % 20 + 1));
         if (Firebase.ready() && SPIFFS.exists(upload_file_dir.c_str()))
@@ -246,7 +236,7 @@ void store_data(){
         }
       } 
       //Sample realtime
-      if(Firebase.ready()){
+      if(Firebase.ready()){                             //upload realtime data to firebase
         millisUnixTime= getTime(); 
         printf("%d\n",millisUnixTime);
         store_default(millisUnixTime);
@@ -270,10 +260,9 @@ void store_data(){
     }
   }
   else
-  {// Wifi_disable();
+  {                                                    //if not connected to wifi, store data to spiffs
     Serial.println(SPIFFS.usedBytes());
     String file_dir = "/Dataset_";
-    ////Subsequent setting
     EEPROM.begin(512);
     EEPROM.get(index_address, file_index);
     delay(500); 
@@ -322,7 +311,7 @@ void store_data(){
   Wifi_disable();
 }
 
-void update_sensor(){
+void update_sensor(){                     //deprecated
   Wifi_able();
   configTime(gmtOffset_sec, 0, ntpServer);
   unsigned long millisUpdateSensorTime = getTime();

@@ -21,7 +21,7 @@ void find_peak();                       //  locate the local maxima of the gas d
 void store_calibiration_data();         //  store calibration gas sample into SPIFFS
 void update_parameters(int unit);       //  store gas maxima positions into EEPROM
 
-void EEPROM_setup(bool factory){
+void EEPROM_setup(bool factory){        //factory = true: factory setting, factory = false: normal setting
   if(factory == false){
     if(!EEPROM.begin(512)){
         printf("failed to mount EEPROM");

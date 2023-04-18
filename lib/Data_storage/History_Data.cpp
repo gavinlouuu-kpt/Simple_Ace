@@ -34,10 +34,10 @@ void retrieve_record(){
     if(SPIFFS.exists(file_dir.c_str())){
         File file = SPIFFS.open(file_dir,FILE_READ);
         String buffer_ratio="";
-        int length = file.size()/10;
+        int length = file.size()/10;                //calculate the number of data entry
         Serial.print(file.size());Serial.print(",");Serial.println(length);
         double recorded_sample_buffer[length][2] ={{0}};
-        for(int i = 0 ; i < length; i++){
+        for(int i = 0 ; i < length; i++){           //read data from file and store in array
             if(file.available()> 0){
                 Serial.println("File available");
                 buffer_ratio = file.readStringUntil(',');
@@ -48,7 +48,7 @@ void retrieve_record(){
                 recorded_sample_buffer[i][1] = buffer_ratio.toDouble();
             }
         }
-        for(int q =0; q< 10;q ++){
+        for(int q =0; q< 10;q ++){                  //store the last 10 data entry in another array, by last in first out order
             if((length-1) - q <0){break;}
             else{
                 for (int p = 0; p <2; p++)
