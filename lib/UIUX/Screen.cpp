@@ -96,7 +96,9 @@ bool isSensor =true;
 bool isPlotrangeChange = false;
 bool isCal = false;
 bool leave = false;
-unsigned long start_activity_check_millis = 0;
+unsigned long previous_battery_check = -10000;
+int8_t battery_state = 1;
+// int8_t previous_battery_state = 1;
 uint8_t page_number = 0;
 uint8_t stage = homescreen;
 uint8_t profileNumber_int = 1;
@@ -125,11 +127,48 @@ void Reset_coordinate(){
   touch_y = 0;
 }
 
+void show_battery(){
+  if(millis()- previous_battery_check > 10000){
+    previous_battery_check = millis();
+    //check the state of battery
+    //state 1: full
+    //state 2: half
+    //state 3: low
+    //show image of battery conrespond to different state
+    double power = analogRead(battery_read);
+    Serial.println(power);
+    if (power >= 760){
+      battery_state = 1;
+    }
+    else if(power >=730 && power < 760){
+      battery_state = 2;
+    }
+    else if(power >= 710&& power < 730){
+      battery_state = 3;
+    }
+  }
+ 
+  if(battery_state == 1){
+    tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+    Serial.println("full");
+  }
+  else if(battery_state == 2){
+      // tft.pushImage(208, 10, HalfBattaryWidth, HalfBattaryHeight, HalfBattary);
+    Serial.println("half");
+  }
+  else if(battery_state == 3){
+    // tft.pushImage(208, 10, LowBattaryWidth, LowBattaryHeight, LowBattary);
+    Serial.println("low");
+  }
+}
+
 void draw_framework()
 {
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
-  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  // tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  show_battery();
+  delay(10);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
 }
@@ -138,7 +177,9 @@ void draw_Settingframework()
 {
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE);
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
-  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  // tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  show_battery();
+  delay(10);
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
 }
@@ -414,7 +455,8 @@ void HomeScreen()
 {
   tft.fillScreen(TFT_NEIGHBOUR_BEIGE );
   tft.pushImage(0, 280, BarWidth, BarHeight, Bar);
-  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  // tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  show_battery();
   // tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
   tft.setTextDatum(TL_DATUM);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
@@ -438,7 +480,8 @@ void display_menu(){
   tft.pushImage(15, 10, BeagleWidth, BeagleHeight, Beagle);
   display_Wifi();
   tft.setTextDatum(0);
-  tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  // tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+  show_battery();
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("Setting", 15, 50, 4);
@@ -536,6 +579,8 @@ void display_previous_value(){
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("CO2", 80, 100, 2);
   tft.drawString("Acetone", 160, 100, 2);
+  tft.drawString("current", 30, 125, 2);
+  tft.drawString("past", 30, 260, 2);
   retrieve_record();
   for (int i = 0; i < 10; i++)
   {
@@ -568,7 +613,7 @@ void display_previous_value(){
       
       Serial.println(recorded_gas_sample[i][0]);Serial.print(","); Serial.println(recorded_gas_sample[i][1]);
       tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
-      tft.drawNumber(i+1, 22, 110+15 *(i+1),2);
+      // tft.drawNumber(i+1, 22, 110+15 *(i+1),2);
       tft.drawFloat(recorded_gas_sample[i][0],2,80,110+15*(i+1),2);
       tft.drawFloat(recorded_gas_sample[i][1],2,160,110+15*(i+1),2);
       // tft.fillCircle((i + 2) * 20, (120 - 120 * ((previous_data[i] - 0.9) / 1.1)) + 60, 2, TFT_NEIGHBOUR_GREEN);
@@ -1340,15 +1385,15 @@ void Navigation()                     //Naviagtion layer to different functions 
           extern double Output;
           
           if (sht.readSample()) {
-            Serial.print(sht.getHumidity(), 2);Serial.print(","); 
-            Serial.print(sht.getTemperature(), 2); Serial.print(","); 
-            Serial.print(ADS0);Serial.print(",");
-            Serial.print(sensor_resistance);Serial.print(",");
-            Serial.print(heater);Serial.print(",");
-            Serial.print(offset);Serial.print(",");
-            Serial.print(Output);Serial.print(",");
-            Serial.println(ntcc); 
-            // Serial.println(analogRead(battery_read));
+            // Serial.print(sht.getHumidity(), 2);Serial.print(","); 
+            // Serial.print(sht.getTemperature(), 2); Serial.print(","); 
+            // Serial.print(ADS0);Serial.print(",");
+            // Serial.print(sensor_resistance);Serial.print(",");
+            // Serial.print(heater);Serial.print(",");
+            // Serial.print(offset);Serial.print(",");
+            // Serial.print(Output);Serial.print(",");
+            // Serial.println(ntcc); 
+            Serial.println(analogRead(battery_read));
           }
         }
       }
