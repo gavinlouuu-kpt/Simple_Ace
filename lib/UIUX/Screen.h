@@ -33,6 +33,7 @@ void Warmup_Screen();
 void screen_count(int screen_address);
 void leave_sample();
 void show_battery();
+void check_battery();
 #endif
 
 

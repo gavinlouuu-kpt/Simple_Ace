@@ -5,7 +5,7 @@
 #include <Cloud_storage.h>
 #include <Wifi_connection.h>
 
-unsigned long millis_previousCheckTime =0;
+unsigned long millis_previousCheckBattery =0;
 int setup_address = 18;
 
 void setup() {
@@ -24,5 +24,11 @@ void loop()
 {
   PID_control();
   Navigation();
-  
+  if(millis()-millis_previousCheckBattery > 30000)
+  {
+    millis_previousCheckBattery = millis();
+  //display analogread battery power on the center of the screen
+    check_battery();
+    show_battery();
+  }
 }

@@ -27,7 +27,9 @@
 #include "Bubble_5.h"
 #include "Bubble_6.h"
 #include "DefaultSetting.h"
-#include "FullBattary.h"
+#include "Full_battery.h"
+#include "Half_battery.h"
+#include "Low_battery.h"
 #include "Loading.h"
 #include "Pointer.h"
 #include "Return_arrow.h"
@@ -126,38 +128,43 @@ void Reset_coordinate(){
   touch_x = 0;
   touch_y = 0;
 }
-
+void check_battery(){
+  tft.setTextColor(TFT_BLACK,TFT_WHITE);
+  tft.setCursor(120,160);
+  tft.setTextDatum(TC_DATUM);
+  tft.drawString((String)analogRead(battery_read), 120, 160, 2);
+}
 void show_battery(){
-  if(millis()- previous_battery_check > 10000){
+  // if(millis()- previous_battery_check > 10000){
     previous_battery_check = millis();
     //check the state of battery
     //state 1: full
     //state 2: half
     //state 3: low
     //show image of battery conrespond to different state
-    double power = analogRead(battery_read);
+    int16_t power = analogRead(battery_read);
     Serial.println(power);
-    if (power >= 760){
+    if (power >= 650){
       battery_state = 1;
     }
-    else if(power >=730 && power < 760){
+    else if(power >=600 && power < 650){
       battery_state = 2;
     }
-    else if(power >= 710&& power < 730){
+    else if(power < 600){
       battery_state = 3;
     }
-  }
+  // }
  
   if(battery_state == 1){
-    tft.pushImage(208, 10, FullBattaryWidth, FullBattaryHeight, FullBattary);
+    tft.pushImage(208, 10, Full_battery_Width, Full_battery_Height, Full_battery);
     Serial.println("full");
   }
   else if(battery_state == 2){
-      // tft.pushImage(208, 10, HalfBattaryWidth, HalfBattaryHeight, HalfBattary);
+      tft.pushImage(208, 10, Half_battery_Width, Half_battery_Height,Half_battery);
     Serial.println("half");
   }
   else if(battery_state == 3){
-    // tft.pushImage(208, 10, LowBattaryWidth, LowBattaryHeight, LowBattary);
+    tft.pushImage(208, 10, Low_battery_Width,  Low_battery_Height,  Low_battery);
     Serial.println("low");
   }
 }
@@ -460,7 +467,7 @@ void HomeScreen()
   // tft.pushImage(20, 230, BreatheWidth, BreatheHeight, Breathe);
   tft.setTextDatum(TL_DATUM);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
-  tft.drawString("Lets Get Started", 15, 50, 4);
+  tft.drawString("Let's Get Started", 15, 50, 4);
 
   tft.setTextDatum(CC_DATUM);
   tft.setTextColor(TFT_WHITE,TFT_NEIGHBOUR_GREEN);
@@ -551,7 +558,7 @@ void display_developer_menu(){
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,105,210,30,3,TFT_PaleYellow);tft.drawString("Live Plot",30,112,2);
   tft.fillRoundRect(15,185,210,30,3,TFT_PaleYellow);tft.drawString("Print Spiffs",30,192,2);
-  tft.fillRoundRect(15,225,210,30,3,TFT_PaleYellow);tft.drawString("Previous Value",30,232,2);
+  tft.fillRoundRect(15,225,210,30,3,TFT_PaleYellow);tft.drawString("Previous Values",30,232,2);
 
   tft.fillRoundRect(15,145,210,30,3,TFT_PaleYellow);
   tft.drawString("Default Setting",30,152,2);
@@ -561,6 +568,7 @@ void display_live_plot(){
   draw_Settingframework();
   tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE);
   tft.setTextColor(TFT_NEIGHBOUR_GREEN);
+  tft.setTextDatum(TL_DATUM);
   tft.drawString("Live Plot", 15, 50, 4);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
 }
@@ -572,15 +580,15 @@ void display_previous_value(){
   tft.pushImage(0, 280, SettingBarWidth, SettingBarHeight, SettingBar);
   tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
   tft.setTextDatum(TL_DATUM);
-  tft.drawString("Previous Value", 15, 50, 4);
+  tft.drawString("Previous Values", 15, 50, 4);
   int DataCounter = 0;
 
   tft.setTextDatum(CC_DATUM);
   tft.setTextColor(TFT_TextBrown,TFT_NEIGHBOUR_BEIGE );
   tft.drawString("CO2", 80, 100, 2);
   tft.drawString("Acetone", 160, 100, 2);
-  tft.drawString("current", 30, 125, 2);
-  tft.drawString("past", 30, 260, 2);
+  tft.drawString("Recent", 30, 125, 2);
+  tft.drawString("Past", 30, 260, 2);
   retrieve_record();
   for (int i = 0; i < 10; i++)
   {
@@ -1387,8 +1395,8 @@ void Navigation()                     //Naviagtion layer to different functions 
           if (sht.readSample()) {
             // Serial.print(sht.getHumidity(), 2);Serial.print(","); 
             // Serial.print(sht.getTemperature(), 2); Serial.print(","); 
-            // Serial.print(ADS0);Serial.print(",");
-            // Serial.print(sensor_resistance);Serial.print(",");
+            Serial.print(ADS0);Serial.print(",");
+            Serial.print(sensor_resistance);Serial.print(",");
             // Serial.print(heater);Serial.print(",");
             // Serial.print(offset);Serial.print(",");
             // Serial.print(Output);Serial.print(",");
