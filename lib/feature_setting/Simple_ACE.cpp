@@ -130,20 +130,11 @@ int breath_check(){                       //  check if sensor value exceed thres
       return 0;
     }
     PID_control();
-    // if(array_index <500) {
-    //   Sensor_arr[array_index] = ads.readADC_SingleEnded(Sensor_channel);
-    //   array_index++;
-    //   Serial.print("Array_index");Serial.println(array_index);
-    // }
-    // else{
     //shift the value of each entry one position samller, and store the new valuea at the 99th position
       for (int i = 0; i < 499; i++) {
         Sensor_arr[i] = Sensor_arr[i + 1];
       }
      Sensor_arr[499] = ads.readADC_SingleEnded(Sensor_channel);
-
-    // }
-
 
     if(millis() - previoustime > 500){
       if(Sensor_arr[499] - Sensor_arr[399] > 200){  //check if the breathe is present
@@ -278,8 +269,8 @@ void sample_collection(){
     tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
     tft.fillRect(90, 200, 70, 70, TFT_NEIGHBOUR_BEIGE );  //cover loading
     tft.fillRect(0, 280, 240, 40, TFT_NEIGHBOUR_BEIGE );  //cover bar
-    tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
     tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
+    tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
     tft.setTextDatum(TL_DATUM);
     tft.drawString("Get ready", 15,50, 4);
     for(int i =0 ; i< 500; i++){
@@ -289,6 +280,7 @@ void sample_collection(){
     }
     tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
     tft.drawString("Huff for 3 seconds", 15,50, 4);
+    tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
   }
   baseline = breath_check();
   if(leave == true){}
