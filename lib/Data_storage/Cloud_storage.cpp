@@ -289,18 +289,10 @@ void store_data(){
     {
       if (Sensor_arr[i] != 0)
       {
-
-        file.print(Sensor_arr[i]);
-        file.print(',');
-        file.write('\n');
+        file.print(Sensor_arr[i]);file.print(',');file.write('\n');
       }
     }
-    // Serial.print("Saved time in millis: ");Serial.println(millis()-save_time);
-    // Serial.print("File size: ");Serial.println(file.size());
     file.close();
-
-    Serial.println(SPIFFS.usedBytes());
-
     // Read
     // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
     // while(file.available()){

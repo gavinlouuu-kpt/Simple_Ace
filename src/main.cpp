@@ -27,8 +27,8 @@ void loop()
   if(millis()-millis_previousCheckBattery > 30000)
   {
     millis_previousCheckBattery = millis();
-  //display analogread battery power on the center of the screen
-    check_battery();
+    //display analogread battery power on the center of the screen
+    // check_battery();
     show_battery();
   }
 }

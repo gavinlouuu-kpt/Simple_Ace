@@ -757,7 +757,6 @@ void display_device_setting(){
   // tft.drawRoundRect(10, 75, 220, 44, 22, TFT_NEIGHBOUR_BLUE);
   tft.drawString("Columm Temp", 120, 100, 4);
 }
-
 void display_Spiffs_data(int page)
 {
   int buffer_y = 5;
@@ -1133,6 +1132,9 @@ void Navigation()                     //Naviagtion layer to different functions 
           }
           file.close();
         }
+        else{
+          Serial.println("File does not exist");
+        }
       }
       else if (touch_x> 115 && touch_x < 140 && touch_y > 10 && touch_y < 285)
       {
@@ -1145,6 +1147,9 @@ void Navigation()                     //Naviagtion layer to different functions 
             Serial.write(file.read());
           }
           file.close();
+        }
+        else{
+          Serial.println("File does not exist");
         }
       }
        else if (touch_x> 140 && touch_x < 165 && touch_y > 10 && touch_y < 285)
@@ -1159,6 +1164,9 @@ void Navigation()                     //Naviagtion layer to different functions 
           }
           file.close();
         }
+        else{
+          Serial.println("File does not exist");
+        }
       }
        else if (touch_x> 165 && touch_x < 190 && touch_y > 10 && touch_y < 285)
       {
@@ -1172,6 +1180,9 @@ void Navigation()                     //Naviagtion layer to different functions 
           }
           file.close();
         }
+        else{
+          Serial.println("File does not exist");
+        }
       }
        else if (touch_x> 190 && touch_x < 220 && touch_y > 10 && touch_y < 285)
       {
@@ -1184,6 +1195,9 @@ void Navigation()                     //Naviagtion layer to different functions 
             Serial.write(file.read());
           }
           file.close();
+        }
+        else{
+          Serial.println("File does not exist");
         }
       }
     }
