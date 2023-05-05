@@ -130,19 +130,19 @@ int breath_check(){                       //  check if sensor value exceed thres
       return 0;
     }
     PID_control();
-    if(array_index <500) {
-      Sensor_arr[array_index] = ads.readADC_SingleEnded(Sensor_channel);
-      array_index++;
-      Serial.print("Array_index");Serial.println(array_index);
-    }
-    else{
+    // if(array_index <500) {
+    //   Sensor_arr[array_index] = ads.readADC_SingleEnded(Sensor_channel);
+    //   array_index++;
+    //   Serial.print("Array_index");Serial.println(array_index);
+    // }
+    // else{
     //shift the value of each entry one position samller, and store the new valuea at the 99th position
       for (int i = 0; i < 499; i++) {
         Sensor_arr[i] = Sensor_arr[i + 1];
       }
      Sensor_arr[499] = ads.readADC_SingleEnded(Sensor_channel);
 
-    }
+    // }
 
 
     if(millis() - previoustime > 500){
@@ -231,9 +231,9 @@ void forecast_baseline(){        //  forecast baseline drifting based on the fir
   float slope = (mean_2 - mean_1)/200.00;
   float intercept = Sensor_arr[0];
 
-  Serial.print("Value:");Serial.print(mean_2);Serial.print(",");Serial.println(mean_1);
-  Serial.print("Slope:");Serial.println(slope);
-  Serial.print("Intercept:");Serial.println(intercept);
+  // Serial.print("Value:");Serial.print(mean_2);Serial.print(",");Serial.println(mean_1);
+  // Serial.print("Slope:");Serial.println(slope);
+  // Serial.print("Intercept:");Serial.println(intercept);
 
   float min_error = 1000;
   for(int i =1; i<11;i++){
@@ -244,13 +244,13 @@ void forecast_baseline(){        //  forecast baseline drifting based on the fir
       error += abs(y - Sensor_arr[j]);
     }
     error/=400;
-    Serial.print("Error gain");Serial.print(i); Serial.print(":");Serial.println(error);
+    Serial.print("Error gain ");Serial.print(i); Serial.print(":");Serial.println(error);
     //check the minimum error
     if(error < min_error){
       min_error = error;
       slope_g = slope*i/10.00;
-      Serial.print("gained Slope:");Serial.println(slope_g);
     }
+    Serial.print("gained Slope:");Serial.println(slope_g);
   }
 }
 
@@ -281,6 +281,13 @@ void sample_collection(){
     tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
     tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
     tft.setTextDatum(TL_DATUM);
+    tft.drawString("Get ready", 15,50, 4);
+    for(int i =0 ; i< 500; i++){
+      PID_control();
+      Sensor_arr[i]=ads.readADC_SingleEnded(Sensor_channel);
+      draw_sensor(Sensor_arr[i]);
+    }
+    tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
     tft.drawString("Huff for 3 seconds", 15,50, 4);
   }
   baseline = breath_check();
