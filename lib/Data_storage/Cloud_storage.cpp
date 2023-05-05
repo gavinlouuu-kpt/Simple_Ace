@@ -59,6 +59,7 @@ const char* ntpServer = "pool.ntp.org";
 uint8_t file_index = 0;
 int h =178;
 int w = 75;
+uint8_t file_no = 13;
 String macadddress = WiFi.macAddress();
 String name = "Francis";
 String sex = "M";
@@ -209,9 +210,9 @@ void store_data(){
       millisPreviousTime = millis();
       //Check first file
       configTime(gmtOffset_sec, 0, ntpServer);
-      for(int i = 0; i <20 ;i++){                         //check if 20 files exist, and upload them to firebase
+      for(int i = 0; i <file_no ;i++){                         //check if 20 files exist, and upload them to firebase
         String upload_file_dir = "/Dataset_";
-        upload_file_dir.concat((String)(i % 20 + 1));
+        upload_file_dir.concat((String)(i % file_no + 1));
         if (Firebase.ready() && SPIFFS.exists(upload_file_dir.c_str()))
         {
           File file = SPIFFS.open(upload_file_dir.c_str());
@@ -266,7 +267,7 @@ void store_data(){
     EEPROM.begin(512);
     EEPROM.get(index_address, file_index);
     delay(500); 
-    file_dir.concat((String)(file_index%20 +1));
+    file_dir.concat((String)(file_index%file_no +1));
     file_index++;
     EEPROM.put(index_address, file_index);
     delay(100); 
@@ -292,6 +293,7 @@ void store_data(){
         file.print(Sensor_arr[i]);file.print(',');file.write('\n');
       }
     }
+    Serial.print("File size: ");Serial.print(file.size());
     file.close();
     // Read
     // file = SPIFFS.open(file_dir.c_str(),FILE_READ);
@@ -299,6 +301,7 @@ void store_data(){
     //   Serial.write(file.read());
     // }
     // file.close();
+    Serial.print(",");Serial.print(SPIFFS.usedBytes());Serial.print(",");Serial.print("Total space: ");Serial.println(SPIFFS.totalBytes());
   }
   Wifi_disable();
 }
