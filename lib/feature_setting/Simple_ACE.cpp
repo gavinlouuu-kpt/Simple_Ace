@@ -205,6 +205,7 @@ void restore_baseline(){                        //  restore baseline before a br
   }
 }
 float slope_g= 0;
+float intercept_g = 0;
 void forecast_baseline(){        //  forecast baseline drifting based on the first 100 datapoints  
   //find the mean of the first 200 data point in sensor_arr
   float mean_1 = 0;
@@ -220,7 +221,6 @@ void forecast_baseline(){        //  forecast baseline drifting based on the fir
 
   //find the smoothened slope of the first 400 datapoint
   float slope = (mean_2 - mean_1)/200.00;
-  float intercept = Sensor_arr[0];
 
   // Serial.print("Value:");Serial.print(mean_2);Serial.print(",");Serial.println(mean_1);
   // Serial.print("Slope:");Serial.println(slope);
@@ -230,6 +230,7 @@ void forecast_baseline(){        //  forecast baseline drifting based on the fir
   for(int i =1; i<11;i++){
     //calculate the mean absolute error of first 400 sample, compare the original data and the linear function
     float error = 0;
+    float intercept = Sensor_arr[199]- slope*i/10.00 * 200;;  
     for(int j = 0; j<400; j++){
       float y = slope*i/10.00 * j + intercept;
       error += abs(y - Sensor_arr[j]);
@@ -240,13 +241,15 @@ void forecast_baseline(){        //  forecast baseline drifting based on the fir
     if(error < min_error){
       min_error = error;
       slope_g = slope*i/10.00;
+      intercept_g = intercept;
     }
+    Serial.print("gained :");Serial.println(slope_g/slope);
     Serial.print("gained Slope:");Serial.println(slope_g);
   }
 }
 
 float compensate_drifting(int16_t x){
-  float baseline = slope_g * (float)x + (float)Sensor_arr[0];
+  float baseline = slope_g * (float)x + intercept_g;
   Serial.print("baseline:");Serial.println(baseline);
   return baseline;
 }
