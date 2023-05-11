@@ -1,37 +1,25 @@
 #ifndef Simple_ACE_h 
 #define Simple_ACE_h
 
-//Wrover 2.8" display///////////////////////////////////////////////      
-#define colPin_1            26
-#define colPin_2            13
-#define pumpPin_1           27
-#define pumpPin_2           32
- 
+#define colPin_1            27
+#define pumpPin_1           26
+#define solenoidPin           23
+
 #define buz                 13
 #define btn_rst             39
 #define btn_1               36
 #define BOOT                0
-#define sensor_heater       25
-#define battery_EN          12
-#define battery_read        34
-
-// //Wrover IB///////////////////////////////////////////////////
-// #define pumpPin             32  
-// #define solPin              33
-// #define buz                 13
-// #define colPin              27  
-// #define btn_rst             39
-// #define btn_1               36
-// #define NTCC                34
-// #define BOOT                0
-// #define Off_s               26
-// #define senH                25
+#define sensor_heater       14
+#define sensor_heater_pulsing   12
+#define SDA_pin             32
+#define SCL_pin             33
 
 #define baseline_window     50
-#define Offset_channel  	0 //raw adc
-#define Sensor_channel  	1 //raw adc
-#define Heater_channel  	2 //raw adc
-#define NTCC_channel        3 //raw adc
+
+#define Offset_channel  	2 //raw adc
+#define Sensor_channel  	0 //raw adc
+#define Heater_channel  	1 //raw adc
+#define NTCC_channel      3 //raw adc
 
 #define pumpChannel_1 		0
 #define pumpChannel_2 		1

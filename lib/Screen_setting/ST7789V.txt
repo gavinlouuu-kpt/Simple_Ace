@@ -273,14 +273,14 @@
 // #define TFT_BL   13  // LED back-light
 // #define TOUCH_CS 33
 
-#define TFT_MISO 19
-#define TFT_MOSI 23 // In some display driver board, it might be written as "SDA" and so on.
-#define TFT_SCLK 18
-#define TFT_CS   5 // Chip select control pin
-#define TFT_DC   2  // Data Command control pin
-#define TFT_RST  4 // Reset pin (could connect to Arduino RESET pin)
-#define TFT_BL   15  // LED back-light
-#define TOUCH_CS 14
+#define TFT_MISO 21
+#define TFT_MOSI 19 // In some display driver board, it might be written as "SDA" and so on.
+#define TFT_SCLK 4
+#define TFT_CS   18 // Chip select control pin
+#define TFT_DC   5  // Data Command control pin
+#define TFT_RST  2 // Reset pin (could connect to Arduino RESET pin)
+#define TFT_BL   22  // LED back-light
+#define TOUCH_CS 15
 
 // ######       EDIT THE PINs BELOW TO SUIT YOUR STM32 SPI TFT SETUP        ######
 

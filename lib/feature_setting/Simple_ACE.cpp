@@ -38,7 +38,7 @@ SHTSensor sht(SHTSensor::SHT4X);
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
 
-uint8_t dutyCycle_pump = 120;         
+uint8_t dutyCycle_pump = 80;         
 int baseline = 0;
 bool fail_count = false;
 uint8_t millisUnitTime = 0;  
@@ -48,29 +48,22 @@ int temp_peak_poisition = 0;
 
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
-  pinMode(pumpPin_2,OUTPUT);
   pinMode(colPin_1,OUTPUT);
-  pinMode(colPin_2,OUTPUT);
   pinMode(sensor_heater,OUTPUT);
-  pinMode(battery_EN, OUTPUT);
   pinMode(btn_rst, INPUT);
-  pinMode(battery_read,INPUT);
-
-  digitalWrite(battery_EN,1);           //  enable battery monitor
+        //  enable battery monitor
   dacWrite(sensor_heater,0);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
   ledcSetup(pumpChannel_1, freq, resolution);
   ledcSetup(pumpChannel_2, freq, resolution);
   ledcAttachPin(pumpPin_1,pumpChannel_1);
-  ledcAttachPin(pumpPin_2,pumpChannel_2);
   ledcAttachPin(colPin_1,colChannel_1);
-  ledcAttachPin(colPin_2,colChannel_2);
 }
 
 
 void checkSetup(){
-  if (!Wire.begin(21,22)) {
+  if (!Wire.begin(SDA_pin,SCL_pin)) {
   Serial.println("Failed to initialize wire library");
   while (1);
   }
@@ -111,11 +104,11 @@ void pump_control(bool control){
 
 void sensor_heater_control(bool control){
   if(control == true){
-    dacWrite(sensor_heater,255);
+    digitalWrite(sensor_heater,255);
     Serial.println("Sensor Heater On");
   }
   else{
-    dacWrite(sensor_heater,0);
+    digitalWrite(sensor_heater,0);
     Serial.println("Sensor Heater Off");
   }
 }
