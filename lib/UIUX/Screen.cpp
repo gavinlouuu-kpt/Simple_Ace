@@ -132,7 +132,7 @@ void check_battery(){
   tft.setTextColor(TFT_BLACK,TFT_WHITE);
   tft.setCursor(120,160);
   tft.setTextDatum(TC_DATUM);
-  tft.drawString((String)analogRead(battery_read), 120, 160, 2);
+  // tft.drawString((String)analogRead(battery_read), 120, 160, 2);
 }
 void show_battery(){
   // if(millis()- previous_battery_check > 10000){
@@ -142,7 +142,7 @@ void show_battery(){
     //state 2: half
     //state 3: low
     //show image of battery conrespond to different state
-    int16_t power = analogRead(battery_read);
+    int16_t power = 0;
     Serial.println(power);
     if (power >= 650){
       battery_state = 1;
@@ -1415,7 +1415,7 @@ void Navigation()                     //Naviagtion layer to different functions 
             // Serial.print(offset);Serial.print(",");
             // Serial.print(Output);Serial.print(",");
             // Serial.println(ntcc); 
-            Serial.println(analogRead(battery_read));
+            // Serial.println(analogRead(battery_read));
           }
         }
       }
