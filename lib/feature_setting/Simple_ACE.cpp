@@ -16,17 +16,17 @@
 #include <TFT_eSPI.h>
 #include "Return_arrow_flip.h"
 
-double baselineRead(int channel); //average out baseline candidate
-void restore_baseline();           //define sensor baseline for new set of gas data        
-int breath_check();              //  check if sensor value exceed threshold
-void checkSetup(void);            //  initialize I2C protocol,EEPROM and SPIFFS memory, PID control
-void forecast_baseline();         //  predict baseline for dataset
-void output_result();             //  return sensor response in ratio
-void pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
-void pump_control(bool control);  //  functions conrol high and low of the pump
-void sample_collection();         //  integrate function to analysis one gas sample
-void storing_data();              // background storage of gas data into Firebase/ local SPIFFS
-void sensor_heater_control(bool control); //  control sensor heater power
+double  baselineRead(int channel); //average out baseline candidate
+void    restore_baseline();           //define sensor baseline for new set of gas data        
+int     breath_check();              //  check if sensor value exceed threshold
+void    checkSetup(void);            //  initialize I2C protocol,EEPROM and SPIFFS memory, PID control
+void    forecast_baseline();         //  predict baseline for dataset
+void    output_result();             //  return sensor response in ratio
+void    pinSetup(void);              //  define pin cofig for pump, sensor, and sensor heater
+void    pump_control(bool control);  //  functions conrol high and low of the pump
+void    sample_collection();         //  integrate function to analysis one gas sample
+void    storing_data();              // background storage of gas data into Firebase/ local SPIFFS
+void    sensor_heater_control(bool control); //  control sensor heater power
 
 uint8_t lifecount_address = 10;        
 
@@ -51,7 +51,6 @@ void pinSetup(){
   pinMode(colPin_1,OUTPUT);
   pinMode(sensor_heater,OUTPUT);
   pinMode(btn_rst, INPUT);
-        //  enable battery monitor
   dacWrite(sensor_heater,0);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
@@ -320,10 +319,10 @@ int find_peak_value(int address, int unittime) {
   int peak_time = 0;
   EEPROM.begin(20);
   peak_position =  EEPROM.get(address, peak_time)/unittime;
-  int check_peak_start = peak_position+500 - 200;
+  int check_peak_start = peak_position+500 - 400;
   delay(100); 
   if(check_peak_start < 0){check_peak_start = 0;}
-  int check_peak_end = peak_position+500 + 200;
+  int check_peak_end = peak_position+500 + 400;
   delay(100);
   EEPROM.end();
   printf("check_peak_start: %d , check_peak_end: %d\n", (int)check_peak_start, (int)check_peak_end);
