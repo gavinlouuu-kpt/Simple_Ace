@@ -3,7 +3,7 @@
 
 #define colPin_1            27
 #define pumpPin_1           26
-#define solenoidPin           23
+#define solenoidPin          23
 
 #define buz                 13
 #define btn_rst             39
@@ -31,7 +31,7 @@
 #define store_size 			2400 //Number of data collect within sample time //
 #define wait_time           10000   // Time for the sensor take reading (seconds)//
 
-const int freq = 20000;
+const int freq = 16000;
 const int resolution = 8;
 const double LSB = 0.125 / 1000;
 const int sampletime = 80000;       //60000

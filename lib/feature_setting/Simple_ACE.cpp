@@ -38,7 +38,7 @@ SHTSensor sht(SHTSensor::SHT4X);
 short Sensor_arr[store_size]={0};
 short temporal_baseline = 0;
 
-uint8_t dutyCycle_pump = 80;         
+int dutyCycle_pump = 80;         
 int baseline = 0;
 bool fail_count = false;
 uint8_t millisUnitTime = 0;  
@@ -49,6 +49,8 @@ int temp_peak_poisition = 0;
 void pinSetup(){
   pinMode(pumpPin_1,OUTPUT);
   pinMode(colPin_1,OUTPUT);
+  pinMode(solenoidPin,OUTPUT);
+  digitalWrite(solenoidPin,LOW);
   pinMode(sensor_heater,OUTPUT);
   pinMode(btn_rst, INPUT);
   dacWrite(sensor_heater,0);             //  enable senosr heater
@@ -84,6 +86,8 @@ void checkSetup(){
     while (1);
   }
   PID_setup();
+  pump_control(false);
+  sensor_heater_control(false);
   Serial.println("Setup Complete."); 
 }
 
@@ -145,6 +149,9 @@ double baselineRead(int channel) {
   int toSort[baseline_window];
   float mean = 0;
   for (int i = 0; i < baseline_window; ++i ) {
+    if(i %10 ==0){
+      PID_control();
+    }
     toSort[i] = ads.readADC_SingleEnded(channel);
     //     Sensor_arr[counting] =ads.readADC_SingleEnded(Sensor_channel);
     // counting++;
@@ -172,13 +179,13 @@ void restore_baseline(){                        //  restore baseline before a br
       Serial.println("escape");
       break;
     }
-    PID_control();
+
     display_loading(loading_index);loading_index ++;
     temporal_read = baselineRead(Sensor_channel);
-    Serial.print("Temp value:");Serial.println(temporal_read);
     reference_read = baselineRead(Sensor_channel);
-    Serial.print("Ref value:");Serial.println(reference_read);
     slope = (temporal_read - reference_read)/0.5; // timelapse of two value retrieved
+    // Serial.print("Temp value:");Serial.println(temporal_read);
+    // Serial.print("Ref value:");Serial.println(reference_read);
     Serial.print("Slope:");Serial.println(slope);
     if (abs(slope) < 8) { //wait baseline drop flat, change according to the strigency of your baseline
       flat_slope[flat_count] = slope;
