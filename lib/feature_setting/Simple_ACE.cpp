@@ -257,9 +257,9 @@ void sample_collection(){
   int a = 0;
   float bar_time;
   float bar_percentage;
-  // int data_size = 250;
   int data_size = 500;
   short adc_CO2;
+  
   pump_control(true);
   sensor_heater_control(true);
   for(int i =0; i<store_size; i++){Sensor_arr[i]=0;}
@@ -287,7 +287,6 @@ void sample_collection(){
   baseline = breath_check();
   if(leave == true){}
   else{
-    // isStore = true;
     int previousDrawLoad = 0;
     tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
     long millisStartSample = millis();
@@ -299,6 +298,19 @@ void sample_collection(){
 
       if (millis()-previousDrawLoad >10){ 
         Sensor_arr[data_size]= ads.readADC_SingleEnded(Sensor_channel);
+        float baseline_f = slope_g*data_size  + intercept_g;        // convert to sensor_arr value into resistance
+        sensor_voltage= ads.computeVolts(Sensor_arr[data_size]);
+        baseline_voltage = ads.computeVolts((short)baseline_f);
+
+        sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
+        baseline_resistance = ((load_resistance * input_voltage)/baseline_voltage) - load_resistance;
+
+        // Serial.print(Sensor_arr[data_size]);Serial.print(",");
+        Serial.print(sensor_resistance);Serial.print(",");
+        // Serial.print(baseline_f);Serial.print(",");
+        Serial.println(baseline_resistance);
+
+
         draw_sensor(Sensor_arr[data_size]); 
         data_size ++;
         previousDrawLoad = millis();
