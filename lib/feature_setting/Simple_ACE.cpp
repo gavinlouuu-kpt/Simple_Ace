@@ -53,7 +53,6 @@ void pinSetup(){
   digitalWrite(solenoidPin,LOW);
   pinMode(sensor_heater,OUTPUT);
   pinMode(btn_rst, INPUT);
-  dacWrite(sensor_heater,0);             //  enable senosr heater
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
   ledcSetup(pumpChannel_1, freq, resolution);
@@ -287,6 +286,12 @@ void sample_collection(){
   baseline = breath_check();
   if(leave == true){}
   else{
+    double load_resistance = 47000;
+    double input_voltage = 3.3;
+    double sensor_resistance = 0;
+    double baseline_resistance = 0;
+    double sensor_voltage = 0;
+    double baseline_voltage = 0;
     int previousDrawLoad = 0;
     tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
     long millisStartSample = millis();
@@ -305,11 +310,8 @@ void sample_collection(){
         sensor_resistance = ((load_resistance * input_voltage)/sensor_voltage) - load_resistance;
         baseline_resistance = ((load_resistance * input_voltage)/baseline_voltage) - load_resistance;
 
-        // Serial.print(Sensor_arr[data_size]);Serial.print(",");
         Serial.print(sensor_resistance);Serial.print(",");
-        // Serial.print(baseline_f);Serial.print(",");
         Serial.println(baseline_resistance);
-
 
         draw_sensor(Sensor_arr[data_size]); 
         data_size ++;

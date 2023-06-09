@@ -1211,11 +1211,10 @@ void Navigation()                     //Naviagtion layer to different functions 
     }
 
     if (stage == select_user_profile){     // user_setup
-      
       tft.setTextDatum(CC_DATUM);
       display_profile_filenumber();
       tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-      tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_BEIGE);  //cover file number
+      tft.fillRect(90, 80, 70, 30, TFT_NEIGHBOUR_BEIGE);  //cover file number
       tft.drawNumber(profileNumber_int, 120, 160, 4);
       printf("%d\n", profileNumber_int);
 
