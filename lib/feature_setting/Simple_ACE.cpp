@@ -52,6 +52,7 @@ void pinSetup(){
   pinMode(solenoidPin,OUTPUT);
   digitalWrite(solenoidPin,LOW);
   pinMode(sensor_heater,OUTPUT);
+  pinMode(sensor_heater_pulsing,OUTPUT);
   pinMode(btn_rst, INPUT);
   ledcSetup(colChannel_1, 5000, 8);
   ledcSetup(colChannel_2, 5000, 8);
@@ -152,6 +153,7 @@ double baselineRead(int channel) {
       PID_control();
     }
     toSort[i] = ads.readADC_SingleEnded(channel);
+    // Serial.println(ads.readADC_SingleEnded(Sensor_channel));
   }
   for (int i = 0; i < baseline_window; ++i) {
     mean += toSort[i];
@@ -250,6 +252,27 @@ float compensate_drifting(int16_t x){
   return baseline;
 }
 
+void heater_pulsing(){
+  unsigned long millisStartSample = millis();
+  while (millis() - millisStartSample <= 10000) {
+    PID_control();
+    // Serial.println(ads.readADC_SingleEnded(Sensor_channel));
+  }
+  millisStartSample = millis();
+  digitalWrite(sensor_heater_pulsing,255);
+  delay(100);
+  digitalWrite(sensor_heater,0);
+  delay(100);
+  while(millis() - millisStartSample <= 10000){
+    PID_control();
+    // Serial.println(ads.readADC_SingleEnded(Sensor_channel));
+  }
+  digitalWrite(sensor_heater_pulsing,0);
+  delay(100);
+  digitalWrite(sensor_heater,255);
+  delay(100);
+}
+
 void sample_collection(){
   int a = 0;
   float bar_time;
@@ -262,6 +285,7 @@ void sample_collection(){
   for(int i =0; i<store_size; i++){Sensor_arr[i]=0;}
 
   leave = false;
+  heater_pulsing();
   restore_baseline();
   if(leave == true){}
   else{
@@ -271,13 +295,13 @@ void sample_collection(){
     tft.setTextColor(TFT_NEIGHBOUR_GREEN, TFT_NEIGHBOUR_BEIGE);
     tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
     tft.setTextDatum(TL_DATUM);
-    tft.drawString("Get ready", 15,50, 4);
+    // tft.drawString("Get ready", 15,50, 4);
     for(int i =0 ; i< 500; i++){
       PID_control();
       Sensor_arr[i]=ads.readADC_SingleEnded(Sensor_channel);
       draw_sensor(Sensor_arr[i]);
     }
-    tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
+    // tft.fillRect(0,30,240,60,TFT_NEIGHBOUR_BEIGE);        //cover initlaizing
     tft.drawString("Huff for 3 seconds", 15,50, 4);
     tft.pushImage(15, 80, Return_arrow_flip_width, Return_arrow_flip_height, Return_arrow_flip);
   }
