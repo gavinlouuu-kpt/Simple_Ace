@@ -21,8 +21,6 @@
 /* 4. Define the user Email and password that alreadey registerd or added in your project */
 #define USER_EMAIL "chichungchan91@gmail.com"
 #define USER_PASSWORD "121688"
-#define filenumber 8
-#define filesize  256
 #define GMT_offset 8
 
 extern Adafruit_ADS1115 ads;
@@ -57,13 +55,15 @@ const char* password = WIFI_PASSWORD;
 const char* ntpServer = "pool.ntp.org";
 
 uint8_t file_index = 0;
-int h =178;
-int w = 75;
+int     h = 178;
+int     w = 75;
+int     file_size = 512;
+uint8_t sub_file = 5;
 uint8_t file_no = 13;
-String macadddress = WiFi.macAddress();
-String name = "Francis";
-String sex = "M";
-String sensor_dir = "/Sensor_update";
+String  macadddress = WiFi.macAddress();
+String  name = "Francis";
+String  sex = "M";
+String  sensor_dir = "/Sensor_update";
 unsigned long millisPreviousUpdate = 0;
 
 void setLocalTime(){
@@ -139,7 +139,7 @@ String UnixConvert(unsigned long t){
   sampletime.concat(minute());
   sampletime.concat(":");
   sampletime.concat(second());
-  Serial.print("Date: ");Serial.print(day());Serial.print("/");Serial.print(month());Serial.print("/");Serial.print(year());Serial.print(" ");Serial.print(hour());Serial.print(":");Serial.print(minute());Serial.print(":");Serial.println(second());
+  Serial.print("Date: ");Serial.print(day());Serial.print("/");Serial.print(month());Serial.print("/");Serial.print(year());Serial.print(" ");Serial.print(time_hour);Serial.print(":");Serial.print(minute());Serial.print(":");Serial.println(second());
   return sampletime;
 }
 
@@ -157,6 +157,7 @@ void store_personalinfo(String namee, String sx, int height, int weight){
   Serial.println(info_dir);
   const char *filename = info_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((filename)), &personal_information);
+  delay(10);
 }
 
 void upload_data(String namee,unsigned long tim ,int number){
@@ -196,6 +197,7 @@ void store_default(unsigned long tim){
 
   const char *setting = default_dir.c_str();
   Firebase.RTDB.setJSON(&fbdo, F((setting)), &default_array);
+  delay(10);
 }
 
 void store_data(){
@@ -219,8 +221,8 @@ void store_data(){
           String data = "0";
           millisUnixTime= getTime();       
           printf("%d\n",millisUnixTime);
-            for (int j = 0; j < 8; j++){
-              for (int i = 0; i <256; i++){ 
+            for (int j = 0; j < sub_file; j++){
+              for (int i = 0; i < file_size; i++){ 
                 if(file.read() != 0){
                   data = file.readStringUntil(',');
                   data_array.add(data);
@@ -241,14 +243,19 @@ void store_data(){
         millisUnixTime= getTime(); 
         printf("%d\n",millisUnixTime);
         store_default(millisUnixTime);
-        int value = 0.00;
-        for (int j = 0; j < 8; j++){
-          for (int i = 0; i < 256; i++){ 
-            if(Sensor_arr[j*256+i] != 0){
-              value = Sensor_arr[j*256+i];
+        int value = 0;
+        for (int j = 0; j < sub_file; j++){
+          for (int i = 0; i < file_size; i++){ 
+            if(j*file_size+i >= store_size){
+              break;
+            }
+            if(Sensor_arr[j*file_size+i] != 0){
+              value = Sensor_arr[j*file_size+i];
               data_array.add(value);
+              Serial.print("uploading: ");Serial.println(j*file_size+i);
             } 
           }
+          Serial.print("Size of arrray:"  );Serial.println(data_array.size());
           upload_data(name,millisUnixTime,j);
           delay(10);
         }
@@ -303,7 +310,8 @@ void store_data(){
     // file.close();
     Serial.print(",");Serial.print(SPIFFS.usedBytes());Serial.print(",");Serial.print("Total space: ");Serial.println(SPIFFS.totalBytes());
   }
-  Wifi_disable();
+  // Wifi_disable();
+  WiFi.disconnect(true,true);
 }
 
 void update_sensor(){                     //deprecated
