@@ -40,6 +40,9 @@
 #include "Wifi_Off.h"
 #include "WifiButtonOn.h"
 #include "WifiButtonOff.h"
+#include "User_ID.h"
+#include "Profile_decrease.h"
+#include "Profile_increase.h"
 
 void tft_setup();                         //initialize TFT screen
 void draw_framework();
@@ -65,7 +68,7 @@ void display_profile_filenumber();
 void display_pump_selectDutycycle();
 void display_start_button();
 void display_sampling_init();
-void display_setup_profile_select();
+void display_setup_profile();
 void display_setup_pump();
 void display_setup_PID();
 void display_Spiffs_data(int page);
@@ -144,15 +147,16 @@ void show_battery(){
     //show image of battery conrespond to different state
     int16_t power = 0;
     Serial.println(power);
-    if (power >= 650){
-      battery_state = 1;
-    }
-    else if(power >=600 && power < 650){
-      battery_state = 2;
-    }
-    else if(power < 600){
-      battery_state = 3;
-    }
+    battery_state = 1;
+    // if (power >= 650){
+    //   battery_state = 1;
+    // }
+    // else if(power >=600 && power < 650){
+    //   battery_state = 2;
+    // }
+    // else if(power < 600){
+    //   battery_state = 3;
+    // }
   // }
  
   if(battery_state == 1){
@@ -496,10 +500,10 @@ void display_menu(){
   tft.setTextColor(TFT_TextBrown ,TFT_PaleYellow);
   tft.fillRoundRect(15,100,210,30,3,TFT_PaleYellow);tft.drawString("Wifi",30,107,2);
   tft.fillRoundRect(15,240,210,30,3,TFT_PaleYellow);tft.drawString("Developer Mode",30,247,2);
+  tft.fillRoundRect(15,170,210,30,3,TFT_PaleYellow);tft.drawString("User ID",30,177,2);
 
   tft.setTextColor(TFT_BLACK,TFT_DARKGREY);
   tft.fillRoundRect(15,140,210,30,3,TFT_DARKGREY);tft.drawString("Calibration",30,147,2);
-  tft.fillRoundRect(15,170,210,30,3,TFT_DARKGREY);tft.drawString("User ID",30,177,2);
   tft.fillRoundRect(15,200,210,30,3,TFT_DARKGREY);tft.drawString("Language",30,207,2);
 
   delay(300);
@@ -649,27 +653,25 @@ void display_bluetooth(){
   tft.drawString("Bluetooth", 120, 30, 4);
 }
 
-void display_setup_profile_select(){
+void display_setup_profile(){
   Reset_coordinate();
-  tft.fillScreen(TFT_NEIGHBOUR_GREEN);
-  // tft.pushImage(setting_x, setting_y, settingWidth, settingHeight, setting);
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
-  tft.setTextDatum(4);
-  tft.drawString("UserID", 120, 40, 4);
+  draw_framework();
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(TFT_NEIGHBOUR_GREEN,TFT_NEIGHBOUR_BEIGE );
+  tft.drawString("User ID", 15, 50, 4);
+  tft.pushImage(73, 105, UserIDWidth, UserIDHeight, UserID); 
 
-  tft.fillRect(10, 140, 100, 100, TFT_RED);
-  tft.drawRect(10, 140, 100, 100, TFT_NEIGHBOUR_BEIGE);
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_RED);
-  tft.drawString("-", 60, 190, 8);
+  tft.pushImage(20, 155,Profile_decrease_Width,Profile_decrease_Height,Profile_decrease); 
 
-  tft.fillRect(130, 140, 100, 100, TFT_GREEN);
-  tft.drawRect(130, 140, 100, 100, TFT_NEIGHBOUR_BEIGE);
-  tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_GREEN);
-  tft.drawString("+", 180, 190, 4);
+  tft.pushImage(195, 155,Profile_increase_Width,Profile_increase_Height,Profile_increase); 
 
-  tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BEIGE);
-  tft.fillRoundRect(8, 264, 60, 46, 23, TFT_NEIGHBOUR_BEIGE);
-  tft.drawString("Set", 38, 287, 2);
+
+  tft.setTextDatum(CC_DATUM);
+  tft.setTextColor(TFT_NEIGHBOUR_BEIGE,TFT_NEIGHBOUR_GREEN);
+  tft.fillRoundRect(20,230,200,30,3,TFT_NEIGHBOUR_GREEN);
+  tft.drawString("SET",120, 245,2);
+
+
 }
 
 void display_setup_pump()
@@ -957,7 +959,13 @@ void Navigation()                     //Naviagtion layer to different functions 
           display_calibration();
         }
       }
-
+      
+      if (touch_x > 129 && touch_x < 149 && touch_y > 10 && touch_y < 290) // Calibration
+      {
+          stage = select_user_profile;
+          display_setup_profile();
+        }
+        
       if (touch_x > 220 && touch_x < 240 && touch_y > 220 && touch_y < 320) // Return
       {
         stage = homescreen;
@@ -1203,23 +1211,29 @@ void Navigation()                     //Naviagtion layer to different functions 
     }
 
     if (stage == select_user_profile){     // user_setup
-      tft.setTextDatum(4);
-      tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+      
+      tft.setTextDatum(CC_DATUM);
       display_profile_filenumber();
-      tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_GREEN);  //cover file number
-      tft.drawNumber(profileNumber_int, 120, 100, 4);
+      tft.setTextColor(TFT_NEIGHBOUR_BEIGE, TFT_NEIGHBOUR_GREEN);
+      tft.fillRect(100, 80, 50, 30, TFT_NEIGHBOUR_BEIGE);  //cover file number
+      tft.drawNumber(profileNumber_int, 120, 160, 4);
       printf("%d\n", profileNumber_int);
 
-      if (touch_x > 195 && touch_x < 240 && touch_y > 220 && touch_y < 305){    // define file number
-        profileNumber = (String)profileNumber_int;
-        tft.setTextColor(TFT_BLACK, TFT_NEIGHBOUR_BLUE);
-        tft.fillRoundRect(8, 264, 60, 46, 23, TFT_NEIGHBOUR_BLUE); // change colour
-        delay(200);
-        tft.drawString("Set", 38, 287, 2);
-        delay(500);
+      if (touch_x > 65 && touch_x < 80 && touch_y > 270 && touch_y < 295){
         display_menu();
+        delay(150);
+        Reset_coordinate();
         stage = setting_menu;
       }
+
+      if (touch_x > 180 && touch_x < 200 && touch_y > 5 && touch_y < 200){    // define file number
+        profileNumber = (String)profileNumber_int;
+        display_menu();
+        delay(150);
+        Reset_coordinate();
+        stage = setting_menu;
+      }
+
     }
 
     if (stage == device_setting){
@@ -1406,17 +1420,17 @@ void Navigation()                     //Naviagtion layer to different functions 
           }
           extern double Output;
           
-          if (sht.readSample()) {
+          // if (sht.readSample()) {
             // Serial.print(sht.getHumidity(), 2);Serial.print(","); 
             // Serial.print(sht.getTemperature(), 2); Serial.print(","); 
             Serial.print(ADS0);Serial.print(",");
             Serial.print(sensor_resistance);Serial.print(",");
-            // Serial.print(heater);Serial.print(",");
-            // Serial.print(offset);Serial.print(",");
-            // Serial.print(Output);Serial.print(",");
-            // Serial.println(ntcc); 
+            Serial.print(heater);Serial.print(",");
+            Serial.print(offset);Serial.print(",");
+            Serial.print(Output);Serial.print(",");
+            Serial.println(ntcc); 
             // Serial.println(analogRead(battery_read));
-          }
+          // }
         }
       }
       display_developer_menu();
