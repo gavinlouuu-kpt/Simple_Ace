@@ -152,8 +152,6 @@ double baselineRead(int channel) {
       PID_control();
     }
     toSort[i] = ads.readADC_SingleEnded(channel);
-    //     Sensor_arr[counting] =ads.readADC_SingleEnded(Sensor_channel);
-    // counting++;
   }
   for (int i = 0; i < baseline_window; ++i) {
     mean += toSort[i];
@@ -286,15 +284,16 @@ void sample_collection(){
   baseline = breath_check();
   if(leave == true){}
   else{
-    double load_resistance = 47000;
-    double input_voltage = 3.3;
-    double sensor_resistance = 0;
-    double baseline_resistance = 0;
-    double sensor_voltage = 0;
-    double baseline_voltage = 0;
-    int previousDrawLoad = 0;
+    double  load_resistance = 47000;
+    double  input_voltage = 3.3;
+    double  sensor_resistance = 0;
+    double  baseline_resistance = 0;
+    double  sensor_voltage = 0;
+    double  baseline_voltage = 0;
+    int     previousDrawLoad = 0;
     tft.fillRect(0, 200, 240, 70, TFT_NEIGHBOUR_BEIGE );
     long millisStartSample = millis();
+    forecast_baseline();
     while (millis() - millisStartSample <= sampletime + 1) {
       int time =0 ;
       bar_time = millis() - (float)millisStartSample;
